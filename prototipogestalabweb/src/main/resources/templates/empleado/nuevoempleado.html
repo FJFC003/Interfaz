@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="/plantilla/plantilla">
+
+<head>
+    <title>Nuevo Empleado - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <!-- Page Heading -->
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-user-plus"></i> Registrar Nuevo Empleado</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/empleado/guardar}" th:object="${empleado}" method="POST">
+                            
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="nombre" class="form-control-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="apellido" class="form-control-label">Apellido</label>
+                                    <input type="text" class="form-control" id="apellido" th:field="*{apellido}" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="ci" class="form-control-label">Cédula</label>
+                                    <input type="text" class="form-control" id="ci" th:field="*{ci}" placeholder="Ej: 1234567890" required>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="correo" class="form-control-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correo" th:field="*{correo}" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="direccion" class="form-control-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" th:field="*{direccion}">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fechaIngreso" class="form-control-label">Fecha de Ingreso</label>
+                                    <input type="date" class="form-control" id="fechaIngreso" th:field="*{fechaIngreso}" required>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="estadoEmpleado" class="form-control-label">Estado</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="estadoEmpleado" th:field="*{estadoEmpleado}" checked>
+                                        <label class="custom-control-label" for="estadoEmpleado">Activo</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <a href="/empleado/listar" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

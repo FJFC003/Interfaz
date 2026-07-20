@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="/plantilla/plantilla">
+
+<head>
+    <title>Nuevo Cargo - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <!-- Page Heading -->
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-plus"></i> Registrar Nuevo Cargo</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/cargo/actualizar/{id}" th:object="${cargo}" method="POST">
+                            
+                            <div class="form-group mb-3">
+                                <label for="nombre" class="form-control-label">Nombre del Cargo</label>
+                                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="descripcion" class="form-control-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="4"></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="estadoCargo" th:field="*{estadoCargo}" checked>
+                                    <label class="custom-control-label" for="estadoCargo">Activo</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <a href="/area/listar" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
