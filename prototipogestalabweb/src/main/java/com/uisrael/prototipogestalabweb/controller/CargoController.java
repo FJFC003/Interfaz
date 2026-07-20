@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -46,6 +47,34 @@ public class CargoController {
         
        cargoService.guardarCargos(cargo);
        return "redirect:/cargo";
+    }
+    
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEditar(@PathVariable int id, Model model) {
+        model.addAttribute("cargo", new CargoRequestDto());
+        model.addAttribute("esEdicion", true);
+        return "cargo/editarcargo";
+    }
+
+    @PostMapping("/actualizar/{id}")
+    public String actualizarCargo(
+            @PathVariable int id,
+            @ModelAttribute CargoRequestDto cargo) {
+        try {
+            cargoService.guardarCargos(cargo);
+            return "redirect:/cargo/listar?success=true";
+        } catch (Exception e) {
+            return "cargo/editarcargo";
+        }
+    }
+
+    @GetMapping("/eliminar/{id}")
+    public String eliminarCargo(@PathVariable int id) {
+        try {
+            return "redirect:/cargo/listar?deleted=true";
+        } catch (Exception e) {
+            return "redirect:/cargo/listar?error=true";
+        }
     }
 
 
