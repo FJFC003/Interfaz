@@ -2,12 +2,14 @@ package com.uisrael.prototipogestalabweb.services.Impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.EmpleadoRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
 import com.uisrael.prototipogestalabweb.services.IEmpleadoService;
 
+@Service
 public class EmpleadoServiceImpl implements IEmpleadoService{
 	
 	private final WebClient webClient;
