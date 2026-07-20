@@ -20,7 +20,7 @@ public class AreaServiceImpl implements IAreaService{
 	@Override
 	public List<AreaResponseDto> listarAreas() {
 		// TODO Auto-generated method stub
-		return webClient.get().uri("/area/query")
+		return webClient.get().uri("/api/gestalab/area")
 				.retrieve()
 				.bodyToFlux(AreaResponseDto.class)
 				.collectList()
@@ -30,7 +30,7 @@ public class AreaServiceImpl implements IAreaService{
 	@Override
 	public void guardarAreas(AreaRequestDto area) {
 		// TODO Auto-generated method stub
-		webClient.post().uri("/area").bodyValue(area)
+		webClient.post().uri("/api/gestalab/area").bodyValue(area)
 		.retrieve()
 		.toBodilessEntity()
 		.block();

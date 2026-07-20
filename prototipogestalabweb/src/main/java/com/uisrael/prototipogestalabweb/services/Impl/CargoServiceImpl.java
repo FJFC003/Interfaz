@@ -20,7 +20,7 @@ public class CargoServiceImpl implements ICargoService{
 	@Override
 	public List<CargoResponseDto> listarCargos() {
 		// TODO Auto-generated method stub
-		return webClient.get().uri("/cargo/query").retrieve()
+		return webClient.get().uri("/api/gestalab/cargo").retrieve()
 				.bodyToFlux(CargoResponseDto.class)
 				.collectList()
 				.block();
@@ -29,7 +29,7 @@ public class CargoServiceImpl implements ICargoService{
 	@Override
 	public void guardarCargos(CargoRequestDto cargo) {
 		// TODO Auto-generated method stub
-		webClient.post().uri("/cargo")
+		webClient.post().uri("/api/gestalab/cargo")
 		.bodyValue(cargo)
 		.retrieve()
 		.toBodilessEntity()
