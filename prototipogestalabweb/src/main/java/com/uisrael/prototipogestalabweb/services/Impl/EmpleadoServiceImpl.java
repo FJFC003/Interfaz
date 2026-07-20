@@ -22,7 +22,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService{
 	@Override
 	public List<EmpleadoResponseDto> listarEmpleados() {
 		// TODO Auto-generated method stub
-		return webClient.get().uri("/api/gestalab/empleado")
+		return webClient.get().uri("/gestalab/empleado")
 				.retrieve()
 				.bodyToFlux(EmpleadoResponseDto.class)
 				.collectList()
@@ -32,7 +32,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService{
 	@Override
 	public void guardarEmpleados(EmpleadoRequestDto empleado) {
 		// TODO Auto-generated method stub
-		webClient.post().uri("/api/gestalab/empleado")
+		webClient.post().uri("/gestalab/empleado")
 		.bodyValue(empleado)
 		.retrieve()
 		.toBodilessEntity()
