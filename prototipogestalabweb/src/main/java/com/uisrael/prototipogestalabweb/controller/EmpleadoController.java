@@ -166,41 +166,50 @@ public class EmpleadoController {
         }
     }
     
-    // Update existing employee — the ID from the URL always wins, so this never creates a duplicate
     @PostMapping("/actualizar/{id}")
     public String actualizarEmpleado(
     		@PathVariable int id,
     		@ModelAttribute EmpleadoRequestDto empleado,
     		@ModelAttribute("usuarioContrasenia") String usuarioContrasenia,
     		Model model) {
-        try {
-        	empleado.setIdEmpleado(id);
+    	empleado.setIdEmpleado(id);
+    	try {
+    		// If a new password was typed during edit, update the linked Usuario too
+    		if (usuarioContrasenia != null && !usuarioContrasenia.isBlank() && empleado.getFkUsuario() > 0) {
+    			UsuarioResponseDto usuarioActual = usuarioService.listarUsuarios().stream()
+    					.filter(u -> u.getIdUsuario() == empleado.getFkUsuario())
+    					.findFirst()
+    					.orElse(null);
+    			if (usuarioActual != null) {
+    				UsuarioRequestDto usuarioUpdate = new UsuarioRequestDto();
+    				usuarioUpdate.setIdUsuario(usuarioActual.getIdUsuario());
+    				usuarioUpdate.setNombre(usuarioActual.getNombre());
+    				usuarioUpdate.setCorreo(usuarioActual.getCorreo());
+    				usuarioUpdate.setContrasenia(usuarioContrasenia);
+    				usuarioUpdate.setFechaCreacion(usuarioActual.getFechaCreacion());
+    				usuarioUpdate.setEstadoUsuario(usuarioActual.isEstadoUsuario());
+    				usuarioService.guardarUsuarios(usuarioUpdate);
+    			}
+    		}
 
-        	// If a new password was typed during edit, update the linked Usuario too
-        	if (usuarioContrasenia != null && !usuarioContrasenia.isBlank() && empleado.getFkUsuario() > 0) {
-        		UsuarioResponseDto usuarioActual = usuarioService.listarUsuarios().stream()
-        				.filter(u -> u.getIdUsuario() == empleado.getFkUsuario())
-        				.findFirst()
-        				.orElse(null);
-        		if (usuarioActual != null) {
-        			UsuarioRequestDto usuarioUpdate = new UsuarioRequestDto();
-        			usuarioUpdate.setIdUsuario(usuarioActual.getIdUsuario());
-        			usuarioUpdate.setNombre(usuarioActual.getNombre());
-        			usuarioUpdate.setCorreo(usuarioActual.getCorreo());
-        			usuarioUpdate.setContrasenia(usuarioContrasenia);
-        			usuarioUpdate.setFechaCreacion(usuarioActual.getFechaCreacion());
-        			usuarioUpdate.setEstadoUsuario(usuarioActual.isEstadoUsuario());
-        			usuarioService.guardarUsuarios(usuarioUpdate);
-        		}
-        	}
+    		empleadoService.guardarEmpleados(empleado);
+    		return "redirect:/empleado/listar?success=true";
 
-            empleadoService.guardarEmpleados(empleado);
-            return "redirect:/empleado/listar?success=true";
-        } catch (WebClientResponseException.Conflict ex) {
-        	return mostrarErrorDuplicado(model, empleado, ex);
-        } catch (Exception e) {
-            return "empleado/editarempleado";
-        }
+    	} catch (Exception e) {
+    		return mostrarErrorEdicion(model, empleado, e);
+    	}
+    }
+
+    private String mostrarErrorEdicion(Model model, EmpleadoRequestDto empleado, Exception e) {
+    	List<AreaResponseDto> areas = areaService.listarAreas();
+    	List<CargoResponseDto> cargos = cargoService.listarCargos();
+
+    	model.addAttribute("empleado", empleado);
+    	model.addAttribute("areas", areas);
+    	model.addAttribute("cargos", cargos);
+    	model.addAttribute("esEdicion", true);
+    	model.addAttribute("error", "No se pudo guardar el empleado: " + e.getMessage());
+    	return "empleado/editarempleado";
     }
     
     @GetMapping("/eliminar/{id}")
