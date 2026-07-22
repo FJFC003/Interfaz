@@ -49,30 +49,34 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Apellido</th>
                                 <th>Cédula</th>
                                 <th>Correo</th>
+                                <th>Área</th>
+        						<th>Cargo</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="empleado : ${empleados}">
-                                <td th:text="${empleado.idEmpleado}"></td>
-                                <td th:text="${empleado.nombre}"></td>
-                                <td th:text="${empleado.apellido}"></td>
-                                <td th:text="${empleado.ci}"></td>
-                                <td th:text="${empleado.correo}"></td>
-                                <td>
-                                    <span th:if="${empleado.estadoEmpleado}" class="badge badge-success">Activo</span>
-                                    <span th:unless="${empleado.estadoEmpleado}" class="badge badge-danger">Inactivo</span>
-                                </td>
-                                <td>
-                                    <a th:href="@{/empleado/editar/{id}(id=${empleado.idEmpleado})}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a th:href="@{/empleado/eliminar/{id}(id=${empleado.idEmpleado})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
+    <td th:text="${empleado.idEmpleado}"></td>
+    <td th:text="${empleado.nombre}"></td>
+    <td th:text="${empleado.apellido}"></td>
+    <td th:text="${empleado.ci}"></td>
+    <td th:text="${empleado.correo}"></td>
+    <td th:text="${empleado.fkArea != null ? empleado.fkArea.nombre : '-'}"></td>
+    <td th:text="${empleado.fkCargo != null ? empleado.fkCargo.nombre : '-'}"></td>
+    <td>
+        <span th:if="${empleado.estadoEmpleado}" class="badge badge-success">Activo</span>
+        <span th:unless="${empleado.estadoEmpleado}" class="badge badge-danger">Inactivo</span>
+    </td>
+    <td>
+        <a th:href="@{/empleado/editar/{id}(id=${empleado.idEmpleado})}" class="btn btn-sm btn-warning">
+            <i class="fas fa-edit"></i>
+        </a>
+        <a th:href="@{/empleado/eliminar/{id}(id=${empleado.idEmpleado})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+            <i class="fas fa-trash"></i>
+        </a>
+    </td>
+</tr>
                         </tbody>
                     </table>
                 </div>
@@ -94,8 +98,8 @@ layout:decorate="~{/plantilla/plantilla}">
                         url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                     },
                     columnDefs: [{
-                        orderable: false,
-                        targets: 6
+                    	orderable: false,
+                        targets: 8
                     }]
                 });
             });

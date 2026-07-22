@@ -16,6 +16,10 @@ public class EmpleadoResponseDto {
 	private Date fechaIngreso;
 	private Date fechaSalida;
 	private boolean estadoEmpleado;
+	private AreaResponseDto fkArea;
+	private CargoResponseDto fkCargo;
+	private FirmaElectronicaResponseDto fkFirmaElectronica;
+	private UsuarioResponseDto fkUsuario;
 	
 
 }

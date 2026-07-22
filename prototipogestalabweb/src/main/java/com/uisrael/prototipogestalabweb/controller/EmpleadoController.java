@@ -15,9 +15,13 @@ import com.uisrael.prototipogestalabweb.model.dto.request.EmpleadoRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.AreaResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CargoResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.FirmaElectronicaResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.UsuarioResponseDto;
 import com.uisrael.prototipogestalabweb.services.IAreaService;
 import com.uisrael.prototipogestalabweb.services.ICargoService;
 import com.uisrael.prototipogestalabweb.services.IEmpleadoService;
+import com.uisrael.prototipogestalabweb.services.IFirmaElectronicaService;
+import com.uisrael.prototipogestalabweb.services.IUsuarioService;
 
 @Controller
 @RequestMapping("/empleado")
@@ -26,12 +30,17 @@ public class EmpleadoController {
 	private final IEmpleadoService empleadoService;
     private final IAreaService areaService;
     private final ICargoService cargoService;
+    private final IUsuarioService usuarioService;
+    private final IFirmaElectronicaService firmaElectronicaService;
 
-    public EmpleadoController(IEmpleadoService empleadoService, IAreaService areaService, ICargoService cargoService) {
+	public EmpleadoController(IEmpleadoService empleadoService, IAreaService areaService, ICargoService cargoService,
+			IUsuarioService usuarioService, IFirmaElectronicaService firmaElectronicaService) {
 		super();
 		this.empleadoService = empleadoService;
 		this.areaService = areaService;
 		this.cargoService = cargoService;
+		this.usuarioService = usuarioService;
+		this.firmaElectronicaService = firmaElectronicaService;
 	}
 
 	// Display list of employees
@@ -47,10 +56,14 @@ public class EmpleadoController {
     public String mostrarFormularioNuevo(Model model) {
             List<AreaResponseDto> areas = areaService.listarAreas();
             List<CargoResponseDto> cargos = cargoService.listarCargos();
+            List<UsuarioResponseDto> usuarios = usuarioService.listarUsuarios();
+            List<FirmaElectronicaResponseDto> firmas = firmaElectronicaService.listarFirmas();
             
             model.addAttribute("empleado", new EmpleadoRequestDto());
             model.addAttribute("areas", areas);
             model.addAttribute("cargos", cargos);
+            model.addAttribute("usuarios", usuarios);
+            model.addAttribute("firmas", firmas);
             
             return "empleado/nuevoempleado";
     }
@@ -61,7 +74,7 @@ public class EmpleadoController {
         
        empleado.setFechaIngreso(new Date());
        empleadoService.guardarEmpleados(empleado);
-       return "redirect:/empleado";
+       return "redirect:/empleado/listar?success=true";
     }
     
     @GetMapping("/editar/{id}")
@@ -69,10 +82,14 @@ public class EmpleadoController {
         try {
             List<AreaResponseDto> areas = areaService.listarAreas();
             List<CargoResponseDto> cargos = cargoService.listarCargos();
+            List<UsuarioResponseDto> usuarios = usuarioService.listarUsuarios();
+            List<FirmaElectronicaResponseDto> firmas = firmaElectronicaService.listarFirmas();
             
             model.addAttribute("empleado", new EmpleadoRequestDto());
             model.addAttribute("areas", areas);
             model.addAttribute("cargos", cargos);
+            model.addAttribute("usuarios", usuarios);
+            model.addAttribute("firmas", firmas);
             model.addAttribute("esEdicion", true);
             return "empleado/editarempleado";
         } catch (Exception e) {
@@ -81,10 +98,7 @@ public class EmpleadoController {
     }
     
     @PostMapping("/actualizar/{id}")
-    public String actualizarEmpleado(
-            @PathVariable int id,
-            @ModelAttribute EmpleadoRequestDto empleado,
-            Model model) {
+    public String actualizarEmpleado(@PathVariable int id, @ModelAttribute EmpleadoRequestDto empleado, Model model) {
         try {
             empleadoService.guardarEmpleados(empleado);
             return "redirect:/empleado/listar?success=true";

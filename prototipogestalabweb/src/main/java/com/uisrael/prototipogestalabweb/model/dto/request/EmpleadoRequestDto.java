@@ -20,5 +20,9 @@ public class EmpleadoRequestDto {
 		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		private Date fechaSalida;
 		private boolean estadoEmpleado;
+		private int fkArea;
+		private int fkCargo;
+		private int fkFirmaElectronica;
+		private int fkUsuario;
 
 	}
