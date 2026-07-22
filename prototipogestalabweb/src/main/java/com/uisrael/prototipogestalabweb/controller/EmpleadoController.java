@@ -63,14 +63,6 @@ public class EmpleadoController {
             return "/empleado/listarempleado";
     }
 
- // Display list of employees
-    @GetMapping("/listar")
-    public String listarEmpleados(Model model) {
-            List<EmpleadoResponseDto> empleadosBD = empleadoService.listarEmpleados();
-            model.addAttribute("empleados", empleadosBD);
-            return "/empleado/listarempleado";
-    }
-
     // Show create employee form
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
