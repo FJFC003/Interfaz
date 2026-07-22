@@ -23,6 +23,9 @@ layout:decorate="~{/plantilla/plantilla}">
                     <div class="card-body">
                         <form th:action="@{/empleado/actualizar/{idEmpleado}(idEmpleado=${empleado.idEmpleado})}" th:object="${empleado}" method="POST">
                             
+                            <input type="hidden" th:field="*{fkUsuario}">
+							<input type="hidden" th:field="*{fkFirmaElectronica}">
+                            
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
                                     <label for="nombre" class="form-control-label">Nombre</label>
