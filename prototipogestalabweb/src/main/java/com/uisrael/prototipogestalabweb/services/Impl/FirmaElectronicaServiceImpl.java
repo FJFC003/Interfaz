@@ -30,12 +30,12 @@ public class FirmaElectronicaServiceImpl implements IFirmaElectronicaService{
 	}
 
 	@Override
-	public void guardarFirmas(FirmaElectronicaRequestDto firma) {
+	public FirmaElectronicaResponseDto guardarFirmas(FirmaElectronicaRequestDto firma) {
 		// TODO Auto-generated method stub
-		webClient.post().uri("/gestalab/firmaelectronica")
+		return webClient.post().uri("/gestalab/firmaelectronica")
 		.bodyValue(firma)
 		.retrieve()
-		.toBodilessEntity()
+		.bodyToMono(FirmaElectronicaResponseDto.class)
 		.block();
 	}
 

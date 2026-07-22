@@ -30,13 +30,13 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public void guardarUsuarios(UsuarioRequestDto usuario) {
+	public UsuarioResponseDto guardarUsuarios(UsuarioRequestDto usuario) {
 		// TODO Auto-generated method stub
-		webClient.post().uri("/gestalab/usuario")
-		.bodyValue(usuario)
-		.retrieve()
-		.toBodilessEntity()
-		.block();
+		return webClient.post().uri("/gestalab/usuario")
+				.bodyValue(usuario)
+				.retrieve()
+				.bodyToMono(UsuarioResponseDto.class)
+				.block();
 	}
 
 }

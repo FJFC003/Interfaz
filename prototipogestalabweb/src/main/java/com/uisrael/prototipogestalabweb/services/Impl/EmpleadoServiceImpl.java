@@ -39,4 +39,22 @@ public class EmpleadoServiceImpl implements IEmpleadoService{
 		.block();
 	}
 
+	@Override
+	public EmpleadoResponseDto buscarPorId(int idEmpleado) {
+		// TODO Auto-generated method stub
+		return webClient.get().uri("/gestalab/empleado/{id}", idEmpleado)
+				.retrieve()
+				.bodyToMono(EmpleadoResponseDto.class)
+				.block();
+	}
+
+	@Override
+	public void eliminarEmpleado(int idEmpleado) {
+		// TODO Auto-generated method stub
+		webClient.delete().uri("/gestalab/empleado/{id}", idEmpleado)
+		.retrieve()
+		.toBodilessEntity()
+		.block();
+	}
+
 }

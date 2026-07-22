@@ -11,7 +11,11 @@ layout:decorate="~{/plantilla/plantilla}">
     <div layout:fragment="content">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-user-plus"></i> Editar Empleado</h1>
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-user-edit"></i> Editar Empleado</h1>
+
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        </div>
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -47,14 +51,19 @@ layout:decorate="~{/plantilla/plantilla}">
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-sm-6 mb-3">
+                                <div class="col-sm-4 mb-3">
                                     <label for="fechaIngreso" class="form-control-label">Fecha de Ingreso</label>
                                     <input type="date" class="form-control" id="fechaIngreso" th:field="*{fechaIngreso}" required>
                                 </div>
-                                <div class="col-sm-6 mb-3">
+                                <div class="col-sm-4 mb-3">
+                                    <label for="fechaSalida" class="form-control-label">Fecha de Salida</label>
+                                    <input type="date" class="form-control" id="fechaSalida" th:field="*{fechaSalida}">
+                                    <small class="form-text text-muted">Dejar en blanco si el empleado sigue activo.</small>
+                                </div>
+                                <div class="col-sm-4 mb-3">
                                     <label for="estadoEmpleado" class="form-control-label">Estado</label>
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="estadoEmpleado" th:field="*{estadoEmpleado}" checked>
+                                    <div class="custom-control custom-checkbox mt-2">
+                                        <input type="checkbox" class="custom-control-input" id="estadoEmpleado" th:field="*{estadoEmpleado}">
                                         <label class="custom-control-label" for="estadoEmpleado">Activo</label>
                                     </div>
                                 </div>
@@ -85,35 +94,35 @@ layout:decorate="~{/plantilla/plantilla}">
                             </div>
 
                             <hr>
-                            <h6 class="font-weight-bold text-primary mb-3">Cuenta y Firma Electrónica</h6>
+                            <h6 class="font-weight-bold text-primary mb-3">Cuenta de Usuario</h6>
 
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
-                                    <label for="fkUsuario" class="form-control-label">Usuario</label>
-                                    <select class="form-control" id="fkUsuario" th:field="*{fkUsuario}">
-                                        <option value="0">-- Seleccione un usuario --</option>
-                                        <option th:each="usuario : ${usuarios}"
-                                                th:value="${usuario.idUsuario}"
-                                                th:text="${usuario.nombre} + ' (' + ${usuario.correo} + ')'"></option>
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        El usuario determina los permisos del empleado a través de su rol.
-                                    </small>
+                                    <label class="form-control-label">Usuario Actual</label>
+                                    <input type="text" class="form-control" readonly
+                                           th:value="${usuarioActual != null ? usuarioActual.nombre + ' (' + usuarioActual.correo + ')' : 'Sin usuario asignado'}">
                                 </div>
                                 <div class="col-sm-6 mb-3">
-                                    <label for="fkFirmaElectronica" class="form-control-label">Firma Electrónica</label>
-                                    <select class="form-control" id="fkFirmaElectronica" th:field="*{fkFirmaElectronica}">
-                                        <option value="0">-- Seleccione una firma --</option>
-                                        <option th:each="firma : ${firmas}"
-                                                th:value="${firma.idFirma}"
-                                                th:text="${firma.formatoFirma}"></option>
-                                    </select>
+                                    <label for="usuarioContrasenia" class="form-control-label">Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="usuarioContrasenia" name="usuarioContrasenia"
+                                           placeholder="Dejar en blanco para mantener la actual">
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h6 class="font-weight-bold text-primary mb-3">Firma Electrónica</h6>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-control-label">Firma Actual</label>
+                                    <input type="text" class="form-control" readonly
+                                           th:value="${firmaActual != null ? firmaActual.formatoFirma : 'Sin firma asignada'}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Guardar
+                                    <i class="fas fa-save"></i> Guardar Cambios
                                 </button>
                                 <a href="/empleado/listar" class="btn btn-secondary">
                                     <i class="fas fa-times"></i> Cancelar

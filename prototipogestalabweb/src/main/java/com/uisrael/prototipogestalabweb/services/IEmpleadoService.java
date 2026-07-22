@@ -9,5 +9,7 @@ public interface IEmpleadoService {
 	
 	List<EmpleadoResponseDto> listarEmpleados();
 	void guardarEmpleados(EmpleadoRequestDto empleado);
+	EmpleadoResponseDto buscarPorId(int idEmpleado);
+	void eliminarEmpleado(int idEmpleado);
 
 }

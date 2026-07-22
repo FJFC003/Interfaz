@@ -8,6 +8,6 @@ import com.uisrael.prototipogestalabweb.model.dto.response.FirmaElectronicaRespo
 public interface IFirmaElectronicaService {
 	
 	List<FirmaElectronicaResponseDto> listarFirmas();
-	void guardarFirmas(FirmaElectronicaRequestDto firma);
+	FirmaElectronicaResponseDto guardarFirmas(FirmaElectronicaRequestDto firma);
 
 }

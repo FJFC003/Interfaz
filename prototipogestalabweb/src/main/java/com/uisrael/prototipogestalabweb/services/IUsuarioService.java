@@ -8,6 +8,6 @@ import com.uisrael.prototipogestalabweb.model.dto.response.UsuarioResponseDto;
 public interface IUsuarioService {
 	
 	List<UsuarioResponseDto> listarUsuarios();
-	void guardarUsuarios(UsuarioRequestDto usuario);
+	UsuarioResponseDto guardarUsuarios(UsuarioRequestDto usuario);
 
 }
