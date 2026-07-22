@@ -2,12 +2,14 @@ package com.uisrael.prototipogestalabweb.services.Impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.FirmaElectronicaRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.FirmaElectronicaResponseDto;
 import com.uisrael.prototipogestalabweb.services.IFirmaElectronicaService;
 
+@Service
 public class FirmaElectronicaServiceImpl implements IFirmaElectronicaService{
 	
 	private final WebClient webClient;
