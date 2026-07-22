@@ -1,11 +1,13 @@
 package com.uisrael.prototipogestalabweb.services.Impl;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.UsuariohasRolRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.UsuariohasRolResponseDto;
 import com.uisrael.prototipogestalabweb.services.IUsuariohasRolService;
 
+@Service
 public class UsuariohasRolServiceImpl implements IUsuariohasRolService{
 	
 	private final WebClient webClient;
