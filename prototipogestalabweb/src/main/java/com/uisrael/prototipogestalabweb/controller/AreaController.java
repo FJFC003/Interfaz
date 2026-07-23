@@ -51,16 +51,29 @@ public class AreaController {
     
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable int id, Model model) {
-        model.addAttribute("area", new AreaRequestDto());
-        model.addAttribute("esEdicion", true);
-        return "area/editararea";
+    	try {
+            AreaResponseDto areaActual = areaService.buscarPorId(id);
+
+            AreaRequestDto areaForm = new AreaRequestDto();
+            areaForm.setIdArea(areaActual.getIdArea());
+            areaForm.setNombre(areaActual.getNombre());
+            areaForm.setDescripcion(areaActual.getDescripcion());
+            areaForm.setEstadoArea(areaActual.isEstadoArea());
+
+            model.addAttribute("area", areaForm);
+            model.addAttribute("esEdicion", true);
+            return "area/editararea";
+        } catch (Exception e) {
+            return "error";
+        }
     }
 
     @PostMapping("/actualizar/{id}")
     public String actualizarArea(
             @PathVariable int id,
             @ModelAttribute AreaRequestDto area) {
-        try {
+        area.setIdArea(id);
+    	try {
             areaService.guardarAreas(area);
             return "redirect:/area/listar?success=true";
         } catch (Exception e) {
@@ -71,6 +84,7 @@ public class AreaController {
     @GetMapping("/eliminar/{id}")
     public String eliminarArea(@PathVariable int id) {
         try {
+        	areaService.eliminarArea(id);
             return "redirect:/area/listar?deleted=true";
         } catch (Exception e) {
             return "redirect:/area/listar?error=true";

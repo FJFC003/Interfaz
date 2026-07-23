@@ -52,23 +52,23 @@ layout:decorate="~{/plantilla/plantilla}">
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="area : ${areas}">
-                                <td th:text="${area.idArea}"></td>
-                                <td th:text="${area.nombre}"></td>
-                                <td th:text="${area.descripcion}"></td>
-                                <td>
-                                    <span th:if="${area.estadoArea}" class="badge badge-success">Activo</span>
-                                    <span th:unless="${area.estadoArea}" class="badge badge-danger">Inactivo</span>
-                                </td>
-                                <td>
-                                    <a th:href="@{/area/editar/{id}(id=${area.idArea})}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a th:href="@{/area/eliminar/{id}(id=${area.idArea})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                          <tr th:each="area : ${areas}">
+    <td th:text="${area.idArea}"></td>
+    <td th:text="${area.nombre}"></td>
+    <td th:text="${area.descripcion}"></td>
+    <td>
+        <span th:if="${area.estadoArea}" class="badge badge-success">Activo</span>
+        <span th:unless="${area.estadoArea}" class="badge badge-danger">Inactivo</span>
+    </td>
+    <td>
+        <a th:href="@{/area/editar/{id}(id=${area.idArea})}" class="btn btn-sm btn-warning">
+            <i class="fas fa-edit"></i>
+        </a>
+        <a th:href="@{/area/eliminar/{id}(id=${area.idArea})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+            <i class="fas fa-trash"></i>
+        </a>
+    </td>
+</tr>  
                         </tbody>
                     </table>
                 </div>

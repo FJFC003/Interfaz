@@ -17,7 +17,7 @@ layout:decorate="~{/plantilla/plantilla}">
             <div class="col-lg-6">
                 <div class="card shadow mb-4">
                     <div class="card-body">
-                        <form th:action="@{/area/actualizar/{id}(id=${area.idArea})}" method="POST">
+                        <form th:action="@{/area/actualizar/{id}(id=${area.idArea})}" th:object="${area}" method="POST">
                             
                             <div class="form-group mb-3">
                                 <label for="nombre" class="form-control-label">Nombre del Área</label>

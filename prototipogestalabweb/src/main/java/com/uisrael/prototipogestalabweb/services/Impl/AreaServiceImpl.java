@@ -38,4 +38,19 @@ public class AreaServiceImpl implements IAreaService{
 		.block();
 	}
 
+	@Override
+	public AreaResponseDto buscarPorId(int idArea) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void eliminarArea(int idArea) {
+		// TODO Auto-generated method stub
+		webClient.delete().uri("/gestalab/area/{id}", idArea)
+		.retrieve()
+		.toBodilessEntity()
+		.block();
+	}
+
 }

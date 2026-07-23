@@ -9,5 +9,7 @@ public interface IAreaService {
 	
 	List<AreaResponseDto> listarAreas();
 	void guardarAreas(AreaRequestDto area);
+	AreaResponseDto buscarPorId(int idArea);
+	void eliminarArea(int idArea);
 
 }
