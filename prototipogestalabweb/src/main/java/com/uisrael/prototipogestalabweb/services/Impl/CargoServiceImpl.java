@@ -38,4 +38,22 @@ public class CargoServiceImpl implements ICargoService{
 		.block();
 	}
 
+	@Override
+	public CargoResponseDto buscarPorId(int idCargo) {
+		// TODO Auto-generated method stub
+		return webClient.get().uri("/gestalab/cargo/{id}", idCargo)
+				.retrieve()
+				.bodyToMono(CargoResponseDto.class)
+				.block();
+	}
+
+	@Override
+	public void eliminarCargo(int idCargo) {
+		// TODO Auto-generated method stub
+		webClient.delete().uri("/gestalab/cargo/{id}", idCargo)
+		.retrieve()
+		.toBodilessEntity()
+		.block();
+	}
+
 }

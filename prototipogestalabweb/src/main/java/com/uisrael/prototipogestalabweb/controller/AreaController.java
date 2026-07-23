@@ -33,10 +33,10 @@ public class AreaController {
             return "/area/listararea";
     }
 
-    // Show create employee form
+ // Show create employee form
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
-            model.addAttribute("areas", new AreaRequestDto());
+            model.addAttribute("area", new AreaRequestDto());
             
             return "area/nuevoarea";
     }
@@ -46,7 +46,7 @@ public class AreaController {
     public String guardarArea(@ModelAttribute AreaRequestDto area) {
         
        areaService.guardarAreas(area);
-       return "redirect:/area";
+       return "redirect:/area/listar?success=true";
     }
     
     @GetMapping("/editar/{id}")

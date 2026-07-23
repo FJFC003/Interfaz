@@ -13,6 +13,9 @@ layout:decorate="~{/plantilla/plantilla}">
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-user-shield"></i> Roles</h1>
+            <a href="/rol/nuevo" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Rol
+            </a>
         </div>
 
         <div class="card shadow mb-4">
@@ -42,6 +45,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -52,6 +56,14 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td>
                                     <span th:if="${rol.estadoRol}" class="badge badge-success">Activo</span>
                                     <span th:unless="${rol.estadoRol}" class="badge badge-danger">Inactivo</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/rol/editar/{id}(id=${rol.idRol})}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/rol/eliminar/{id}(id=${rol.idRol})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>

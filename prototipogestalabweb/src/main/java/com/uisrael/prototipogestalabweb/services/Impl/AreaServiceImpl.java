@@ -41,7 +41,10 @@ public class AreaServiceImpl implements IAreaService{
 	@Override
 	public AreaResponseDto buscarPorId(int idArea) {
 		// TODO Auto-generated method stub
-		return null;
+		return webClient.get().uri("/gestalab/area/{id}", idArea)
+				.retrieve()
+				.bodyToMono(AreaResponseDto.class)
+				.block();
 	}
 
 	@Override

@@ -9,5 +9,7 @@ public interface ICargoService {
 	
 	List<CargoResponseDto> listarCargos();
 	void guardarCargos(CargoRequestDto cargo);
-
+	CargoResponseDto buscarPorId(int idCargo);
+	void eliminarCargo(int idCargo);
+	
 }
