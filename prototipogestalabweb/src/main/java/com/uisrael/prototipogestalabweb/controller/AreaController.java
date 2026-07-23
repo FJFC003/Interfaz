@@ -29,7 +29,7 @@ public class AreaController {
     @GetMapping("/listar")
     public String listarAreas(Model model) {
             List<AreaResponseDto> areaBD = areaService.listarAreas();
-            model.addAttribute("area", areaBD);
+            model.addAttribute("areas", areaBD);
             return "/area/listararea";
     }
 

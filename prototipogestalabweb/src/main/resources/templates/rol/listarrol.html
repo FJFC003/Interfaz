@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Lista de Roles - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-user-shield"></i> Roles</h1>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lista de Roles</h6>
+            </div>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar rol...">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="filterTable()">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="rol : ${roles}">
+                                <td th:text="${rol.idRol}"></td>
+                                <td th:text="${rol.nombre}"></td>
+                                <td th:text="${rol.descripcion}"></td>
+                                <td>
+                                    <span th:if="${rol.estadoRol}" class="badge badge-success">Activo</span>
+                                    <span th:unless="${rol.estadoRol}" class="badge badge-danger">Inactivo</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${#lists.isEmpty(roles)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No hay roles registrados
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            function filterTable() {
+                const searchInput = document.getElementById('searchInput').value.toLowerCase();
+                const rows = document.querySelectorAll('#dataTable tbody tr');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    if (row.textContent.toLowerCase().includes(searchInput)) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (visibleCount === 0 && searchInput.length > 0) {
+                    alert('No se encontraron resultados');
+                }
+            }
+
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') filterTable();
+            });
+        </script>
+    </th:block>
+
+</body>
+
+</html>

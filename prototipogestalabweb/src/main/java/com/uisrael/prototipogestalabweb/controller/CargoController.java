@@ -29,7 +29,7 @@ public class CargoController {
     @GetMapping("/listar")
     public String listarCargos(Model model) {
             List<CargoResponseDto> cargoBD = cargoService.listarCargos();
-            model.addAttribute("cargo", cargoBD);
+            model.addAttribute("cargos", cargoBD);
             return "/cargo/listarcargo";
     }
 

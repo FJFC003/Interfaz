@@ -3,6 +3,7 @@ package com.uisrael.prototipogestalabweb.controller;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,12 +82,16 @@ public class EmpleadoController {
     // Save new employee (creates Usuario + UsuariohasRol + FirmaElectronica first, then links them)
     @PostMapping("/guardar")
     public String guardarEmpleado(
-    		@ModelAttribute EmpleadoRequestDto empleado,
-    		@ModelAttribute("usuarioNombre") String usuarioNombre,
-    		@ModelAttribute("usuarioContrasenia") String usuarioContrasenia,
-    		@ModelAttribute("fkRol") int fkRol,
-    		@ModelAttribute("firmaFormato") String firmaFormato,
-    		Model model) {
+    				@ModelAttribute EmpleadoRequestDto empleado,
+    				@ModelAttribute("usuarioNombre") String usuarioNombre,
+    				@ModelAttribute("usuarioContrasenia") String usuarioContrasenia,
+    				@ModelAttribute("fkRol") int fkRol,
+    				@ModelAttribute("firmaFormato") String firmaFormato,
+    				@DateTimeFormat(pattern = "yyyy-MM-dd")
+    				@ModelAttribute("firmaFechaSubida") Date firmaFechaSubida,
+    				@DateTimeFormat(pattern = "yyyy-MM-dd")
+    				@ModelAttribute("firmaFechaExpiracion") Date firmaFechaExpiracion,
+    				Model model) {
 
     	try {
     		// 1. Create the user account
@@ -108,7 +113,8 @@ public class EmpleadoController {
     		// 3. Create the electronic signature
     		FirmaElectronicaRequestDto nuevaFirma = new FirmaElectronicaRequestDto();
     		nuevaFirma.setFormatoFirma(firmaFormato);
-    		nuevaFirma.setFechaSubida(new Date());
+    		nuevaFirma.setFechaSubida(firmaFechaSubida != null ? firmaFechaSubida : new Date());
+    		nuevaFirma.setFechaExpiracion(firmaFechaExpiracion);
     		FirmaElectronicaResponseDto firmaGuardada = firmaElectronicaService.guardarFirmas(nuevaFirma);
 
     		// 4. Link the generated IDs and save the employee
