@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Editar Parámetro - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-plus"></i> Editar Parámetro</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/parametro/actualizar/{id}(id=${parametro.idParametroC})}" th:object="${parametro}" method="POST">
+
+                            <div class="form-group mb-3">
+                                <label for="ensayoParametroC" class="form-control-label">Ensayo / Parámetro</label>
+                                <input type="text" class="form-control" id="ensayoParametroC" th:field="*{ensayoParametroC}">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="tecnicaParametroC" class="form-control-label">Técnica</label>
+                                    <input type="text" class="form-control" id="tecnicaParametroC" th:field="*{tecnicaParametroC}">
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="procedimientoInternoParametroC" class="form-control-label">Procedimiento Interno</label>
+                                    <input type="text" class="form-control" id="procedimientoInternoParametroC" th:field="*{procedimientoInternoParametroC}">
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="normaReferencialParametroC" class="form-control-label">Norma de Referencia</label>
+                                <input type="text" class="form-control" id="normaReferencialParametroC" th:field="*{normaReferencialParametroC}">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="unidadParametroC" class="form-control-label">Unidad</label>
+                                    <input type="text" class="form-control" id="unidadParametroC" th:field="*{unidadParametroC}">
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="rangoTrabajoParametroC" class="form-control-label">Rango de Trabajo</label>
+                                    <input type="text" class="form-control" id="rangoTrabajoParametroC" th:field="*{rangoTrabajoParametroC}">
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="condicionParametroC" class="form-control-label">Condición</label>
+                                <select class="form-control" id="condicionParametroC" th:field="*{condicionParametroC}">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="1">1 - Parámetro acreditado</option>
+                                    <option value="2">2 - Parámetro subcontratado</option>
+                                    <option value="3">3 - Parámetro fuera del alcance de acreditación</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                                <a href="/parametro/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

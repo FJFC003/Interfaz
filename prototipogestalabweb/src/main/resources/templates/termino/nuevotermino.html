@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Nuevo Término - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-plus"></i> Registrar Nuevo Término</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/termino/guardar}" th:object="${termino}" method="POST">
+
+                            <div class="form-group mb-3">
+                                <label for="tituloTerminoC" class="form-control-label">Título</label>
+                                <input type="text" class="form-control" id="tituloTerminoC" th:field="*{tituloTerminoC}">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="contenidoTerminoC" class="form-control-label">Contenido</label>
+                                <textarea class="form-control" id="contenidoTerminoC" th:field="*{contenidoTerminoC}" rows="8"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                                <a href="/termino/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

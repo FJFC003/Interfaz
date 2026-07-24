@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Nuevo Cliente - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-plus"></i> Registrar Nuevo Cliente</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/cliente/guardar}" th:object="${cliente}" method="POST">
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="tipoClienteC" class="form-control-label">Tipo de Cliente</label>
+                                    <select class="form-control" id="tipoClienteC" th:field="*{tipoClienteC}">
+                                        <option value="">-- Seleccione --</option>
+                                        <option value="Persona Natural">Persona Natural</option>
+                                        <option value="Persona Jurídica">Persona Jurídica</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="ciClienteC" class="form-control-label">CI / RUC</label>
+                                    <input type="text" class="form-control" id="ciClienteC" th:field="*{ciClienteC}">
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="nombreRazonSocialClienteC" class="form-control-label">Nombre / Razón Social</label>
+                                <input type="text" class="form-control" id="nombreRazonSocialClienteC" th:field="*{nombreRazonSocialClienteC}">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="nombrePersonaContactoClienteC" class="form-control-label">Persona de Contacto</label>
+                                    <input type="text" class="form-control" id="nombrePersonaContactoClienteC" th:field="*{nombrePersonaContactoClienteC}">
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="telefonoClienteC" class="form-control-label">Teléfono</label>
+                                    <input type="text" class="form-control" id="telefonoClienteC" th:field="*{telefonoClienteC}">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="correoClienteC" class="form-control-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correoClienteC" th:field="*{correoClienteC}">
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="direccionClienteC" class="form-control-label">Dirección</label>
+                                    <input type="text" class="form-control" id="direccionClienteC" th:field="*{direccionClienteC}">
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="estadoClienteC" th:field="*{estadoClienteC}" checked>
+                                    <label class="custom-control-label" for="estadoClienteC">Activo</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                                <a href="/cliente/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
