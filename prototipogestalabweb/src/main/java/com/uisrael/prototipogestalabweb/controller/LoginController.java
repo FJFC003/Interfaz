@@ -34,6 +34,9 @@ public class LoginController {
 		try {
 			LoginResponseDto usuario = loginService.login(credenciales);
 			session.setAttribute("usuarioActual", usuario);
+			if ("Coordinador Comercial".equalsIgnoreCase(usuario.getRol())) {
+				return "redirect:/cotizacion/listar";
+			}
 			return "redirect:/empleado/listar";
 		} catch (WebClientResponseException ex) {
 			model.addAttribute("error", "Correo, contraseña incorrectos, o el usuario no tiene permisos de Gerente General.");
