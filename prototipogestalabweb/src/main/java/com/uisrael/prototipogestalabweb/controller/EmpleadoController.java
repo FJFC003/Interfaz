@@ -61,7 +61,7 @@ public class EmpleadoController {
     public String listarEmpleados(Model model) {
             List<EmpleadoResponseDto> empleadosBD = empleadoService.listarEmpleados();
             model.addAttribute("empleados", empleadosBD);
-            return "/empleado/listarempleado";
+            return "empleado/listarempleado";
     }
 
     // Show create employee form
