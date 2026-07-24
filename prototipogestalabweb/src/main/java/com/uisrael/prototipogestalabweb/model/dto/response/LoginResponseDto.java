@@ -7,7 +7,7 @@ public class LoginResponseDto {
 	
 	private int idUsuario;
 	private String correo;
-	private String contrasenia;
+	private String nombre;
 	private String rol;
 
 }
