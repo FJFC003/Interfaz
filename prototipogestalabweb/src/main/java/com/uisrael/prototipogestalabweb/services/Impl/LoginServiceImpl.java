@@ -20,7 +20,7 @@ public class LoginServiceImpl implements ILoginService{
 	@Override
 	public LoginResponseDto login(LoginRequestDto credenciales) {
 		// TODO Auto-generated method stub
-		return webClient.post().uri("/gestalab/auth/login")
+		return webClient.post().uri("/gestalab/login/login")
 				.bodyValue(credenciales)
 				.retrieve()
 				.bodyToMono(LoginResponseDto.class)
