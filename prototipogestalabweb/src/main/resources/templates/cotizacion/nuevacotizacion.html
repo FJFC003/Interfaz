@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Nueva Cotización - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-file-invoice-dollar"></i> Nueva Cotización</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/cotizacion/guardar}" th:object="${cotizacion}" method="POST">
+
+                            <h6 class="font-weight-bold text-primary mb-3">Datos Generales</h6>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-3">
+                                    <label for="fechaElaboracionCotizacionC" class="form-control-label">Fecha de Elaboración</label>
+                                    <input type="date" class="form-control" id="fechaElaboracionCotizacionC" th:field="*{fechaElaboracionCotizacionC}">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="vigenciaDiasCotizacionC" class="form-control-label">Vigencia</label>
+                                    <input type="text" class="form-control" id="vigenciaDiasCotizacionC" th:field="*{vigenciaDiasCotizacionC}" placeholder="Ej: 30 días">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="fkEmpleado" class="form-control-label">Elaborado Por (Empleado)</label>
+                                    <select class="form-control" id="fkEmpleado" th:field="*{fkEmpleado}">
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="empleado : ${empleados}"
+                                                th:value="${empleado.idEmpleado}"
+                                                th:text="${empleado.nombre} + ' ' + ${empleado.apellido}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h6 class="font-weight-bold text-primary mb-3">Cliente y Condiciones</h6>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkCliente" class="form-control-label">Cliente</label>
+                                    <select class="form-control" id="fkCliente" th:field="*{fkCliente}">
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="cliente : ${clientes}"
+                                                th:value="${cliente.idClienteC}"
+                                                th:text="${cliente.nombreRazonSocialClienteC}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkTerminoCondicion" class="form-control-label">Términos y Condiciones</label>
+                                    <select class="form-control" id="fkTerminoCondicion" th:field="*{fkTerminoCondicion}">
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="termino : ${terminos}"
+                                                th:value="${termino.idTerminoC}"
+                                                th:text="${termino.tituloTerminoC}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h6 class="font-weight-bold text-primary mb-3">Costos Finales</h6>
+                            <small class="text-muted d-block mb-3">
+                                Estos valores se pueden dejar en 0 por ahora y actualizarse después de agregar las líneas de detalle.
+                            </small>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-3">
+                                    <label for="subtotalAgua" class="form-control-label">Subtotal Agua</label>
+                                    <input type="number" step="0.01" class="form-control" id="subtotalAgua" th:field="*{subtotalAgua}">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="subtotalRuido" class="form-control-label">Subtotal Ruido</label>
+                                    <input type="number" step="0.01" class="form-control" id="subtotalRuido" th:field="*{subtotalRuido}">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="subtotalEmiciones" class="form-control-label">Subtotal Emisiones</label>
+                                    <input type="number" step="0.01" class="form-control" id="subtotalEmiciones" th:field="*{subtotalEmiciones}">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-3">
+                                    <label for="subtotalCalidad" class="form-control-label">Subtotal Calidad del Aire</label>
+                                    <input type="number" step="0.01" class="form-control" id="subtotalCalidad" th:field="*{subtotalCalidad}">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="subtotalSuelo" class="form-control-label">Subtotal Suelo</label>
+                                    <input type="number" step="0.01" class="form-control" id="subtotalSuelo" th:field="*{subtotalSuelo}">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="costoLogistica" class="form-control-label">Logística</label>
+                                    <input type="number" step="0.01" class="form-control" id="costoLogistica" th:field="*{costoLogistica}">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-3">
+                                    <label for="Iva" class="form-control-label">IVA (15%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="Iva" th:field="*{Iva}">
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <label for="TotalCotizacionC" class="form-control-label">Total</label>
+                                    <input type="number" step="0.01" class="form-control" id="TotalCotizacionC" th:field="*{TotalCotizacionC}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar y Continuar</button>
+                                <a href="/cotizacion/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

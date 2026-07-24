@@ -63,28 +63,71 @@
 			<!-- Heading -->
 			<div class="sidebar-heading">Gestión</div>
 
-			<!-- Nav Item - Empleados -->
-			<li class="nav-item"><a class="nav-link" href="/empleado/listar">
-					<i class="fas fa-fw fa-users"></i> <span>Empleados</span>
-			</a></li>
+			<!-- Nav Item - Empleados (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/empleado/listar">
+        <i class="fas fa-fw fa-users"></i> <span>Empleados</span>
+    </a>
+</li>
 
-			<!-- Nav Item - Áreas -->
-			<li class="nav-item"><a class="nav-link" href="/area/listar">
-					<i class="fas fa-fw fa-building"></i> <span>Áreas</span>
-			</a></li>
+<!-- Nav Item - Áreas (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/area/listar">
+        <i class="fas fa-fw fa-building"></i> <span>Áreas</span>
+    </a>
+</li>
 
-			<!-- Nav Item - Cargos -->
-			<li class="nav-item"><a class="nav-link" href="/cargo/listar">
-					<i class="fas fa-fw fa-briefcase"></i> <span>Cargos</span>
-			</a></li>
+<!-- Nav Item - Cargos (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/cargo/listar">
+        <i class="fas fa-fw fa-briefcase"></i> <span>Cargos</span>
+    </a>
+</li>
 
-			<!-- Nav Item - Roles -->
-			<li class="nav-item"><a class="nav-link" href="/rol/listar">
-					<i class="fas fa-fw fa-user-shield"></i> <span>Roles</span>
-			</a></li>
+<!-- Nav Item - Roles (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/rol/listar">
+        <i class="fas fa-fw fa-user-shield"></i> <span>Roles</span>
+    </a>
+</li>
 
-			<!-- Divider -->
-			<hr class="sidebar-divider d-none d-md-block">
+<!-- Nav Item - Cotizaciones (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/cotizacion/listar">
+        <i class="fas fa-fw fa-file-invoice-dollar"></i> <span>Cotizaciones</span>
+    </a>
+</li>
+
+<!-- Nav Item - Clientes (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/cliente/listar">
+        <i class="fas fa-fw fa-address-book"></i> <span>Clientes</span>
+    </a>
+</li>
+
+<!-- Nav Item - Catálogo de Parámetros (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/parametro/listar">
+        <i class="fas fa-fw fa-flask"></i> <span>Parámetros</span>
+    </a>
+</li>
+
+<!-- Nav Item - Normas (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/norma/listar">
+        <i class="fas fa-fw fa-book"></i> <span>Normas</span>
+    </a>
+</li>
+
+<!-- Nav Item - Términos y Condiciones (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/termino/listar">
+        <i class="fas fa-fw fa-file-contract"></i> <span>Términos y Condiciones</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider d-none d-md-block">
 
 			<!-- Sidebar Toggler (Sidebar) -->
 			<div class="text-center d-none d-md-inline">

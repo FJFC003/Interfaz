@@ -30,10 +30,7 @@ public class LoginController {
 	}
 
 	@PostMapping("/login")
-	public String procesarLogin(
-			@ModelAttribute LoginRequestDto credenciales,
-			HttpSession session,
-			Model model) {
+	public String procesarLogin(@ModelAttribute LoginRequestDto credenciales,HttpSession session,Model model) {
 		try {
 			LoginResponseDto usuario = loginService.login(credenciales);
 			session.setAttribute("usuarioActual", usuario);
