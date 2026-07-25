@@ -39,7 +39,7 @@ public class LoginController {
 			}
 			return "redirect:/empleado/listar";
 		} catch (WebClientResponseException ex) {
-			model.addAttribute("error", "Correo, contraseña incorrectos, o el usuario no tiene permisos de Gerente General.");
+			model.addAttribute("error", "Correo o contraseña incorrectos, o el usuario no tiene un rol asignado.");
 			model.addAttribute("credenciales", credenciales);
 			return "login";
 		} catch (Exception ex) {
