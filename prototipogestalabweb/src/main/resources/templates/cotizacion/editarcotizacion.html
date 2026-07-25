@@ -50,28 +50,19 @@ layout:decorate="~{/plantilla/plantilla}">
                             </div>
 
                             <hr>
-                            <h6 class="font-weight-bold text-primary mb-3">Cliente y Condiciones</h6>
+<h6 class="font-weight-bold text-primary mb-3">Cliente</h6>
 
-                            <div class="form-group row">
-                                <div class="col-sm-6 mb-3">
-                                    <label for="fkCliente" class="form-control-label">Cliente</label>
-                                    <select class="form-control" id="fkCliente" th:field="*{fkCliente}">
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="cliente : ${clientes}"
-                                                th:value="${cliente.idClienteC}"
-                                                th:text="${cliente.nombreRazonSocialClienteC}"></option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <label for="fkTerminoCondicion" class="form-control-label">Términos y Condiciones</label>
-                                    <select class="form-control" id="fkTerminoCondicion" th:field="*{fkTerminoCondicion}">
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="termino : ${terminos}"
-                                                th:value="${termino.idTerminoC}"
-                                                th:text="${termino.tituloTerminoC}"></option>
-                                    </select>
-                                </div>
-                            </div>
+<div class="form-group row">
+    <div class="col-sm-12 mb-3">
+        <label for="fkCliente" class="form-control-label">Cliente</label>
+        <select class="form-control" id="fkCliente" th:field="*{fkCliente}">
+            <option value="0">-- Seleccione --</option>
+            <option th:each="cliente : ${clientes}"
+                    th:value="${cliente.idClienteC}"
+                    th:text="${cliente.nombreRazonSocialClienteC}"></option>
+        </select>
+    </div>
+</div>
 
                             <hr>
                             <h6 class="font-weight-bold text-primary mb-3">Costos Finales</h6>
@@ -132,6 +123,26 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
 
     </div>
+
+	<th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            function calcularTotales() {
+                const agua = parseFloat(document.getElementById('subtotalAgua').value) || 0;
+                const ruido = parseFloat(document.getElementById('subtotalRuido').value) || 0;
+                const emisiones = parseFloat(document.getElementById('subtotalEmiciones').value) || 0;
+                const calidad = parseFloat(document.getElementById('subtotalCalidad').value) || 0;
+                const suelo = parseFloat(document.getElementById('subtotalSuelo').value) || 0;
+                const logistica = parseFloat(document.getElementById('costoLogistica').value) || 0;
+
+                const subtotal = agua + ruido + emisiones + calidad + suelo + logistica;
+                const iva = subtotal * 0.15;
+                const total = subtotal + iva;
+
+                document.getElementById('Iva').value = iva.toFixed(2);
+                document.getElementById('TotalCotizacionC').value = total.toFixed(2);
+            }
+        </script>
+    </th:block>
 
 </body>
 
