@@ -140,8 +140,7 @@ public class CotizacionController {
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(id);
 
 			List<DetalleCResponseDto> todosLosDetalles = detalleService.listarDetalles();
-			// NOTA: el backend no filtra por cotización todavía — ver sección "Pendiente" al final.
-			List<DetalleCResponseDto> detallesDeEstaCotizacion = todosLosDetalles;
+			List<DetalleCResponseDto> detallesDeEstaCotizacion = detalleService.listarPorCotizacion(id);
 
 			model.addAttribute("cotizacion", cotizacion);
 			model.addAttribute("detalles", detallesDeEstaCotizacion);

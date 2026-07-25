@@ -10,6 +10,7 @@ public interface IDetalleCService {
 	List<DetalleCResponseDto> listarDetalles();
 	void guardarDetalle(DetalleCRequestDto detalle);
 	DetalleCResponseDto buscarPorId(int idDetalleC);
+	List<DetalleCResponseDto> listarPorCotizacion(int idCotizacion);
 	void eliminarDetalle(int idDetalleC);
 
 }

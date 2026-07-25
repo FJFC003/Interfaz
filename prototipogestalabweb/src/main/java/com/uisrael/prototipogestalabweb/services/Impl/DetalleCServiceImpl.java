@@ -56,4 +56,14 @@ public class DetalleCServiceImpl implements IDetalleCService{
 		.block();
 	}
 
+	@Override
+	public List<DetalleCResponseDto> listarPorCotizacion(int idCotizacion) {
+		// TODO Auto-generated method stub
+		return webClient.get().uri("/gestalab/detallecotizacion/porcotizacion/{id}", idCotizacion)
+				.retrieve()
+				.bodyToFlux(DetalleCResponseDto.class)
+				.collectList()
+				.block();
+	}
+
 }
