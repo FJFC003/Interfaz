@@ -29,15 +29,7 @@ public class ClienteCServiceImpl implements IClienteCService{
 				.block();
 	}
 
-	@Override
-	public void guardarCliente(ClienteCRequestDto cliente) {
-		// TODO Auto-generated method stub
-		webClient.post().uri("/gestalab/cliente")
-		.bodyValue(cliente)
-		.retrieve()
-		.toBodilessEntity()
-		.block();
-	}
+	
 
 	@Override
 	public ClienteCResponseDto buscarPorId(int idClienteC) {
@@ -55,6 +47,16 @@ public class ClienteCServiceImpl implements IClienteCService{
 		.retrieve()
 		.toBodilessEntity()
 		.block();
+	}
+
+	@Override
+	public ClienteCResponseDto guardarCliente(ClienteCRequestDto cliente) {
+		// TODO Auto-generated method stub
+		return webClient.post().uri("/gestalab/cliente")
+				.bodyValue(cliente)
+				.retrieve()
+				.bodyToMono(ClienteCResponseDto.class)
+				.block();
 	}
 	
 	

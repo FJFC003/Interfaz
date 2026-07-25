@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.uisrael.prototipogestalabweb.model.dto.request.ClienteCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.CotizacionCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.DetalleCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoNormServiCResponseDto;
@@ -68,11 +70,57 @@ public class CotizacionController {
 	}
 
 	@PostMapping("/guardar")
-	public String guardarCotizacion(@ModelAttribute CotizacionCRequestDto cotizacion) {
+	public String guardarCotizacion(
+			@ModelAttribute CotizacionCRequestDto cotizacion,
+			@RequestParam(required = false) String clienteNuevoTipo,
+			@RequestParam(required = false) String clienteNuevoCi,
+			@RequestParam(required = false) String clienteNuevoNombre,
+			@RequestParam(required = false) String clienteNuevoContacto,
+			@RequestParam(required = false) String clienteNuevoDireccion,
+			@RequestParam(required = false) String clienteNuevoTelefono,
+			@RequestParam(required = false) String clienteNuevoCorreo,
+			@RequestParam(required = false) List<Integer> detalleParametro,
+			@RequestParam(required = false) List<Integer> detalleNorma,
+			@RequestParam(required = false) List<Integer> detalleCantidadPuntos,
+			@RequestParam(required = false) List<String> detallePlazoEntrega,
+			@RequestParam(required = false) List<Double> detallePrecioUnitario,
+			@RequestParam(required = false) List<String> detalleCondicion) {
+
 		if (cotizacion.getFechaElaboracionCotizacionC() == null) {
 			cotizacion.setFechaElaboracionCotizacionC(new Date());
 		}
+
+		if (cotizacion.getFkCliente() == 0 && clienteNuevoNombre != null && !clienteNuevoNombre.isBlank()) {
+			ClienteCRequestDto nuevoCliente = new ClienteCRequestDto();
+			nuevoCliente.setTipoClienteC(clienteNuevoTipo);
+			nuevoCliente.setCiClienteC(clienteNuevoCi);
+			nuevoCliente.setNombreRazonSocialClienteC(clienteNuevoNombre);
+			nuevoCliente.setNombrePersonaContactoClienteC(clienteNuevoContacto);
+			nuevoCliente.setDireccionClienteC(clienteNuevoDireccion);
+			nuevoCliente.setTelefonoClienteC(clienteNuevoTelefono);
+			nuevoCliente.setCorreoClienteC(clienteNuevoCorreo);
+			nuevoCliente.setEstadoClienteC(true);
+			ClienteCResponseDto clienteCreado = clienteService.guardarCliente(nuevoCliente);
+			cotizacion.setFkCliente(clienteCreado.getIdClienteC());
+		}
+
 		CotizacionCResponseDto guardada = cotizacionService.guardarCotizacion(cotizacion);
+
+		if (detalleParametro != null) {
+			for (int i = 0; i < detalleParametro.size(); i++) {
+				DetalleCRequestDto detalle = new DetalleCRequestDto();
+				detalle.setFkCotizacion(guardada.getIdCotizacionC());
+				detalle.setFkParametro(detalleParametro.get(i));
+				detalle.setFkNormaServicio(detalleNorma.get(i));
+				detalle.setCantidadPuntosDetalleC(detalleCantidadPuntos.get(i));
+				detalle.setPlazoEntregaDetalleC(detallePlazoEntrega.get(i));
+				detalle.setPrecioUnitarioDetalleC(detallePrecioUnitario.get(i));
+				detalle.setCondicionDetalleC(detalleCondicion.get(i));
+				detalle.setPrecioTotalDetalleC(detallePrecioUnitario.get(i) * detalleCantidadPuntos.get(i));
+				detalleService.guardarDetalle(detalle);
+			}
+		}
+
 		return "redirect:/cotizacion/detalle/" + guardada.getIdCotizacionC() + "?success=true";
 	}
 
@@ -138,8 +186,6 @@ public class CotizacionController {
 	public String verDetalle(@PathVariable int id, Model model) {
 		try {
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(id);
-
-			List<DetalleCResponseDto> todosLosDetalles = detalleService.listarDetalles();
 			List<DetalleCResponseDto> detallesDeEstaCotizacion = detalleService.listarPorCotizacion(id);
 
 			model.addAttribute("cotizacion", cotizacion);
@@ -179,9 +225,13 @@ public class CotizacionController {
 		List<ClienteCResponseDto> clientes = clienteService.listarClientes();
 		List<CatalogoTerminoCondiCResponseDto> terminos = terminoService.listarTerminos();
 		List<EmpleadoResponseDto> empleados = empleadoService.listarEmpleados();
+		List<CatalogoParametroCResponseDto> parametros = parametroService.listarParametros();
+		List<CatalogoNormServiCResponseDto> normas = normaService.listarNormas();
 		model.addAttribute("clientes", clientes);
 		model.addAttribute("terminos", terminos);
 		model.addAttribute("empleados", empleados);
+		model.addAttribute("parametros", parametros);
+		model.addAttribute("normas", normas);
 	}
 
 }

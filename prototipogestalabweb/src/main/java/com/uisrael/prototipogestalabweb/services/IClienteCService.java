@@ -8,7 +8,7 @@ import com.uisrael.prototipogestalabweb.model.dto.response.ClienteCResponseDto;
 public interface IClienteCService {
 	
 	List<ClienteCResponseDto> listarClientes();
-	void guardarCliente(ClienteCRequestDto cliente);
+	ClienteCResponseDto guardarCliente(ClienteCRequestDto cliente);
 	ClienteCResponseDto buscarPorId(int idClienteC);
 	void eliminarCliente(int idClienteC);
 
