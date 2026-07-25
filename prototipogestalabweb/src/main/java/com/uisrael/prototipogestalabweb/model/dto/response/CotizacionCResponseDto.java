@@ -19,6 +19,7 @@ public class CotizacionCResponseDto {
 	private double costoLogistica;
 	private double Iva;
 	private double TotalCotizacionC;
+	private boolean estadoCotizacionC;
 	private ClienteCResponseDto fkCliente;
 	private EmpleadoResponseDto fkEmpleado;
 

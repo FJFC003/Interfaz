@@ -25,6 +25,15 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <label for="fechaElaboracionCotizacionC" class="form-control-label">Fecha de Elaboración</label>
                                     <input type="date" class="form-control" id="fechaElaboracionCotizacionC" th:field="*{fechaElaboracionCotizacionC}">
                                 </div>
+                                
+                                <div class="col-sm-4 mb-3">
+    <label for="estadoCotizacionC" class="form-control-label">Estado</label>
+    <div class="custom-control custom-checkbox mt-2">
+        <input type="checkbox" class="custom-control-input" id="estadoCotizacionC" th:field="*{estadoCotizacionC}" checked>
+        <label class="custom-control-label" for="estadoCotizacionC">Activa</label>
+    </div>
+</div>
+                                
                                 <div class="col-sm-4 mb-3">
                                     <label for="vigenciaDiasCotizacionC" class="form-control-label">Vigencia</label>
                                     <input type="text" class="form-control" id="vigenciaDiasCotizacionC" th:field="*{vigenciaDiasCotizacionC}" placeholder="Ej: 30 días">
@@ -133,41 +142,41 @@ layout:decorate="~{/plantilla/plantilla}">
                             <div class="form-group row">
                                 <div class="col-sm-4 mb-3">
                                     <label for="subtotalAgua" class="form-control-label">Subtotal Agua</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalAgua" th:field="*{subtotalAgua}">
+                                    <input type="number" step="0.01" class="form-control" id="subtotalAgua" th:field="*{subtotalAgua}" oninput="calcularTotales()">
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="subtotalRuido" class="form-control-label">Subtotal Ruido</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalRuido" th:field="*{subtotalRuido}">
+                                    <input type="number" step="0.01" class="form-control" id="subtotalRuido" th:field="*{subtotalRuido}" oninput="calcularTotales()">
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="subtotalEmiciones" class="form-control-label">Subtotal Emisiones</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalEmiciones" th:field="*{subtotalEmiciones}">
+                                    <input type="number" step="0.01" class="form-control" id="subtotalEmiciones" th:field="*{subtotalEmiciones}" oninput="calcularTotales()">
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-sm-4 mb-3">
                                     <label for="subtotalCalidad" class="form-control-label">Subtotal Calidad del Aire</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalCalidad" th:field="*{subtotalCalidad}">
+                                    <input type="number" step="0.01" class="form-control" id="subtotalCalidad" th:field="*{subtotalCalidad}" oninput="calcularTotales()">
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="subtotalSuelo" class="form-control-label">Subtotal Suelo</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalSuelo" th:field="*{subtotalSuelo}">
+                                    <input type="number" step="0.01" class="form-control" id="subtotalSuelo" th:field="*{subtotalSuelo}" oninput="calcularTotales()">
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="costoLogistica" class="form-control-label">Logística</label>
-                                    <input type="number" step="0.01" class="form-control" id="costoLogistica" th:field="*{costoLogistica}">
+                                    <input type="number" step="0.01" class="form-control" id="costoLogistica" th:field="*{costoLogistica}" oninput="calcularTotales()">
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-sm-4 mb-3">
                                     <label for="Iva" class="form-control-label">IVA (15%)</label>
-                                    <input type="number" step="0.01" class="form-control" id="Iva" th:field="*{Iva}">
+                                    <input type="number" step="0.01" class="form-control" id="Iva" th:field="*{Iva}" readonly>
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="TotalCotizacionC" class="form-control-label">Total</label>
-                                    <input type="number" step="0.01" class="form-control" id="TotalCotizacionC" th:field="*{TotalCotizacionC}">
+                                    <input type="number" step="0.01" class="form-control" id="TotalCotizacionC" th:field="*{TotalCotizacionC}" readonly>
                                 </div>
                             </div>
 
@@ -235,9 +244,26 @@ layout:decorate="~{/plantilla/plantilla}">
                 bloqueClienteNuevo.style.display = (seleccionCliente !== '0') ? 'none' : 'block';
             }
 
+            function calcularTotales() {
+                const agua = parseFloat(document.getElementById('subtotalAgua').value) || 0;
+                const ruido = parseFloat(document.getElementById('subtotalRuido').value) || 0;
+                const emisiones = parseFloat(document.getElementById('subtotalEmiciones').value) || 0;
+                const calidad = parseFloat(document.getElementById('subtotalCalidad').value) || 0;
+                const suelo = parseFloat(document.getElementById('subtotalSuelo').value) || 0;
+                const logistica = parseFloat(document.getElementById('costoLogistica').value) || 0;
+
+                const subtotal = agua + ruido + emisiones + calidad + suelo + logistica;
+                const iva = subtotal * 0.15;
+                const total = subtotal + iva;
+
+                document.getElementById('Iva').value = iva.toFixed(2);
+                document.getElementById('TotalCotizacionC').value = total.toFixed(2);
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 agregarFilaDetalle();
                 alternarClienteNuevo();
+                calcularTotales();
             });
         </script>
     </th:block>

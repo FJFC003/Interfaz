@@ -22,6 +22,7 @@ public class CotizacionCRequestDto {
 	private double costoLogistica;
 	private double Iva;
 	private double TotalCotizacionC;
+	private boolean estadoCotizacionC;
 	private int fkCliente;
 	private int fkEmpleado;
 

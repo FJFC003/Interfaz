@@ -145,9 +145,7 @@ public class CotizacionController {
 			if (actual.getFkCliente() != null) {
 				form.setFkCliente(actual.getFkCliente().getIdClienteC());
 			}
-			if (actual.getFkTerminoCondicion() != null) {
-				form.setFkTerminoCondicion(actual.getFkTerminoCondicion().getIdTerminoC());
-			}
+			
 			if (actual.getFkEmpleado() != null) {
 				form.setFkEmpleado(actual.getFkEmpleado().getIdEmpleado());
 			}

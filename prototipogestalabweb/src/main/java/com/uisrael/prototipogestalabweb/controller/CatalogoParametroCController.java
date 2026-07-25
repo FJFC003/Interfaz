@@ -12,19 +12,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.CatalogoParametroCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoParametroCResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.CondicionParametroCResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICatalogoParametroCService;
+import com.uisrael.prototipogestalabweb.services.ICondicionParametroCService;
 
 @Controller
 @RequestMapping("/parametro")
 public class CatalogoParametroCController {
-
+	
 	private final ICatalogoParametroCService parametroCService;
+	private final ICondicionParametroCService condicionService;
 
-	public CatalogoParametroCController(ICatalogoParametroCService parametroCService) {
+	public CatalogoParametroCController(ICatalogoParametroCService parametroCService,
+			ICondicionParametroCService condicionService) {
 		super();
 		this.parametroCService = parametroCService;
+		this.condicionService = condicionService;
 	}
-	
+
 	@GetMapping("/listar")
 	public String listarParametros(Model model) {
 		List<CatalogoParametroCResponseDto> parametros = parametroCService.listarParametros();
@@ -34,6 +39,8 @@ public class CatalogoParametroCController {
 
 	@GetMapping("/nuevo")
 	public String mostrarFormularioNuevo(Model model) {
+		List<CondicionParametroCResponseDto> condiciones = condicionService.listarCondiciones();
+		model.addAttribute("condiciones", condiciones);
 		model.addAttribute("parametro", new CatalogoParametroCRequestDto());
 		return "parametro/nuevoparametro";
 	}
@@ -51,7 +58,9 @@ public class CatalogoParametroCController {
 
 			CatalogoParametroCRequestDto form = new CatalogoParametroCRequestDto();
 			form.setIdParametroC(actual.getIdParametroC());
-			form.setCondicionParametroC(actual.getCondicionParametroC());
+			if (actual.getFkCondicionParametro() != null) {
+				form.setFkCondicionParametro(actual.getFkCondicionParametro().getIdCondicionParametroC());
+			}
 			form.setEnsayoParametroC(actual.getEnsayoParametroC());
 			form.setTecnicaParametroC(actual.getTecnicaParametroC());
 			form.setProcedimientoInternoParametroC(actual.getProcedimientoInternoParametroC());
@@ -59,6 +68,8 @@ public class CatalogoParametroCController {
 			form.setUnidadParametroC(actual.getUnidadParametroC());
 			form.setRangoTrabajoParametroC(actual.getRangoTrabajoParametroC());
 
+			List<CondicionParametroCResponseDto> condiciones = condicionService.listarCondiciones();
+			model.addAttribute("condiciones", condiciones);
 			model.addAttribute("parametro", form);
 			model.addAttribute("esEdicion", true);
 			return "parametro/editarparametro";

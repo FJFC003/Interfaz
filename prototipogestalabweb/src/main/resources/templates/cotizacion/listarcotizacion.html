@@ -47,12 +47,17 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Vigencia</th>
                                 <th>Total</th>
                                 <th>Acciones</th>
+                                <th>Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="cotizacion : ${cotizaciones}">
                                 <td th:text="${cotizacion.idCotizacionC}"></td>
                                 <td th:text="${#dates.format(cotizacion.fechaElaboracionCotizacionC, 'dd/MM/yyyy')}"></td>
+                                <td>
+    <span th:if="${cotizacion.estadoCotizacionC}" class="badge badge-success">Activa</span>
+    <span th:unless="${cotizacion.estadoCotizacionC}" class="badge badge-danger">Inactiva</span>
+</td>
                                 <td th:text="${cotizacion.fkCliente != null ? cotizacion.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
                                 <td th:text="${cotizacion.fkEmpleado != null ? cotizacion.fkEmpleado.nombre + ' ' + cotizacion.fkEmpleado.apellido : '-'}"></td>
                                 <td th:text="${cotizacion.vigenciaDiasCotizacionC}"></td>
