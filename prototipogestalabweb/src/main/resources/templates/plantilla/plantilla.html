@@ -133,6 +133,12 @@
     </a>
 </li>
 
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/condicionparametro/listar">
+        <i class="fas fa-fw fa-list-ol"></i> <span>Condiciones</span>
+    </a>
+</li>
+
 <!-- Divider -->
 <hr class="sidebar-divider d-none d-md-block">
 

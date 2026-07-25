@@ -6,7 +6,7 @@ import lombok.Data;
 public class CatalogoParametroCRequestDto {
 	
 	private int idParametroC;
-	private String condicionParametroC;
+	private int fkCondicionParametro;
 	private String ensayoParametroC;
 	private String tecnicaParametroC;
 	private String procedimientoInternoParametroC;

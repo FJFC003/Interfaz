@@ -187,7 +187,9 @@ public class CotizacionController {
 		try {
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(id);
 			List<DetalleCResponseDto> detallesDeEstaCotizacion = detalleService.listarPorCotizacion(id);
-
+			List<CatalogoTerminoCondiCResponseDto> todosLosTerminos = terminoService.listarTerminos();
+			
+			model.addAttribute("todosLosTerminos", todosLosTerminos);
 			model.addAttribute("cotizacion", cotizacion);
 			model.addAttribute("detalles", detallesDeEstaCotizacion);
 			model.addAttribute("nuevoDetalle", new DetalleCRequestDto());

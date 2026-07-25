@@ -97,23 +97,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 </div>
                             </div>
 
-                            <hr>
-                            <h6 class="font-weight-bold text-primary mb-3">Términos y Condiciones</h6>
-
-                            <div class="form-group row">
-                                <div class="col-sm-12 mb-3">
-                                    <select class="form-control" id="fkTerminoCondicion" th:field="*{fkTerminoCondicion}">
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="termino : ${terminos}"
-                                                th:value="${termino.idTerminoC}"
-                                                th:text="${termino.tituloTerminoC}"></option>
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Si el término que necesitas no existe todavía, créalo primero en
-                                        <a href="/termino/nuevo" target="_blank">Términos y Condiciones</a> y vuelve a esta pantalla.
-                                    </small>
-                                </div>
-                            </div>
+                            
 
                             <hr>
                             <h6 class="font-weight-bold text-primary mb-3">Detalle de Cotización</h6>

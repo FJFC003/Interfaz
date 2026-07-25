@@ -6,7 +6,7 @@ import lombok.Data;
 public class CatalogoParametroCResponseDto {
 	
 	private int idParametroC;
-	private String condicionParametroC;
+	private CondicionParametroCResponseDto fkCondicionParametro;
 	private String ensayoParametroC;
 	private String tecnicaParametroC;
 	private String procedimientoInternoParametroC;

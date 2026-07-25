@@ -20,7 +20,6 @@ public class CotizacionCResponseDto {
 	private double Iva;
 	private double TotalCotizacionC;
 	private ClienteCResponseDto fkCliente;
-	private CatalogoTerminoCondiCResponseDto fkTerminoCondicion;
 	private EmpleadoResponseDto fkEmpleado;
 
 }

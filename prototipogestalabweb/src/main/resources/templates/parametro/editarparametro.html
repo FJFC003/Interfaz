@@ -51,14 +51,17 @@ layout:decorate="~{/plantilla/plantilla}">
                             </div>
 
                             <div class="form-group mb-3">
-                                <label for="condicionParametroC" class="form-control-label">Condición</label>
-                                <select class="form-control" id="condicionParametroC" th:field="*{condicionParametroC}">
-                                    <option value="">-- Seleccione --</option>
-                                    <option value="1">1 - Parámetro acreditado</option>
-                                    <option value="2">2 - Parámetro subcontratado</option>
-                                    <option value="3">3 - Parámetro fuera del alcance de acreditación</option>
-                                </select>
-                            </div>
+    <label for="fkCondicionParametro" class="form-control-label">Condición</label>
+    <select class="form-control" id="fkCondicionParametro" th:field="*{fkCondicionParametro}">
+        <option value="0">-- Seleccione --</option>
+        <option th:each="c : ${condiciones}" th:value="${c.idCondicionParametroC}"
+                th:text="${c.codigoCondicionParametroC} + ' - ' + ${c.descripcionCondicionParametroC}"></option>
+    </select>
+    <small class="form-text text-muted">
+        Si la condición que necesitas no existe todavía, créala primero en
+        <a href="/condicionparametro/nuevo" target="_blank">Condiciones de Parámetro</a>.
+    </small>
+</div>
 
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
