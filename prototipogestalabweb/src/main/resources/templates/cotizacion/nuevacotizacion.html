@@ -56,7 +56,7 @@ layout:decorate="~{/plantilla/plantilla}">
                             <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
-                                    <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
+                                    <label for="fkNormaServicio" class="form-control-label">Parámetros </label>
                                     <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required onchange="cargarParesDeNorma()">
                                         <option value="0">-- Seleccione --</option>
                                         <option th:each="norma : ${normas}"
@@ -65,7 +65,18 @@ layout:decorate="~{/plantilla/plantilla}">
                                     </select>
                                 </div>
                                 <div class="col-sm-6 mb-3">
-                                    <label class="form-control-label">Parámetros y LMP que agrupa esta Norma</label>
+                                    <label for="fkLmp" class="form-control-label">LMP</label>
+                                    <select class="form-control" id="fkLmp" th:field="*{fkLmp}">
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="lmp : ${lmps}"
+                                                th:value="${lmp.idLmpC}"
+                                                th:text="${lmp.codigoLmpC} + ' - ' + ${lmp.valorLmpC}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 mb-3">
+                                    <label class="form-control-label">Parámetros y LMP que agrupa la Norma elegida</label>
                                     <div id="paresNormaContenedor" class="border rounded p-2 small text-muted" style="min-height: 38px;">
                                         Selecciona una Norma para ver sus pares.
                                     </div>

@@ -65,6 +65,15 @@ layout:decorate="~{/plantilla/plantilla}">
                                                 th:text="${norma.nombreCatalogoNormServiEntity}"></option>
                                     </select>
                                 </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkLmp" class="form-control-label">LMP</label>
+                                    <select class="form-control" id="fkLmp" th:field="*{fkLmp}">
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="lmp : ${lmps}"
+                                                th:value="${lmp.idLmpC}"
+                                                th:text="${lmp.codigoLmpC} + ' - ' + ${lmp.valorLmpC}"></option>
+                                    </select>
+                                </div>
                             </div>
 
                             <hr>

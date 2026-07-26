@@ -188,6 +188,9 @@ public class CotizacionController {
 			if (actual.getFkNormaServicio() != null) {
 				form.setFkNormaServicio(actual.getFkNormaServicio().getIdCatalogoNormServi());
 			}
+			if (actual.getFkLmp() != null) {
+				form.setFkLmp(actual.getFkLmp().getIdLmpC());
+			}
 
 			cargarListasDeApoyo(model);
 			model.addAttribute("cotizacion", form);
@@ -281,6 +284,6 @@ public class CotizacionController {
 		model.addAttribute("lmps", lmps);
 		model.addAttribute("descripciones", descripciones);
 		model.addAttribute("plazos", plazos);
+
 	}
- 
 }

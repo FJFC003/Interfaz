@@ -23,5 +23,5 @@ public class CotizacionCResponseDto {
 	private ClienteCResponseDto fkCliente;
 	private EmpleadoResponseDto fkEmpleado;
 	private CatalogoNormServiCResponseDto fkNormaServicio;
-
+	private LmpCResponseDto fkLmp;
 }
