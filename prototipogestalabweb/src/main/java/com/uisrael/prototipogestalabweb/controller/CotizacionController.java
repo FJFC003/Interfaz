@@ -72,36 +72,52 @@ public class CotizacionController {
 	@PostMapping("/guardar")
 	public String guardarCotizacion(
 			@ModelAttribute CotizacionCRequestDto cotizacion,
-			@RequestParam(required = false) String clienteNuevoTipo,
-			@RequestParam(required = false) String clienteNuevoCi,
-			@RequestParam(required = false) String clienteNuevoNombre,
-			@RequestParam(required = false) String clienteNuevoContacto,
-			@RequestParam(required = false) String clienteNuevoDireccion,
-			@RequestParam(required = false) String clienteNuevoTelefono,
-			@RequestParam(required = false) String clienteNuevoCorreo,
-			@RequestParam(required = false) List<Integer> detalleParametro,
-			@RequestParam(required = false) List<Integer> detalleNorma,
-			@RequestParam(required = false) List<Integer> detalleCantidadPuntos,
-			@RequestParam(required = false) List<String> detallePlazoEntrega,
-			@RequestParam(required = false) List<Double> detallePrecioUnitario,
-			@RequestParam(required = false) List<String> detalleCondicion) {
+	        @RequestParam(required = false) String clienteNuevoTipo,
+	        @RequestParam(required = false) String clienteNuevoCi,
+	        @RequestParam(required = false) String clienteNuevoNombre,
+	        @RequestParam(required = false) String clienteNuevoContacto,
+	        @RequestParam(required = false) String clienteNuevoDireccion,
+	        @RequestParam(required = false) String clienteNuevoTelefono,
+	        @RequestParam(required = false) String clienteNuevoCorreo,
+	        @RequestParam(required = false) List<Integer> detalleParametro,
+	        @RequestParam(required = false) List<Integer> detalleNorma,
+	        @RequestParam(required = false) List<String> detallePlazoEntrega) {
 
-		if (cotizacion.getFechaElaboracionCotizacionC() == null) {
-			cotizacion.setFechaElaboracionCotizacionC(new Date());
-		}
+	    if (cotizacion.getFechaElaboracionCotizacionC() == null) {
+	        cotizacion.setFechaElaboracionCotizacionC(new Date());
+	    }
 
-		if (cotizacion.getFkCliente() == 0 && clienteNuevoNombre != null && !clienteNuevoNombre.isBlank()) {
-			ClienteCRequestDto nuevoCliente = new ClienteCRequestDto();
-			nuevoCliente.setTipoClienteC(clienteNuevoTipo);
-			nuevoCliente.setCiClienteC(clienteNuevoCi);
-			nuevoCliente.setNombreRazonSocialClienteC(clienteNuevoNombre);
-			nuevoCliente.setNombrePersonaContactoClienteC(clienteNuevoContacto);
-			nuevoCliente.setDireccionClienteC(clienteNuevoDireccion);
-			nuevoCliente.setTelefonoClienteC(clienteNuevoTelefono);
-			nuevoCliente.setCorreoClienteC(clienteNuevoCorreo);
-			nuevoCliente.setEstadoClienteC(true);
-			ClienteCResponseDto clienteCreado = clienteService.guardarCliente(nuevoCliente);
-			cotizacion.setFkCliente(clienteCreado.getIdClienteC());
+	    if (cotizacion.getFkCliente() == 0 && clienteNuevoNombre != null && !clienteNuevoNombre.isBlank()) {
+	        ClienteCRequestDto nuevoCliente = new ClienteCRequestDto();
+	        nuevoCliente.setTipoClienteC(clienteNuevoTipo);
+	        nuevoCliente.setCiClienteC(clienteNuevoCi);
+	        nuevoCliente.setNombreRazonSocialClienteC(clienteNuevoNombre);
+	        nuevoCliente.setNombrePersonaContactoClienteC(clienteNuevoContacto);
+	        nuevoCliente.setDireccionClienteC(clienteNuevoDireccion);
+	        nuevoCliente.setTelefonoClienteC(clienteNuevoTelefono);
+	        nuevoCliente.setCorreoClienteC(clienteNuevoCorreo);
+	        nuevoCliente.setEstadoClienteC(true);
+	        ClienteCResponseDto clienteCreado = clienteService.guardarCliente(nuevoCliente);
+	        cotizacion.setFkCliente(clienteCreado.getIdClienteC());
+	    }
+
+	    CotizacionCResponseDto guardada = cotizacionService.guardarCotizacion(cotizacion);
+
+	    if (detalleParametro != null) {
+	        for (int i = 0; i < detalleParametro.size(); i++) {
+	            DetalleCRequestDto detalle = new DetalleCRequestDto();
+	            detalle.setFkCotizacion(guardada.getIdCotizacionC());
+	            detalle.setFkParametro(detalleParametro.get(i));
+	            detalle.setFkNormaServicio(detalleNorma.get(i));
+	            detalle.setPlazoEntregaDetalleC(detallePlazoEntrega.get(i));
+	            detalle.setCantidadPuntosDetalleC(1);
+	            detalle.setPrecioUnitarioDetalleC(0);
+	            detalle.setPrecioTotalDetalleC(0);
+	            detalleService.guardarDetalle(detalle);
+	        }
+	    }
+
+	    return "redirect:/cotizacion/detalle/" + guardada.getIdCotizacionC() + "?success=true";
 		}
 
 		CotizacionCResponseDto guardada = cotizacionService.guardarCotizacion(cotizacion);
