@@ -49,6 +49,15 @@ layout:decorate="~{/plantilla/plantilla}">
                         <p><strong>Elaborado Por:</strong> <span th:text="${cotizacion.fkEmpleado != null ? cotizacion.fkEmpleado.nombre + ' ' + cotizacion.fkEmpleado.apellido : '-'}"></span></p>
                     </div>
                 </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Parámetros:</strong> <span th:text="${cotizacion.fkNormaServicio != null ? cotizacion.fkNormaServicio.nombreCatalogoNormServiEntity : '-'}"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>LMP:</strong> <span th:text="${cotizacion.fkLmp != null ? cotizacion.fkLmp.codigoLmpC + ' - ' + cotizacion.fkLmp.valorLmpC : '-'}"></span></p>
+                    </div>
+                </div>
             </div>
         </div>
 
