@@ -112,10 +112,10 @@
     </a>
 </li>
 
-<!-- Nav Item - Catálogo de Parámetros (solo Coordinador Comercial) -->
+<!-- Nav Item - Catálogo de Ensayos (solo Coordinador Comercial) -->
 <li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
     <a class="nav-link" href="/parametro/listar">
-        <i class="fas fa-fw fa-flask"></i> <span>Parámetros</span>
+        <i class="fas fa-fw fa-flask"></i> <span>Ensayos</span>
     </a>
 </li>
 
