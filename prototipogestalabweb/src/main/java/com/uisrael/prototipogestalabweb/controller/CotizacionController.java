@@ -79,8 +79,8 @@ public class CotizacionController {
 			@RequestParam(required = false) String clienteNuevoDireccion,
 			@RequestParam(required = false) String clienteNuevoTelefono,
 			@RequestParam(required = false) String clienteNuevoCorreo,
+			@RequestParam(required = false) Integer normaGeneral,
 			@RequestParam(required = false) List<Integer> detalleParametro,
-			@RequestParam(required = false) List<Integer> detalleNorma,
 			@RequestParam(required = false) List<String> detallePlazoEntrega,
 			@RequestParam(required = false) List<Integer> detalleCantidadPuntos,
 			@RequestParam(required = false) List<Double> detallePrecioUnitario,
@@ -112,7 +112,7 @@ public class CotizacionController {
 				DetalleCRequestDto detalle = new DetalleCRequestDto();
 				detalle.setFkCotizacion(guardada.getIdCotizacionC());
 				detalle.setFkParametro(detalleParametro.get(i));
-				detalle.setFkNormaServicio(detalleNorma.get(i));
+				detalle.setFkNormaServicio(normaGeneral != null ? normaGeneral : 0);
 				detalle.setPlazoEntregaDetalleC(detallePlazoEntrega.get(i));
 				detalle.setCantidadPuntosDetalleC(detalleCantidadPuntos.get(i));
 				detalle.setPrecioUnitarioDetalleC(detallePrecioUnitario.get(i));

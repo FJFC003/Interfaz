@@ -50,6 +50,20 @@ layout:decorate="~{/plantilla/plantilla}">
                             </div>
 
                             <hr>
+                            <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="normaGeneral" class="form-control-label">Norma Ambiental / LMP *</label>
+                                    <select class="form-control" id="normaGeneral" name="normaGeneral" required>
+                                        <option value="">-- Seleccione --</option>
+                                        <option th:each="norma : ${normas}"
+                                                th:value="${norma.idCatalogoNormServi}"
+                                                th:text="${norma.parametroCatalogoNormServiEntity}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
                             <h6 class="font-weight-bold text-primary mb-3">Cliente</h6>
 
                             <div class="form-group row">
@@ -116,7 +130,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <thead class="bg-light">
                                         <tr>
                                             <th>Ensayo / Parámetro *</th>
-                                            <th>Norma Ambiental / LMP *</th>
                                             <th>Cantidad Puntos</th>
                                             <th>Plazo de Entrega *</th>
                                             <th>Precio Unitario (USD)</th>
@@ -130,7 +143,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 </table>
                             </div>
                             <small class="text-muted d-block mb-2">
-                                * Obligatorios: Parámetro, Norma y Plazo de Entrega.
+                                * Obligatorios: Parámetro y Plazo de Entrega (la Norma Ambiental se elige una sola vez arriba).
                             </small>
 
                             <button type="button" class="btn btn-outline-primary btn-sm mb-4" onclick="agregarFilaDetalle()">
@@ -200,7 +213,6 @@ layout:decorate="~{/plantilla/plantilla}">
     <th:block layout:fragment="scripts">
         <script th:inline="javascript">
             const parametrosDisponibles = /*[[${parametros}]]*/ [];
-            const normasDisponibles = /*[[${normas}]]*/ [];
 
             let contadorFilas = 0;
 
@@ -215,14 +227,8 @@ layout:decorate="~{/plantilla/plantilla}">
                     opcionesParametros += `<option value="${p.idParametroC}">${p.ensayoParametroC}</option>`;
                 });
 
-                let opcionesNormas = '<option value="">-- Seleccione --</option>';
-                normasDisponibles.forEach(n => {
-                    opcionesNormas += `<option value="${n.idCatalogoNormServi}">${n.parametroCatalogoNormServiEntity}</option>`;
-                });
-
                 fila.innerHTML = `
                     <td><select class="form-control form-control-sm" name="detalleParametro" required>${opcionesParametros}</select></td>
-                    <td><select class="form-control form-control-sm" name="detalleNorma" required>${opcionesNormas}</select></td>
                     <td><input type="number" class="form-control form-control-sm" name="detalleCantidadPuntos" value="1" min="1"></td>
                     <td><input type="text" class="form-control form-control-sm" name="detallePlazoEntrega" placeholder="Ej: 5 días hábiles" required></td>
                     <td><input type="number" step="0.01" class="form-control form-control-sm" name="detallePrecioUnitario" value="0"></td>
