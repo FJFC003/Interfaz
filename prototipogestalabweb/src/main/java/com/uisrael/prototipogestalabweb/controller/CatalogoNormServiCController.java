@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.CatalogoNormServiCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.NormaParametroLmpCRequestDto;
@@ -133,6 +134,14 @@ public class CatalogoNormServiCController {
 		} catch (Exception e) {
 			return "redirect:/norma/detalle/" + idNorma + "?error=true";
 		}
+	}
+
+	// Usado por Nueva/Editar Cotización vía fetch() para mostrar de qué
+	// Parámetros y LMP se compone la Norma elegida, sin recargar la página.
+	@GetMapping("/pares/{idNorma}")
+	@ResponseBody
+	public List<NormaParametroLmpCResponseDto> paresDeNormaJson(@PathVariable int idNorma) {
+		return asociacionService.listarPorNorma(idNorma);
 	}
 
 }
