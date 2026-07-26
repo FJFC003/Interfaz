@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Inicio - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="text-center" style="margin-top: 8rem;">
+            <i class="fas fa-house-user fa-3x text-gray-400 mb-3"></i>
+            <h1 class="h2 text-gray-800" th:if="${session.usuarioActual != null}">
+                Bienvenido, <span th:text="${session.usuarioActual.nombre}"></span>
+            </h1>
+            <h1 class="h2 text-gray-800" th:if="${session.usuarioActual == null}">
+                Bienvenido
+            </h1>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
