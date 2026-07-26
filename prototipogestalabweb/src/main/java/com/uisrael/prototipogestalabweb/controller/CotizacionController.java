@@ -61,14 +61,14 @@ public class CotizacionController {
 		model.addAttribute("cotizaciones", cotizaciones);
 		return "cotizacion/listarcotizacion";
 	}
-
+ 
 	@GetMapping("/nuevo")
 	public String mostrarFormularioNuevo(Model model) {
 		cargarListasDeApoyo(model);
 		model.addAttribute("cotizacion", new CotizacionCRequestDto());
 		return "cotizacion/nuevacotizacion";
 	}
-
+ 
 	@PostMapping("/guardar")
 	public String guardarCotizacion(
 			@ModelAttribute CotizacionCRequestDto cotizacion,
@@ -82,11 +82,11 @@ public class CotizacionController {
 	        @RequestParam(required = false) List<Integer> detalleParametro,
 	        @RequestParam(required = false) List<Integer> detalleNorma,
 	        @RequestParam(required = false) List<String> detallePlazoEntrega) {
-
+ 
 	    if (cotizacion.getFechaElaboracionCotizacionC() == null) {
 	        cotizacion.setFechaElaboracionCotizacionC(new Date());
 	    }
-
+ 
 	    if (cotizacion.getFkCliente() == 0 && clienteNuevoNombre != null && !clienteNuevoNombre.isBlank()) {
 	        ClienteCRequestDto nuevoCliente = new ClienteCRequestDto();
 	        nuevoCliente.setTipoClienteC(clienteNuevoTipo);
@@ -100,9 +100,9 @@ public class CotizacionController {
 	        ClienteCResponseDto clienteCreado = clienteService.guardarCliente(nuevoCliente);
 	        cotizacion.setFkCliente(clienteCreado.getIdClienteC());
 	    }
-
+ 
 	    CotizacionCResponseDto guardada = cotizacionService.guardarCotizacion(cotizacion);
-
+ 
 	    if (detalleParametro != null) {
 	        for (int i = 0; i < detalleParametro.size(); i++) {
 	            DetalleCRequestDto detalle = new DetalleCRequestDto();
@@ -116,35 +116,15 @@ public class CotizacionController {
 	            detalleService.guardarDetalle(detalle);
 	        }
 	    }
-
+ 
 	    return "redirect:/cotizacion/detalle/" + guardada.getIdCotizacionC() + "?success=true";
 		}
-
-		CotizacionCResponseDto guardada = cotizacionService.guardarCotizacion(cotizacion);
-
-		if (detalleParametro != null) {
-			for (int i = 0; i < detalleParametro.size(); i++) {
-				DetalleCRequestDto detalle = new DetalleCRequestDto();
-				detalle.setFkCotizacion(guardada.getIdCotizacionC());
-				detalle.setFkParametro(detalleParametro.get(i));
-				detalle.setFkNormaServicio(detalleNorma.get(i));
-				detalle.setCantidadPuntosDetalleC(detalleCantidadPuntos.get(i));
-				detalle.setPlazoEntregaDetalleC(detallePlazoEntrega.get(i));
-				detalle.setPrecioUnitarioDetalleC(detallePrecioUnitario.get(i));
-				detalle.setCondicionDetalleC(detalleCondicion.get(i));
-				detalle.setPrecioTotalDetalleC(detallePrecioUnitario.get(i) * detalleCantidadPuntos.get(i));
-				detalleService.guardarDetalle(detalle);
-			}
-		}
-
-		return "redirect:/cotizacion/detalle/" + guardada.getIdCotizacionC() + "?success=true";
-	}
-
+ 
 	@GetMapping("/editar/{id}")
 	public String mostrarFormularioEditar(@PathVariable int id, Model model) {
 		try {
 			CotizacionCResponseDto actual = cotizacionService.buscarPorId(id);
-
+ 
 			CotizacionCRequestDto form = new CotizacionCRequestDto();
 			form.setIdCotizacionC(actual.getIdCotizacionC());
 			form.setFechaElaboracionCotizacionC(actual.getFechaElaboracionCotizacionC());
@@ -165,7 +145,7 @@ public class CotizacionController {
 			if (actual.getFkEmpleado() != null) {
 				form.setFkEmpleado(actual.getFkEmpleado().getIdEmpleado());
 			}
-
+ 
 			cargarListasDeApoyo(model);
 			model.addAttribute("cotizacion", form);
 			model.addAttribute("esEdicion", true);
@@ -174,7 +154,7 @@ public class CotizacionController {
 			return "error";
 		}
 	}
-
+ 
 	@PostMapping("/actualizar/{id}")
 	public String actualizarCotizacion(@PathVariable int id, @ModelAttribute CotizacionCRequestDto cotizacion) {
 		cotizacion.setIdCotizacionC(id);
@@ -185,7 +165,7 @@ public class CotizacionController {
 			return "cotizacion/editarcotizacion";
 		}
 	}
-
+ 
 	@GetMapping("/eliminar/{id}")
 	public String eliminarCotizacion(@PathVariable int id) {
 		try {
@@ -195,7 +175,7 @@ public class CotizacionController {
 			return "redirect:/cotizacion/listar?error=true";
 		}
 	}
-
+ 
 	@GetMapping("/detalle/{id}")
 	public String verDetalle(@PathVariable int id, Model model) {
 		try {
@@ -207,18 +187,18 @@ public class CotizacionController {
 			model.addAttribute("cotizacion", cotizacion);
 			model.addAttribute("detalles", detallesDeEstaCotizacion);
 			model.addAttribute("nuevoDetalle", new DetalleCRequestDto());
-
+ 
 			List<CatalogoParametroCResponseDto> parametros = parametroService.listarParametros();
 			List<CatalogoNormServiCResponseDto> normas = normaService.listarNormas();
 			model.addAttribute("parametros", parametros);
 			model.addAttribute("normas", normas);
-
+ 
 			return "cotizacion/detallecotizacion";
 		} catch (Exception e) {
 			return "error";
 		}
 	}
-
+ 
 	@PostMapping("/detalle/guardar/{idCotizacion}")
 	public String guardarDetalle(@PathVariable int idCotizacion, @ModelAttribute DetalleCRequestDto detalle) {
 		detalle.setFkCotizacion(idCotizacion);
@@ -226,7 +206,7 @@ public class CotizacionController {
 		detalleService.guardarDetalle(detalle);
 		return "redirect:/cotizacion/detalle/" + idCotizacion + "?success=true";
 	}
-
+ 
 	@GetMapping("/detalle/eliminar/{idDetalle}/{idCotizacion}")
 	public String eliminarDetalle(@PathVariable int idDetalle, @PathVariable int idCotizacion) {
 		try {
@@ -236,7 +216,7 @@ public class CotizacionController {
 			return "redirect:/cotizacion/detalle/" + idCotizacion + "?error=true";
 		}
 	}
-
+ 
 	private void cargarListasDeApoyo(Model model) {
 		List<ClienteCResponseDto> clientes = clienteService.listarClientes();
 		List<CatalogoTerminoCondiCResponseDto> terminos = terminoService.listarTerminos();
@@ -249,5 +229,7 @@ public class CotizacionController {
 		model.addAttribute("parametros", parametros);
 		model.addAttribute("normas", normas);
 	}
-
+ 
 }
+
+
