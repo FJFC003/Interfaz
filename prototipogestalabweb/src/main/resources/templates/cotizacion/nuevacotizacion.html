@@ -132,10 +132,10 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <table class="table table-bordered table-sm" id="tablaDetalle">
                                     <thead class="bg-light">
                                         <tr>
+                                            <th>Descripción del Servicio</th>
                                             <th>Ensayo / Parámetro *</th>
                                             <th>LMP</th>
                                             <th>Plazo de Entrega *</th>
-                                            <th>Descripción del Servicio</th>
                                             <th>Cantidad Puntos</th>
                                             <th>Precio Unitario (USD)</th>
                                             <th>Condición</th>
@@ -250,10 +250,10 @@ layout:decorate="~{/plantilla/plantilla}">
                 });
 
                 fila.innerHTML = `
+                    <td><select class="form-control form-control-sm" name="detalleDescripcionServicio">${opcionesDescripcion}</select></td>
                     <td><select class="form-control form-control-sm" name="detalleParametro" required>${opcionesParametros}</select></td>
                     <td><select class="form-control form-control-sm" name="detalleLmp">${opcionesLmp}</select></td>
                     <td><select class="form-control form-control-sm" name="detallePlazoEntrega" required>${opcionesPlazo}</select></td>
-                    <td><select class="form-control form-control-sm" name="detalleDescripcionServicio">${opcionesDescripcion}</select></td>
                     <td><input type="number" class="form-control form-control-sm" name="detalleCantidadPuntos" value="1" min="1"></td>
                     <td><input type="number" step="0.01" class="form-control form-control-sm" name="detallePrecioUnitario" value="0"></td>
                     <td>
