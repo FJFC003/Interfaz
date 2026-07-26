@@ -24,6 +24,7 @@ import com.uisrael.prototipogestalabweb.model.dto.response.DescripcionServicioCR
 import com.uisrael.prototipogestalabweb.model.dto.response.DetalleCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.LmpCResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.PlazoEntregaCResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICatalogoNormServiCService;
 import com.uisrael.prototipogestalabweb.services.ICatalogoParametroCService;
@@ -35,6 +36,8 @@ import com.uisrael.prototipogestalabweb.services.IDetalleCService;
 import com.uisrael.prototipogestalabweb.services.IEmpleadoService;
 import com.uisrael.prototipogestalabweb.services.ILmpCService;
 import com.uisrael.prototipogestalabweb.services.IPlazoEntregaCService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/cotizacion")
@@ -77,9 +80,23 @@ public class CotizacionController {
 	}
 
 	@GetMapping("/nuevo")
-	public String mostrarFormularioNuevo(Model model) {
+	public String mostrarFormularioNuevo(Model model, HttpSession session) {
 		cargarListasDeApoyo(model);
-		model.addAttribute("cotizacion", new CotizacionCRequestDto());
+		CotizacionCRequestDto cotizacion = new CotizacionCRequestDto();
+
+		Object usuarioObj = session.getAttribute("usuarioActual");
+		if (usuarioObj instanceof LoginResponseDto usuarioActual) {
+			EmpleadoResponseDto empleadoActual = empleadoService.listarEmpleados().stream()
+					.filter(e -> e.getFkUsuario() != null && e.getFkUsuario().getIdUsuario() == usuarioActual.getIdUsuario())
+					.findFirst()
+					.orElse(null);
+			if (empleadoActual != null) {
+				cotizacion.setFkEmpleado(empleadoActual.getIdEmpleado());
+				model.addAttribute("empleadoActual", empleadoActual);
+			}
+		}
+
+		model.addAttribute("cotizacion", cotizacion);
 		return "cotizacion/nuevacotizacion";
 	}
 
@@ -267,5 +284,3 @@ public class CotizacionController {
 	}
  
 }
-
-

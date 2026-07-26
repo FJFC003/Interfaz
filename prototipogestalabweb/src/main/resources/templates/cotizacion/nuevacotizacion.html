@@ -39,16 +39,15 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <input type="text" class="form-control" id="vigenciaDiasCotizacionC" th:field="*{vigenciaDiasCotizacionC}" placeholder="Ej: 30 días">
                                 </div>
                                 <div class="col-sm-4 mb-3">
-                                    <label for="fkEmpleado" class="form-control-label">Elaborado Por (Empleado)</label>
-                                    <select class="form-control" id="fkEmpleado" th:field="*{fkEmpleado}">
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="empleado : ${empleados}"
-                                                th:value="${empleado.idEmpleado}"
-                                                th:text="${empleado.nombre} + ' ' + ${empleado.apellido}"></option>
-                                    </select>
-                                    <small th:if="${#lists.isEmpty(empleados)}" class="text-danger d-block mt-1">
-                                        No hay empleados registrados todavía —
-                                        <a href="/empleado/nuevo" target="_blank">créalos aquí</a> y recarga esta página.
+                                    <label class="form-control-label">Elaborado Por (Empleado)</label>
+                                    <input type="text" class="form-control" readonly
+                                           th:if="${empleadoActual != null}"
+                                           th:value="${empleadoActual.nombre} + ' ' + ${empleadoActual.apellido}">
+                                    <input type="hidden" th:if="${empleadoActual != null}" name="fkEmpleado" th:value="${empleadoActual.idEmpleado}">
+                                    <small th:if="${empleadoActual == null}" class="text-danger d-block">
+                                        Tu usuario no tiene un Empleado vinculado —
+                                        pídele al Gerente General que te asocie uno desde
+                                        <a href="/empleado/listar" target="_blank">Empleados</a> y vuelve a entrar.
                                     </small>
                                 </div>
                             </div>
