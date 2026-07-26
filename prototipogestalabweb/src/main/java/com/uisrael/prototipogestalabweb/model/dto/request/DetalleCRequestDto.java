@@ -6,14 +6,14 @@ import lombok.Data;
 public class DetalleCRequestDto {
 	
 	private int idDetalleC;
-	private String descripcionDetalleC;
-	private String plazoEntregaDetalleC;
 	private int cantidadPuntosDetalleC;
 	private double precioUnitarioDetalleC;
 	private double precioTotalDetalleC;
 	private String condicionDetalleC;
 	private int fkCotizacion;
 	private int fkParametro;
-	private int fkNormaServicio;
+	private int fkLmp;
+	private int fkDescripcionServicio;
+	private int fkPlazoEntrega;
 
 }

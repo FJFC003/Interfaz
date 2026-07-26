@@ -50,6 +50,20 @@ layout:decorate="~{/plantilla/plantilla}">
                             </div>
 
                             <hr>
+                            <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
+                                    <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
+                                        <option value="">-- Seleccione --</option>
+                                        <option th:each="norma : ${normas}"
+                                                th:value="${norma.idCatalogoNormServi}"
+                                                th:text="${norma.nombreCatalogoNormServiEntity}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
 <h6 class="font-weight-bold text-primary mb-3">Cliente</h6>
 
 <div class="form-group row">

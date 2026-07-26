@@ -19,13 +19,12 @@ layout:decorate="~{/plantilla/plantilla}">
                         <form th:action="@{/norma/guardar}" th:object="${norma}" method="POST">
 
                             <div class="form-group mb-3">
-                                <label for="parametroCatalogoNormServiEntity" class="form-control-label">Parámetro (Norma Ambiental)</label>
-                                <input type="text" class="form-control" id="parametroCatalogoNormServiEntity" th:field="*{parametroCatalogoNormServiEntity}" maxlength="255">
+                                <label for="nombreCatalogoNormServiEntity" class="form-control-label">Nombre de la Norma</label>
+                                <textarea class="form-control" id="nombreCatalogoNormServiEntity" th:field="*{nombreCatalogoNormServiEntity}" rows="3" maxlength="255" placeholder="Ej: Acuerdo Ministerial 097-A. Libro VI. Anexo1. Tabla 1"></textarea>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label for="lmpCatalogoNormServiEntity" class="form-control-label">Límite Máximo Permisible (LMP)</label>
-                                <input type="text" class="form-control" id="lmpCatalogoNormServiEntity" th:field="*{lmpCatalogoNormServiEntity}">
+                            <div class="alert alert-info small">
+                                <i class="fas fa-info-circle"></i> Después de guardar podrás asociar los Parámetros y sus LMP correspondientes desde "Gestionar pares".
                             </div>
 
                             <div class="form-group">

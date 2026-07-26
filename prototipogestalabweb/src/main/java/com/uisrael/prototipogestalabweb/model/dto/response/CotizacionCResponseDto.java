@@ -22,5 +22,6 @@ public class CotizacionCResponseDto {
 	private boolean estadoCotizacionC;
 	private ClienteCResponseDto fkCliente;
 	private EmpleadoResponseDto fkEmpleado;
+	private CatalogoNormServiCResponseDto fkNormaServicio;
 
 }

@@ -69,10 +69,9 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Ítem</th>
                                 <th>Cantidad Puntos</th>
                                 <th>Ensayo/Parámetro</th>
-                                <th>Técnica</th>
-                                <th>Norma</th>
-                                <th>Unidad</th>
-                                <th>Rango</th>
+                                <th>LMP</th>
+                                <th>Plazo de Entrega</th>
+                                <th>Descripción del Servicio</th>
                                 <th>P. Unitario</th>
                                 <th>P. Total</th>
                                 <th>Condición</th>
@@ -83,11 +82,10 @@ layout:decorate="~{/plantilla/plantilla}">
                             <tr th:each="det, iter : ${detalles}">
                                 <td th:text="${iter.count}"></td>
                                 <td th:text="${det.cantidadPuntosDetalleC}"></td>
-                                <td th:text="${det.fkParametro != null ? det.fkParametro.ensayoParametroC : det.descripcionDetalleC}"></td>
-                                <td th:text="${det.fkParametro != null ? det.fkParametro.tecnicaParametroC : '-'}"></td>
-                                <td th:text="${det.fkNormaServicio != null ? det.fkNormaServicio.parametroCatalogoNormServiEntity : '-'}"></td>
-                                <td th:text="${det.fkParametro != null ? det.fkParametro.unidadParametroC : '-'}"></td>
-                                <td th:text="${det.fkParametro != null ? det.fkParametro.rangoTrabajoParametroC : '-'}"></td>
+                                <td th:text="${det.fkParametro != null ? det.fkParametro.ensayoParametroC : '-'}"></td>
+                                <td th:text="${det.fkLmp != null ? det.fkLmp.valorLmpC : '-'}"></td>
+                                <td th:text="${det.fkPlazoEntrega != null ? det.fkPlazoEntrega.textoPlazoEntregaC : '-'}"></td>
+                                <td th:text="${det.fkDescripcionServicio != null ? det.fkDescripcionServicio.textoDescripcionServicioC : '-'}"></td>
                                 <td th:text="'$ ' + ${#numbers.formatDecimal(det.precioUnitarioDetalleC, 1, 2)}"></td>
                                 <td th:text="'$ ' + ${#numbers.formatDecimal(det.precioTotalDetalleC, 1, 2)}"></td>
                                 <td th:text="${det.condicionDetalleC}"></td>
@@ -124,24 +122,41 @@ layout:decorate="~{/plantilla/plantilla}">
                             </select>
                         </div>
                         <div class="col-sm-6 mb-3">
-                            <label for="fkNormaServicio" class="form-control-label">Norma Ambiental / LMP</label>
-                            <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}">
+                            <label for="fkLmp" class="form-control-label">LMP</label>
+                            <select class="form-control" id="fkLmp" th:field="*{fkLmp}">
                                 <option value="0">-- Seleccione --</option>
-                                <option th:each="n : ${normas}" th:value="${n.idCatalogoNormServi}" th:text="${n.parametroCatalogoNormServiEntity}"></option>
+                                <option th:each="l : ${lmps}" th:value="${l.idLmpC}" th:text="${l.codigoLmpC} + ' - ' + ${l.valorLmpC}"></option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group row">
-                        <div class="col-sm-3 mb-3">
+                        <div class="col-sm-6 mb-3">
+                            <label for="fkPlazoEntrega" class="form-control-label">Plazo de Entrega</label>
+                            <select class="form-control" id="fkPlazoEntrega" th:field="*{fkPlazoEntrega}">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="pl : ${plazos}" th:value="${pl.idPlazoEntregaC}" th:text="${pl.textoPlazoEntregaC}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="fkDescripcionServicio" class="form-control-label">Descripción del Servicio</label>
+                            <select class="form-control" id="fkDescripcionServicio" th:field="*{fkDescripcionServicio}">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="ds : ${descripciones}" th:value="${ds.idDescripcionServicioC}" th:text="${ds.textoDescripcionServicioC}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4 mb-3">
                             <label for="cantidadPuntosDetalleC" class="form-control-label">Cantidad de Puntos</label>
                             <input type="number" class="form-control" id="cantidadPuntosDetalleC" th:field="*{cantidadPuntosDetalleC}">
                         </div>
-                        <div class="col-sm-3 mb-3">
+                        <div class="col-sm-4 mb-3">
                             <label for="precioUnitarioDetalleC" class="form-control-label">Precio Unitario (USD)</label>
                             <input type="number" step="0.01" class="form-control" id="precioUnitarioDetalleC" th:field="*{precioUnitarioDetalleC}">
                         </div>
-                        <div class="col-sm-3 mb-3">
+                        <div class="col-sm-4 mb-3">
                             <label for="condicionDetalleC" class="form-control-label">Condición</label>
                             <select class="form-control" id="condicionDetalleC" th:field="*{condicionDetalleC}">
                                 <option value="">-- Seleccione --</option>
@@ -150,15 +165,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <option value="3">3 - Fuera de alcance</option>
                             </select>
                         </div>
-                        <div class="col-sm-3 mb-3">
-                            <label for="plazoEntregaDetalleC" class="form-control-label">Plazo de Entrega</label>
-                            <input type="text" class="form-control" id="plazoEntregaDetalleC" th:field="*{plazoEntregaDetalleC}">
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="descripcionDetalleC" class="form-control-label">Descripción (opcional, si no se eligió un parámetro del catálogo)</label>
-                        <input type="text" class="form-control" id="descripcionDetalleC" th:field="*{descripcionDetalleC}">
                     </div>
 
                     <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar Línea</button>

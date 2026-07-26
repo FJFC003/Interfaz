@@ -25,5 +25,6 @@ public class CotizacionCRequestDto {
 	private boolean estadoCotizacionC;
 	private int fkCliente;
 	private int fkEmpleado;
+	private int fkNormaServicio;
 
 }

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Gestionar Norma - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-book"></i>
+                Norma #<span th:text="${norma.idCatalogoNormServi}"></span>
+            </h1>
+            <a href="/norma/listar" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left"></i> Volver al Listado
+            </a>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <p><strong>Nombre:</strong> <span th:text="${norma.nombreCatalogoNormServiEntity}"></span></p>
+            </div>
+        </div>
+
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Operación realizada exitosamente
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Parámetros y LMP asociados a esta Norma</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Ensayo / Parámetro</th>
+                                <th>LMP</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="par : ${pares}">
+                                <td th:text="${par.fkParametro != null ? par.fkParametro.ensayoParametroC : '-'}"></td>
+                                <td th:text="${par.fkLmp != null ? par.fkLmp.valorLmpC : '-'}"></td>
+                                <td>
+                                    <a th:href="@{/norma/detalle/eliminar/{idPar}/{idNorma}(idPar=${par.idNormaParametroLmpC},idNorma=${norma.idCatalogoNormServi})}"
+                                       class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${#lists.isEmpty(pares)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aún no hay pares Parámetro-LMP asociados — agrega el primero abajo.
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Asociar Parámetro-LMP</h6>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/norma/detalle/asociar/{id}(id=${norma.idCatalogoNormServi})}" th:object="${nuevaAsociacion}" method="POST">
+
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="fkParametro" class="form-control-label">Ensayo / Parámetro</label>
+                            <select class="form-control" id="fkParametro" th:field="*{fkParametro}" required>
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="p : ${parametros}" th:value="${p.idParametroC}" th:text="${p.ensayoParametroC}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="fkLmp" class="form-control-label">LMP</label>
+                            <select class="form-control" id="fkLmp" th:field="*{fkLmp}" required>
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="l : ${lmps}" th:value="${l.idLmpC}" th:text="${l.codigoLmpC} + ' - ' + ${l.valorLmpC}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-link"></i> Asociar</button>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

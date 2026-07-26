@@ -20,15 +20,21 @@ import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoParametroCRes
 import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoTerminoCondiCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ClienteCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CotizacionCResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.DescripcionServicioCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.DetalleCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.LmpCResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.PlazoEntregaCResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICatalogoNormServiCService;
 import com.uisrael.prototipogestalabweb.services.ICatalogoParametroCService;
 import com.uisrael.prototipogestalabweb.services.ICatalogoTerminoCondiCService;
 import com.uisrael.prototipogestalabweb.services.IClienteCService;
 import com.uisrael.prototipogestalabweb.services.ICotizacionCService;
+import com.uisrael.prototipogestalabweb.services.IDescripcionServicioCService;
 import com.uisrael.prototipogestalabweb.services.IDetalleCService;
 import com.uisrael.prototipogestalabweb.services.IEmpleadoService;
+import com.uisrael.prototipogestalabweb.services.ILmpCService;
+import com.uisrael.prototipogestalabweb.services.IPlazoEntregaCService;
 
 @Controller
 @RequestMapping("/cotizacion")
@@ -41,10 +47,15 @@ public class CotizacionController {
 	private final IEmpleadoService empleadoService;
 	private final ICatalogoParametroCService parametroService;
 	private final ICatalogoNormServiCService normaService;
+	private final ILmpCService lmpService;
+	private final IDescripcionServicioCService descripcionServicioService;
+	private final IPlazoEntregaCService plazoEntregaService;
+	
 	public CotizacionController(ICotizacionCService cotizacionService, IDetalleCService detalleService,
 			IClienteCService clienteService, ICatalogoTerminoCondiCService terminoService,
 			IEmpleadoService empleadoService, ICatalogoParametroCService parametroService,
-			ICatalogoNormServiCService normaService) {
+			ICatalogoNormServiCService normaService, ILmpCService lmpService,
+			IDescripcionServicioCService descripcionServicioService, IPlazoEntregaCService plazoEntregaService) {
 		super();
 		this.cotizacionService = cotizacionService;
 		this.detalleService = detalleService;
@@ -53,22 +64,25 @@ public class CotizacionController {
 		this.empleadoService = empleadoService;
 		this.parametroService = parametroService;
 		this.normaService = normaService;
+		this.lmpService = lmpService;
+		this.descripcionServicioService = descripcionServicioService;
+		this.plazoEntregaService = plazoEntregaService;
 	}
-	
+
 	@GetMapping("/listar")
 	public String listarCotizaciones(Model model) {
 		List<CotizacionCResponseDto> cotizaciones = cotizacionService.listarCotizaciones();
 		model.addAttribute("cotizaciones", cotizaciones);
 		return "cotizacion/listarcotizacion";
 	}
- 
+
 	@GetMapping("/nuevo")
 	public String mostrarFormularioNuevo(Model model) {
 		cargarListasDeApoyo(model);
 		model.addAttribute("cotizacion", new CotizacionCRequestDto());
 		return "cotizacion/nuevacotizacion";
 	}
- 
+
 	@PostMapping("/guardar")
 	public String guardarCotizacion(
 			@ModelAttribute CotizacionCRequestDto cotizacion,
@@ -79,18 +93,18 @@ public class CotizacionController {
 			@RequestParam(required = false) String clienteNuevoDireccion,
 			@RequestParam(required = false) String clienteNuevoTelefono,
 			@RequestParam(required = false) String clienteNuevoCorreo,
-			@RequestParam(required = false) Integer normaGeneral,
 			@RequestParam(required = false) List<Integer> detalleParametro,
-			@RequestParam(required = false) List<String> detallePlazoEntrega,
+			@RequestParam(required = false) List<Integer> detalleLmp,
+			@RequestParam(required = false) List<Integer> detalleDescripcionServicio,
+			@RequestParam(required = false) List<Integer> detallePlazoEntrega,
 			@RequestParam(required = false) List<Integer> detalleCantidadPuntos,
 			@RequestParam(required = false) List<Double> detallePrecioUnitario,
-			@RequestParam(required = false) List<String> detalleCondicion,
-			@RequestParam(required = false) List<String> detalleDescripcion) {
- 
+			@RequestParam(required = false) List<String> detalleCondicion) {
+
 		if (cotizacion.getFechaElaboracionCotizacionC() == null) {
 			cotizacion.setFechaElaboracionCotizacionC(new Date());
 		}
- 
+
 		if (cotizacion.getFkCliente() == 0 && clienteNuevoNombre != null && !clienteNuevoNombre.isBlank()) {
 			ClienteCRequestDto nuevoCliente = new ClienteCRequestDto();
 			nuevoCliente.setTipoClienteC(clienteNuevoTipo);
@@ -104,35 +118,37 @@ public class CotizacionController {
 			ClienteCResponseDto clienteCreado = clienteService.guardarCliente(nuevoCliente);
 			cotizacion.setFkCliente(clienteCreado.getIdClienteC());
 		}
- 
+
 		CotizacionCResponseDto guardada = cotizacionService.guardarCotizacion(cotizacion);
- 
+
 		if (detalleParametro != null) {
 			for (int i = 0; i < detalleParametro.size(); i++) {
 				DetalleCRequestDto detalle = new DetalleCRequestDto();
 				detalle.setFkCotizacion(guardada.getIdCotizacionC());
 				detalle.setFkParametro(detalleParametro.get(i));
-				detalle.setFkNormaServicio(normaGeneral != null ? normaGeneral : 0);
-				detalle.setPlazoEntregaDetalleC(detallePlazoEntrega.get(i));
+				if (detalleLmp != null && i < detalleLmp.size()) {
+					detalle.setFkLmp(detalleLmp.get(i));
+				}
+				if (detalleDescripcionServicio != null && i < detalleDescripcionServicio.size()) {
+					detalle.setFkDescripcionServicio(detalleDescripcionServicio.get(i));
+				}
+				detalle.setFkPlazoEntrega(detallePlazoEntrega.get(i));
 				detalle.setCantidadPuntosDetalleC(detalleCantidadPuntos.get(i));
 				detalle.setPrecioUnitarioDetalleC(detallePrecioUnitario.get(i));
 				detalle.setCondicionDetalleC(detalleCondicion.get(i));
 				detalle.setPrecioTotalDetalleC(detallePrecioUnitario.get(i) * detalleCantidadPuntos.get(i));
-				if (detalleDescripcion != null && i < detalleDescripcion.size()) {
-					detalle.setDescripcionDetalleC(detalleDescripcion.get(i));
-				}
 				detalleService.guardarDetalle(detalle);
 			}
 		}
- 
+
 		return "redirect:/cotizacion/detalle/" + guardada.getIdCotizacionC() + "?success=true";
 	}
- 
+
 	@GetMapping("/editar/{id}")
 	public String mostrarFormularioEditar(@PathVariable int id, Model model) {
 		try {
 			CotizacionCResponseDto actual = cotizacionService.buscarPorId(id);
- 
+
 			CotizacionCRequestDto form = new CotizacionCRequestDto();
 			form.setIdCotizacionC(actual.getIdCotizacionC());
 			form.setFechaElaboracionCotizacionC(actual.getFechaElaboracionCotizacionC());
@@ -149,11 +165,13 @@ public class CotizacionController {
 			if (actual.getFkCliente() != null) {
 				form.setFkCliente(actual.getFkCliente().getIdClienteC());
 			}
-			
 			if (actual.getFkEmpleado() != null) {
 				form.setFkEmpleado(actual.getFkEmpleado().getIdEmpleado());
 			}
- 
+			if (actual.getFkNormaServicio() != null) {
+				form.setFkNormaServicio(actual.getFkNormaServicio().getIdCatalogoNormServi());
+			}
+
 			cargarListasDeApoyo(model);
 			model.addAttribute("cotizacion", form);
 			model.addAttribute("esEdicion", true);
@@ -162,7 +180,7 @@ public class CotizacionController {
 			return "error";
 		}
 	}
- 
+
 	@PostMapping("/actualizar/{id}")
 	public String actualizarCotizacion(@PathVariable int id, @ModelAttribute CotizacionCRequestDto cotizacion) {
 		cotizacion.setIdCotizacionC(id);
@@ -173,7 +191,7 @@ public class CotizacionController {
 			return "cotizacion/editarcotizacion";
 		}
 	}
- 
+
 	@GetMapping("/eliminar/{id}")
 	public String eliminarCotizacion(@PathVariable int id) {
 		try {
@@ -183,7 +201,7 @@ public class CotizacionController {
 			return "redirect:/cotizacion/listar?error=true";
 		}
 	}
- 
+
 	@GetMapping("/detalle/{id}")
 	public String verDetalle(@PathVariable int id, Model model) {
 		try {
@@ -195,18 +213,22 @@ public class CotizacionController {
 			model.addAttribute("cotizacion", cotizacion);
 			model.addAttribute("detalles", detallesDeEstaCotizacion);
 			model.addAttribute("nuevoDetalle", new DetalleCRequestDto());
- 
+
 			List<CatalogoParametroCResponseDto> parametros = parametroService.listarParametros();
-			List<CatalogoNormServiCResponseDto> normas = normaService.listarNormas();
+			List<LmpCResponseDto> lmps = lmpService.listarLmpCs();
+			List<DescripcionServicioCResponseDto> descripciones = descripcionServicioService.listarDescripcionServicioCs();
+			List<PlazoEntregaCResponseDto> plazos = plazoEntregaService.listarPlazoEntregaCs();
 			model.addAttribute("parametros", parametros);
-			model.addAttribute("normas", normas);
- 
+			model.addAttribute("lmps", lmps);
+			model.addAttribute("descripciones", descripciones);
+			model.addAttribute("plazos", plazos);
+
 			return "cotizacion/detallecotizacion";
 		} catch (Exception e) {
 			return "error";
 		}
 	}
- 
+
 	@PostMapping("/detalle/guardar/{idCotizacion}")
 	public String guardarDetalle(@PathVariable int idCotizacion, @ModelAttribute DetalleCRequestDto detalle) {
 		detalle.setFkCotizacion(idCotizacion);
@@ -214,7 +236,7 @@ public class CotizacionController {
 		detalleService.guardarDetalle(detalle);
 		return "redirect:/cotizacion/detalle/" + idCotizacion + "?success=true";
 	}
- 
+
 	@GetMapping("/detalle/eliminar/{idDetalle}/{idCotizacion}")
 	public String eliminarDetalle(@PathVariable int idDetalle, @PathVariable int idCotizacion) {
 		try {
@@ -224,18 +246,24 @@ public class CotizacionController {
 			return "redirect:/cotizacion/detalle/" + idCotizacion + "?error=true";
 		}
 	}
- 
+
 	private void cargarListasDeApoyo(Model model) {
 		List<ClienteCResponseDto> clientes = clienteService.listarClientes();
 		List<CatalogoTerminoCondiCResponseDto> terminos = terminoService.listarTerminos();
 		List<EmpleadoResponseDto> empleados = empleadoService.listarEmpleados();
 		List<CatalogoParametroCResponseDto> parametros = parametroService.listarParametros();
 		List<CatalogoNormServiCResponseDto> normas = normaService.listarNormas();
+		List<LmpCResponseDto> lmps = lmpService.listarLmpCs();
+		List<DescripcionServicioCResponseDto> descripciones = descripcionServicioService.listarDescripcionServicioCs();
+		List<PlazoEntregaCResponseDto> plazos = plazoEntregaService.listarPlazoEntregaCs();
 		model.addAttribute("clientes", clientes);
 		model.addAttribute("terminos", terminos);
 		model.addAttribute("empleados", empleados);
 		model.addAttribute("parametros", parametros);
 		model.addAttribute("normas", normas);
+		model.addAttribute("lmps", lmps);
+		model.addAttribute("descripciones", descripciones);
+		model.addAttribute("plazos", plazos);
 	}
  
 }

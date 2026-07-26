@@ -53,12 +53,12 @@ layout:decorate="~{/plantilla/plantilla}">
                             <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
-                                    <label for="normaGeneral" class="form-control-label">Norma Ambiental / LMP *</label>
-                                    <select class="form-control" id="normaGeneral" name="normaGeneral" required>
+                                    <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
+                                    <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
                                         <option value="">-- Seleccione --</option>
                                         <option th:each="norma : ${normas}"
                                                 th:value="${norma.idCatalogoNormServi}"
-                                                th:text="${norma.parametroCatalogoNormServiEntity}"></option>
+                                                th:text="${norma.nombreCatalogoNormServiEntity}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -130,11 +130,12 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <thead class="bg-light">
                                         <tr>
                                             <th>Ensayo / Parámetro *</th>
-                                            <th>Cantidad Puntos</th>
+                                            <th>LMP</th>
                                             <th>Plazo de Entrega *</th>
+                                            <th>Descripción del Servicio</th>
+                                            <th>Cantidad Puntos</th>
                                             <th>Precio Unitario (USD)</th>
                                             <th>Condición</th>
-                                            <th>Descripción</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -213,6 +214,9 @@ layout:decorate="~{/plantilla/plantilla}">
     <th:block layout:fragment="scripts">
         <script th:inline="javascript">
             const parametrosDisponibles = /*[[${parametros}]]*/ [];
+            const lmpsDisponibles = /*[[${lmps}]]*/ [];
+            const descripcionesDisponibles = /*[[${descripciones}]]*/ [];
+            const plazosDisponibles = /*[[${plazos}]]*/ [];
 
             let contadorFilas = 0;
 
@@ -227,10 +231,27 @@ layout:decorate="~{/plantilla/plantilla}">
                     opcionesParametros += `<option value="${p.idParametroC}">${p.ensayoParametroC}</option>`;
                 });
 
+                let opcionesLmp = '<option value="">-- Seleccione --</option>';
+                lmpsDisponibles.forEach(l => {
+                    opcionesLmp += `<option value="${l.idLmpC}">${l.codigoLmpC} - ${l.valorLmpC}</option>`;
+                });
+
+                let opcionesPlazo = '<option value="">-- Seleccione --</option>';
+                plazosDisponibles.forEach(pl => {
+                    opcionesPlazo += `<option value="${pl.idPlazoEntregaC}">${pl.textoPlazoEntregaC}</option>`;
+                });
+
+                let opcionesDescripcion = '<option value="">-- Seleccione --</option>';
+                descripcionesDisponibles.forEach(ds => {
+                    opcionesDescripcion += `<option value="${ds.idDescripcionServicioC}">${ds.textoDescripcionServicioC}</option>`;
+                });
+
                 fila.innerHTML = `
                     <td><select class="form-control form-control-sm" name="detalleParametro" required>${opcionesParametros}</select></td>
+                    <td><select class="form-control form-control-sm" name="detalleLmp">${opcionesLmp}</select></td>
+                    <td><select class="form-control form-control-sm" name="detallePlazoEntrega" required>${opcionesPlazo}</select></td>
+                    <td><select class="form-control form-control-sm" name="detalleDescripcionServicio">${opcionesDescripcion}</select></td>
                     <td><input type="number" class="form-control form-control-sm" name="detalleCantidadPuntos" value="1" min="1"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="detallePlazoEntrega" placeholder="Ej: 5 días hábiles" required></td>
                     <td><input type="number" step="0.01" class="form-control form-control-sm" name="detallePrecioUnitario" value="0"></td>
                     <td>
                         <select class="form-control form-control-sm" name="detalleCondicion">
@@ -240,7 +261,6 @@ layout:decorate="~{/plantilla/plantilla}">
                             <option value="3">3 - Fuera de alcance</option>
                         </select>
                     </td>
-                    <td><input type="text" class="form-control form-control-sm" name="detalleDescripcion" placeholder="Opcional"></td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-danger" onclick="document.getElementById('fila-${contadorFilas}').remove()">
                             <i class="fas fa-trash"></i>

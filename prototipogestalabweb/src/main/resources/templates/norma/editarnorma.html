@@ -10,7 +10,7 @@ layout:decorate="~{/plantilla/plantilla}">
 <body>
     <div layout:fragment="content">
 
-        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-plus"></i> Editar Norma</h1>
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-edit"></i> Editar Norma</h1>
 
         <div class="row justify-content-center">
             <div class="col-lg-6">
@@ -19,13 +19,8 @@ layout:decorate="~{/plantilla/plantilla}">
                         <form th:action="@{/norma/actualizar/{id}(id=${norma.idCatalogoNormServi})}" th:object="${norma}" method="POST">
 
                             <div class="form-group mb-3">
-                                <label for="parametroCatalogoNormServiEntity" class="form-control-label">Parámetro (Norma Ambiental)</label>
-                                <input type="text" class="form-control" id="parametroCatalogoNormServiEntity" th:field="*{parametroCatalogoNormServiEntity}" maxlength="255">
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="lmpCatalogoNormServiEntity" class="form-control-label">Límite Máximo Permisible (LMP)</label>
-                                <input type="text" class="form-control" id="lmpCatalogoNormServiEntity" th:field="*{lmpCatalogoNormServiEntity}">
+                                <label for="nombreCatalogoNormServiEntity" class="form-control-label">Nombre de la Norma</label>
+                                <textarea class="form-control" id="nombreCatalogoNormServiEntity" th:field="*{nombreCatalogoNormServiEntity}" rows="3" maxlength="255"></textarea>
                             </div>
 
                             <div class="form-group">

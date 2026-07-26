@@ -6,7 +6,6 @@ import lombok.Data;
 public class CatalogoNormServiCResponseDto {
 	
 	private int idCatalogoNormServi;
-	private String parametroCatalogoNormServiEntity;
-	private String lmpCatalogoNormServiEntity;
+	private String nombreCatalogoNormServiEntity;
 
 }
