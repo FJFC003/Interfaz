@@ -119,10 +119,10 @@
     </a>
 </li>
 
-<!-- Nav Item - Normas (solo Coordinador Comercial) -->
+<!-- Nav Item - Parámetros (antes "Normas") (solo Coordinador Comercial) -->
 <li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
     <a class="nav-link" href="/norma/listar">
-        <i class="fas fa-fw fa-book"></i> <span>Normas</span>
+        <i class="fas fa-fw fa-book"></i> <span>Parámetros</span>
     </a>
 </li>
 
