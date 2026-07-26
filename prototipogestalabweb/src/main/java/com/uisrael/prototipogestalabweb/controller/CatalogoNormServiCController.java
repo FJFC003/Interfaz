@@ -9,36 +9,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.CatalogoNormServiCRequestDto;
-import com.uisrael.prototipogestalabweb.model.dto.request.NormaParametroLmpCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoNormServiCResponseDto;
-import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoParametroCResponseDto;
-import com.uisrael.prototipogestalabweb.model.dto.response.LmpCResponseDto;
-import com.uisrael.prototipogestalabweb.model.dto.response.NormaParametroLmpCResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICatalogoNormServiCService;
-import com.uisrael.prototipogestalabweb.services.ICatalogoParametroCService;
-import com.uisrael.prototipogestalabweb.services.ILmpCService;
-import com.uisrael.prototipogestalabweb.services.INormaParametroLmpCService;
 
 @Controller
 @RequestMapping("/norma")
 public class CatalogoNormServiCController {
 	
 	private final ICatalogoNormServiCService normService;
-	private final INormaParametroLmpCService asociacionService;
-	private final ICatalogoParametroCService parametroService;
-	private final ILmpCService lmpService;
-	
-	public CatalogoNormServiCController(ICatalogoNormServiCService normService,
-			INormaParametroLmpCService asociacionService, ICatalogoParametroCService parametroService,
-			ILmpCService lmpService) {
+
+	public CatalogoNormServiCController(ICatalogoNormServiCService normService) {
 		super();
 		this.normService = normService;
-		this.asociacionService = asociacionService;
-		this.parametroService = parametroService;
-		this.lmpService = lmpService;
 	}
 
 	@GetMapping("/listar")
@@ -96,52 +80,6 @@ public class CatalogoNormServiCController {
 		} catch (Exception e) {
 			return "redirect:/norma/listar?error=true";
 		}
-	}
-
-	// Pantalla para asociar/desasociar pares Parámetro-LMP de una norma.
-	@GetMapping("/detalle/{id}")
-	public String verDetalle(@PathVariable int id, Model model) {
-		try {
-			CatalogoNormServiCResponseDto norma = normService.buscarPorId(id);
-			List<NormaParametroLmpCResponseDto> pares = asociacionService.listarPorNorma(id);
-			List<CatalogoParametroCResponseDto> parametros = parametroService.listarParametros();
-			List<LmpCResponseDto> lmps = lmpService.listarLmpCs();
-
-			model.addAttribute("norma", norma);
-			model.addAttribute("pares", pares);
-			model.addAttribute("parametros", parametros);
-			model.addAttribute("lmps", lmps);
-			model.addAttribute("nuevaAsociacion", new NormaParametroLmpCRequestDto());
-
-			return "norma/detallenorma";
-		} catch (Exception e) {
-			return "error";
-		}
-	}
-
-	@PostMapping("/detalle/asociar/{idNorma}")
-	public String asociarPar(@PathVariable int idNorma, @ModelAttribute NormaParametroLmpCRequestDto asociacion) {
-		asociacion.setFkNorma(idNorma);
-		asociacionService.guardarAsociacion(asociacion);
-		return "redirect:/norma/detalle/" + idNorma + "?success=true";
-	}
-
-	@GetMapping("/detalle/eliminar/{idPar}/{idNorma}")
-	public String eliminarPar(@PathVariable int idPar, @PathVariable int idNorma) {
-		try {
-			asociacionService.eliminarAsociacion(idPar);
-			return "redirect:/norma/detalle/" + idNorma + "?deleted=true";
-		} catch (Exception e) {
-			return "redirect:/norma/detalle/" + idNorma + "?error=true";
-		}
-	}
-
-	// Usado por Nueva/Editar Cotización vía fetch() para mostrar de qué
-	// Parámetros y LMP se compone la Norma elegida, sin recargar la página.
-	@GetMapping("/pares/{idNorma}")
-	@ResponseBody
-	public List<NormaParametroLmpCResponseDto> paresDeNormaJson(@PathVariable int idNorma) {
-		return asociacionService.listarPorNorma(idNorma);
 	}
 
 }

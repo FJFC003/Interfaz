@@ -49,9 +49,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${norma.idCatalogoNormServi}"></td>
                                 <td th:text="${norma.nombreCatalogoNormServiEntity}"></td>
                                 <td>
-                                    <a th:href="@{/norma/detalle/{id}(id=${norma.idCatalogoNormServi})}" class="btn btn-sm btn-primary" title="Gestionar Parámetros y LMP">
-                                        <i class="fas fa-link"></i> Gestionar pares
-                                    </a>
                                     <a th:href="@{/norma/editar/{id}(id=${norma.idCatalogoNormServi})}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>

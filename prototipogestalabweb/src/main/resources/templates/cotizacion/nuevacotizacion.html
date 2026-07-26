@@ -57,7 +57,7 @@ layout:decorate="~{/plantilla/plantilla}">
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
                                     <label for="fkNormaServicio" class="form-control-label">Parámetros </label>
-                                    <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required onchange="cargarParesDeNorma()">
+                                    <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
                                         <option value="0">-- Seleccione --</option>
                                         <option th:each="norma : ${normas}"
                                                 th:value="${norma.idCatalogoNormServi}"
@@ -72,14 +72,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                                 th:value="${lmp.idLmpC}"
                                                 th:text="${lmp.codigoLmpC} + ' - ' + ${lmp.valorLmpC}"></option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-12 mb-3">
-                                    <label class="form-control-label">Parámetros y LMP que agrupa la Norma elegida</label>
-                                    <div id="paresNormaContenedor" class="border rounded p-2 small text-muted" style="min-height: 38px;">
-                                        Selecciona una Norma para ver sus pares.
-                                    </div>
                                 </div>
                             </div>
 
@@ -294,43 +286,6 @@ layout:decorate="~{/plantilla/plantilla}">
                 const seleccionCliente = document.getElementById('fkCliente').value;
                 const bloqueClienteNuevo = document.getElementById('bloqueClienteNuevo');
                 bloqueClienteNuevo.style.display = (seleccionCliente !== '0') ? 'none' : 'block';
-            }
-
-            function cargarParesDeNorma() {
-                const idNorma = document.getElementById('fkNormaServicio').value;
-                const contenedor = document.getElementById('paresNormaContenedor');
-
-                if (!idNorma || idNorma === '0') {
-                    contenedor.className = 'border rounded p-2 small text-muted';
-                    contenedor.innerHTML = 'Selecciona una Norma para ver sus pares.';
-                    return;
-                }
-
-                contenedor.className = 'border rounded p-2 small text-muted';
-                contenedor.innerHTML = 'Cargando...';
-
-                fetch('/norma/pares/' + idNorma)
-                    .then(resp => resp.json())
-                    .then(pares => {
-                        if (!pares || pares.length === 0) {
-                            contenedor.className = 'border rounded p-2 small text-danger';
-                            contenedor.innerHTML = 'Esta norma todavía no tiene Parámetros ni LMP asociados. Ve a Normas → Gestionar pares para agregarlos.';
-                            return;
-                        }
-                        let html = '<ul class="mb-0 pl-3">';
-                        pares.forEach(par => {
-                            const parametro = par.fkParametro ? par.fkParametro.ensayoParametroC : '-';
-                            const lmp = par.fkLmp ? par.fkLmp.valorLmpC : '-';
-                            html += `<li>${parametro} — LMP: ${lmp}</li>`;
-                        });
-                        html += '</ul>';
-                        contenedor.className = 'border rounded p-2 small';
-                        contenedor.innerHTML = html;
-                    })
-                    .catch(() => {
-                        contenedor.className = 'border rounded p-2 small text-danger';
-                        contenedor.innerHTML = 'No se pudieron cargar los pares de esta norma.';
-                    });
             }
 
             function calcularTotales() {
