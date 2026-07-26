@@ -59,7 +59,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <div class="col-sm-6 mb-3">
                                     <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
                                     <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
-                                        <option value="">-- Seleccione --</option>
+                                        <option value="0">-- Seleccione --</option>
                                         <option th:each="norma : ${normas}"
                                                 th:value="${norma.idCatalogoNormServi}"
                                                 th:text="${norma.nombreCatalogoNormServiEntity}"></option>
