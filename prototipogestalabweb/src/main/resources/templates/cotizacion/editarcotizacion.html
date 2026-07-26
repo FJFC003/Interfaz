@@ -46,6 +46,10 @@ layout:decorate="~{/plantilla/plantilla}">
                                                 th:value="${empleado.idEmpleado}"
                                                 th:text="${empleado.nombre} + ' ' + ${empleado.apellido}"></option>
                                     </select>
+                                    <small th:if="${#lists.isEmpty(empleados)}" class="text-danger d-block mt-1">
+                                        No hay empleados registrados todavía —
+                                        <a href="/empleado/nuevo" target="_blank">créalos aquí</a> y recarga esta página.
+                                    </small>
                                 </div>
                             </div>
 

@@ -11,7 +11,7 @@ layout:decorate="~{/plantilla/plantilla}">
     <div layout:fragment="content">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-flask"></i> Catálogo de Parámetros</h1>
+            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-flask"></i> Catálogo de Ensayos</h1>
             <a href="/parametro/nuevo" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                 <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Parámetro
             </a>
@@ -19,14 +19,14 @@ layout:decorate="~{/plantilla/plantilla}">
 
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Lista de Parámetros</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Lista de Ensayos</h6>
             </div>
             <div class="card-body">
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="input-group">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar parámetro...">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar ensayo...">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" onclick="filterTable()">
                                     <i class="fas fa-search"></i> Buscar
@@ -41,7 +41,7 @@ layout:decorate="~{/plantilla/plantilla}">
                         <thead class="bg-light">
                             <tr>
                                 <th>ID</th>
-                                <th>Ensayo/Parámetro</th>
+                                <th>Ensayo</th>
                                 <th>Técnica</th>
                                 <th>Norma</th>
                                 <th>Unidad</th>
