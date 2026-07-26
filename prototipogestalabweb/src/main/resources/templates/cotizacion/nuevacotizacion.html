@@ -114,17 +114,24 @@ layout:decorate="~{/plantilla/plantilla}">
                             <div class="table-responsive mb-3">
                                 <table class="table table-bordered table-sm" id="tablaDetalle">
                                     <thead class="bg-light">
-                                      <tr>
-    <th>Ensayo / Parámetro *</th>
-    <th>Norma Ambiental / LMP *</th>
-    <th>Plazo de Entrega *</th>
-    <th></th>
-</tr>  
+                                        <tr>
+                                            <th>Ensayo / Parámetro *</th>
+                                            <th>Norma Ambiental / LMP *</th>
+                                            <th>Cantidad Puntos</th>
+                                            <th>Plazo de Entrega *</th>
+                                            <th>Precio Unitario (USD)</th>
+                                            <th>Condición</th>
+                                            <th>Descripción</th>
+                                            <th></th>
+                                        </tr>
                                     </thead>
                                     <tbody id="cuerpoTablaDetalle">
                                     </tbody>
                                 </table>
                             </div>
+                            <small class="text-muted d-block mb-2">
+                                * Obligatorios: Parámetro, Norma y Plazo de Entrega.
+                            </small>
 
                             <button type="button" class="btn btn-outline-primary btn-sm mb-4" onclick="agregarFilaDetalle()">
                                 <i class="fas fa-plus"></i> Agregar Línea de Detalle
@@ -203,16 +210,6 @@ layout:decorate="~{/plantilla/plantilla}">
                 const fila = document.createElement('tr');
                 fila.id = 'fila-' + contadorFilas;
 
-                let opcionesParametros = '<option value="0">-- Seleccione --</option>';
-                parametrosDisponibles.forEach(p => {
-                    opcionesParametros += `<option value="${p.idParametroC}">${p.ensayoParametroC}</option>`;
-                });
-
-                let opcionesNormas = '<option value="0">-- Seleccione --</option>';
-                normasDisponibles.forEach(n => {
-                    opcionesNormas += `<option value="${n.idCatalogoNormServi}">${n.parametroCatalogoNormServiEntity}</option>`;
-                });
-
                 let opcionesParametros = '<option value="">-- Seleccione --</option>';
                 parametrosDisponibles.forEach(p => {
                     opcionesParametros += `<option value="${p.idParametroC}">${p.ensayoParametroC}</option>`;
@@ -226,7 +223,18 @@ layout:decorate="~{/plantilla/plantilla}">
                 fila.innerHTML = `
                     <td><select class="form-control form-control-sm" name="detalleParametro" required>${opcionesParametros}</select></td>
                     <td><select class="form-control form-control-sm" name="detalleNorma" required>${opcionesNormas}</select></td>
+                    <td><input type="number" class="form-control form-control-sm" name="detalleCantidadPuntos" value="1" min="1"></td>
                     <td><input type="text" class="form-control form-control-sm" name="detallePlazoEntrega" placeholder="Ej: 5 días hábiles" required></td>
+                    <td><input type="number" step="0.01" class="form-control form-control-sm" name="detallePrecioUnitario" value="0"></td>
+                    <td>
+                        <select class="form-control form-control-sm" name="detalleCondicion">
+                            <option value="">-- Seleccione --</option>
+                            <option value="1">1 - Acreditado</option>
+                            <option value="2">2 - Subcontratado</option>
+                            <option value="3">3 - Fuera de alcance</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control form-control-sm" name="detalleDescripcion" placeholder="Opcional"></td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-danger" onclick="document.getElementById('fila-${contadorFilas}').remove()">
                             <i class="fas fa-trash"></i>
@@ -234,7 +242,6 @@ layout:decorate="~{/plantilla/plantilla}">
                     </td>
                 `;
                 cuerpoTabla.appendChild(fila);
-                
             }
 
             function alternarClienteNuevo() {

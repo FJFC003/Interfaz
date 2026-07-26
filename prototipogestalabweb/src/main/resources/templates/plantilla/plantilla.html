@@ -276,18 +276,25 @@
 	<script src="/vendor/datatables/jquery.dataTables.min.js"></script>
 	<script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
+	<!-- JS propio de cada página (si una página ya inicializa su propia
+	     DataTable con opciones personalizadas, debe ejecutarse ANTES que
+	     el script genérico de abajo) -->
+	<th:block layout:fragment="scripts"></th:block>
+
 	<!-- Page level custom scripts -->
 	<script th:fragment="table-script">
 		$(document)
 				.ready(
 						function() {
-							$('#dataTable')
-									.DataTable(
-											{
-												language : {
-													url : '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-												}
-											});
+							if (!$.fn.DataTable.isDataTable('#dataTable')) {
+								$('#dataTable')
+										.DataTable(
+												{
+													language : {
+														url : '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+													}
+												});
+							}
 						});
 
 		function filterTable() {
@@ -324,8 +331,6 @@
 			}
 		});
 	</script>
-
-	<th:block layout:fragment="scripts"></th:block>
 
 </body>
 
