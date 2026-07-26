@@ -46,7 +46,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Norma</th>
                                 <th>Unidad</th>
                                 <th>Rango</th>
-                                <th>Condición</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -58,7 +57,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${parametro.normaReferencialParametroC}"></td>
                                 <td th:text="${parametro.unidadParametroC}"></td>
                                 <td th:text="${parametro.rangoTrabajoParametroC}"></td>
-                                <td th:text="${parametro.fkCondicionParametro != null ? parametro.fkCondicionParametro.codigoCondicionParametroC : '-'}"></td>
                                 <td>
                                     <a th:href="@{/parametro/editar/{id}(id=${parametro.idParametroC})}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
