@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Editar - Descripción del Servicio - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-edit"></i> Editar: Descripción de Servicio</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/descripcionservicio/actualizar/{id}(id=${item.idDescripcionServicioC})}" th:object="${item}" method="POST">
+
+                            <div class="form-group mb-3">
+                                <label for="codigoDescripcionServicioC" class="form-control-label">Código</label>
+                                <input type="text" class="form-control" id="codigoDescripcionServicioC" th:field="*{codigoDescripcionServicioC}" placeholder="Ej: DS-01">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="textoDescripcionServicioC" class="form-control-label">Descripción del Servicio</label>
+                                <textarea class="form-control" id="textoDescripcionServicioC" th:field="*{textoDescripcionServicioC}" rows="3" placeholder="Ej: Monitoreo de calidad de agua"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                                <a href="/descripcionservicio/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

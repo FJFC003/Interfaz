@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Nuevo - LMP (Límite Máximo Permisible) - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-plus"></i> Nuevo: LMP</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/lmp/guardar}" th:object="${item}" method="POST">
+
+                            <div class="form-group mb-3">
+                                <label for="codigoLmpC" class="form-control-label">Código</label>
+                                <input type="text" class="form-control" id="codigoLmpC" th:field="*{codigoLmpC}" placeholder="Ej: LMP-01">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="valorLmpC" class="form-control-label">Valor del LMP</label>
+                                <textarea class="form-control" id="valorLmpC" th:field="*{valorLmpC}" rows="3" placeholder="Ej: 5 mg/L"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                                <a href="/lmp/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -139,6 +139,27 @@
     </a>
 </li>
 
+<!-- Nav Item - LMP (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/lmp/listar">
+        <i class="fas fa-fw fa-ruler"></i> <span>LMP</span>
+    </a>
+</li>
+
+<!-- Nav Item - Descripción de Servicio (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/descripcionservicio/listar">
+        <i class="fas fa-fw fa-align-left"></i> <span>Descripción de Servicio</span>
+    </a>
+</li>
+
+<!-- Nav Item - Plazo de Entrega (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/plazoentrega/listar">
+        <i class="fas fa-fw fa-clock"></i> <span>Plazo de Entrega</span>
+    </a>
+</li>
+
 <!-- Divider -->
 <hr class="sidebar-divider d-none d-md-block">
 
