@@ -52,7 +52,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Área</th>
                                 <th>Cargo</th>
                                 <th>Usuario</th>
-                                <th>Contraseña</th>
+                                
                                 <th>Firma</th>
                                 <th>Estado Firma</th>
                                 <th>Estado</th>
@@ -69,7 +69,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${empleado.fkArea != null ? empleado.fkArea.nombre : '-'}"></td>
                                 <td th:text="${empleado.fkCargo != null ? empleado.fkCargo.nombre : '-'}"></td>
                                 <td th:text="${empleado.fkUsuario != null ? empleado.fkUsuario.nombre : '-'}"></td>
-                                <td th:text="${empleado.fkUsuario != null ? empleado.fkUsuario.contrasenia : '-'}"></td>
+                               
                                 <td th:text="${empleado.fkFirmaElectronica != null ? empleado.fkFirmaElectronica.formatoFirma : '-'}"></td>
                                 <td>
                                     <span th:if="${empleado.fkFirmaElectronica != null and empleado.fkFirmaElectronica.fechaExpiracion != null and #dates.createNow().before(empleado.fkFirmaElectronica.fechaExpiracion)}"
