@@ -160,6 +160,29 @@
     </a>
 </li>
 
+<!-- ============ MODULO TECNICO ============ -->
+
+<!-- Nav Item - Planes de Muestreo (Coordinador Tecnico y Tecnico de Campo) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico'))}">
+    <a class="nav-link" href="/plan/listar">
+        <i class="fas fa-fw fa-flask"></i> <span>Planes de Muestreo</span>
+    </a>
+</li>
+
+<!-- Nav Item - Cotizaciones Aprobadas (solo Coordinador Tecnico) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
+    <a class="nav-link" href="/plan/pendientes">
+        <i class="fas fa-fw fa-check-circle"></i> <span>Cotizaciones Aprobadas</span>
+    </a>
+</li>
+
+<!-- Nav Item - Ordenes de Trabajo (solo Coordinador Tecnico) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
+    <a class="nav-link" href="/ordentrabajo/listar">
+        <i class="fas fa-fw fa-clipboard-list"></i> <span>Órdenes de Trabajo</span>
+    </a>
+</li>
+
 <!-- Divider -->
 <hr class="sidebar-divider d-none d-md-block">
 

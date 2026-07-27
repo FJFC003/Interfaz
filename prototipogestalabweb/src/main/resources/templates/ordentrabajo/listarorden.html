@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+<head><title>Órdenes de Trabajo - GestaLab</title></head>
+<body>
+<div layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-clipboard-list"></i> Órdenes de Ejecución del Trabajo</h1>
+        <a href="/ordentrabajo/pendientes" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Nueva OT desde Plan
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de Órdenes de Trabajo</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>ID</th><th>Ítem</th><th>Plan</th><th>Fecha Emisión</th>
+                            <th>Responsable</th><th>Técnico asignado</th><th>Contacto cliente</th><th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ot : ${ordenes}">
+                            <td th:text="${ot.idOT}"></td>
+                            <td th:text="${ot.noItemOT}"></td>
+                            <td th:text="${ot.fkPlanMuestreo != null ? ot.fkPlanMuestreo.codigoPlan : '-'}"></td>
+                            <td th:text="${ot.fechaEmisionOT != null ? #dates.format(ot.fechaEmisionOT, 'dd/MM/yyyy') : '-'}"></td>
+                            <td th:text="${ot.fkResponsableEmision != null ? ot.fkResponsableEmision.nombre + ' ' + ot.fkResponsableEmision.apellido : '-'}"></td>
+                            <td th:text="${ot.fkTecnicoAsignado != null ? ot.fkTecnicoAsignado.nombre + ' ' + ot.fkTecnicoAsignado.apellido : '-'}"></td>
+                            <td th:text="${ot.nombrePersonaContactoOT}"></td>
+                            <td>
+                                <a th:href="@{/ordentrabajo/detalle/{id}(id=${ot.idOT})}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i></a>
+                                <a th:href="@{/ordentrabajo/eliminar/{id}(id=${ot.idOT})}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('¿Está seguro?')"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${#lists.isEmpty(ordenes)}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay órdenes de trabajo registradas
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
