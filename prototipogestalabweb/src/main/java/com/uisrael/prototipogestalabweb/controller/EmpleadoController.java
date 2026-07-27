@@ -91,13 +91,14 @@ public class EmpleadoController {
     				@ModelAttribute("firmaFechaSubida") Date firmaFechaSubida,
     				@DateTimeFormat(pattern = "yyyy-MM-dd")
     				@ModelAttribute("firmaFechaExpiracion") Date firmaFechaExpiracion,
+    				@ModelAttribute("usuarioCorreoLaboral") String usuarioCorreoLaboral,
     				Model model) {
 
     	try {
     		// 1. Create the user account
     		UsuarioRequestDto nuevoUsuario = new UsuarioRequestDto();
     		nuevoUsuario.setNombre(usuarioNombre);
-    		nuevoUsuario.setCorreo(empleado.getCorreo());
+    		nuevoUsuario.setCorreo(usuarioCorreoLaboral);
     		nuevoUsuario.setContrasenia(usuarioContrasenia);
     		nuevoUsuario.setFechaCreacion(new Date());
     		nuevoUsuario.setEstadoUsuario(true);

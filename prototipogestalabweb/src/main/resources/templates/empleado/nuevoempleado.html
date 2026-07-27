@@ -111,11 +111,17 @@ layout:decorate="~{/plantilla/plantilla}">
                             <hr>
                             <h6 class="font-weight-bold text-primary mb-3">Cuenta de Usuario</h6>
 
-                            <div class="form-group row">
+                           <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
                                     <label for="usuarioNombre" class="form-control-label">Nombre de Usuario</label>
-                                    <input type="text" class="form-control" id="usuarioNombre" name="usuarioNombre" required>
+                                    <input type="text" class="form-control" id="usuarioNombre" name="usuarioNombre" placeholder="Ej: Carlos Villacis" required>
                                 </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="usuarioCorreoLaboral" class="form-control-label">Correo Laboral</label>
+                                    <input type="email" class="form-control" id="usuarioCorreoLaboral" name="usuarioCorreoLaboral" placeholder="Ej: coo.carlos@gestalab.ec" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
                                     <label for="usuarioContrasenia" class="form-control-label">Contraseña</label>
                                     <input type="password" class="form-control" id="usuarioContrasenia" name="usuarioContrasenia" required>
