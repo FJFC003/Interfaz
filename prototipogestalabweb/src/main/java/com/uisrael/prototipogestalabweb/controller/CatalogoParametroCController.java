@@ -15,6 +15,7 @@ import com.uisrael.prototipogestalabweb.model.dto.response.CatalogoParametroCRes
 import com.uisrael.prototipogestalabweb.services.ICatalogoParametroCService;
 import com.uisrael.prototipogestalabweb.services.ICondicionParametroCService;
 
+
 @Controller
 @RequestMapping("/parametro")
 public class CatalogoParametroCController {
@@ -62,6 +63,7 @@ public class CatalogoParametroCController {
 			form.setNormaReferencialParametroC(actual.getNormaReferencialParametroC());
 			form.setUnidadParametroC(actual.getUnidadParametroC());
 			form.setRangoTrabajoParametroC(actual.getRangoTrabajoParametroC());
+			form.setComponenteParametroC(actual.getComponenteParametroC());
 
 			model.addAttribute("parametro", form);
 			model.addAttribute("condiciones", condicionCService.listarCondiciones());

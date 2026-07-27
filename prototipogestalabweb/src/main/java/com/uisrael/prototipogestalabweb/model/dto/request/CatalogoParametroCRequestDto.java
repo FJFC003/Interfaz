@@ -13,5 +13,6 @@ public class CatalogoParametroCRequestDto {
 	private String normaReferencialParametroC;
 	private String unidadParametroC;
 	private String rangoTrabajoParametroC;
+	private String componenteParametroC;
 
 }
