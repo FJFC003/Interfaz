@@ -30,14 +30,31 @@ public class LoginController {
 	}
 
 	@PostMapping("/login")
-	public String procesarLogin(@ModelAttribute LoginRequestDto credenciales,HttpSession session,Model model) {
+	public String procesarLogin(@ModelAttribute LoginRequestDto credenciales, HttpSession session, Model model) {
 		try {
 			LoginResponseDto usuario = loginService.login(credenciales);
 			session.setAttribute("usuarioActual", usuario);
-			if ("Coordinador Comercial".equalsIgnoreCase(usuario.getRol())) {
+
+			String rol = usuario.getRol() == null ? "" : usuario.getRol().trim();
+
+			// Coordinacion Comercial -> cotizaciones
+			if (rol.equalsIgnoreCase("Coordinador Comercial")) {
 				return "redirect:/cotizacion/listar";
 			}
+
+			// Coordinacion Tecnica -> planes de muestreo
+			if (rol.equalsIgnoreCase("Coordinador Tecnico") || rol.equalsIgnoreCase("Coordinador Técnico")) {
+				return "redirect:/plan/listar";
+			}
+
+			// Tecnico de campo -> planes de muestreo (solo lectura)
+			if (rol.equalsIgnoreCase("Tecnico") || rol.equalsIgnoreCase("Técnico")) {
+				return "redirect:/plan/listar";
+			}
+
+			// Gerente General y cualquier otro rol
 			return "redirect:/empleado/listar";
+
 		} catch (WebClientResponseException ex) {
 			model.addAttribute("error", "Correo o contraseña incorrectos, o el usuario no tiene un rol asignado.");
 			model.addAttribute("credenciales", credenciales);
