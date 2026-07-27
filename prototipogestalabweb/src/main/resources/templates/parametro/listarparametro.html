@@ -42,6 +42,7 @@ layout:decorate="~{/plantilla/plantilla}">
                             <tr>
                                 <th>ID</th>
                                 <th>Ensayo</th>
+                                <th>Componente</th>
                                 <th>Técnica</th>
                                 <th>Norma</th>
                                 <th>Unidad</th>
@@ -53,6 +54,7 @@ layout:decorate="~{/plantilla/plantilla}">
                             <tr th:each="parametro : ${parametros}">
                                 <td th:text="${parametro.idParametroC}"></td>
                                 <td th:text="${parametro.ensayoParametroC}"></td>
+                                <td th:text="${parametro.componenteParametroC}"></td>
                                 <td th:text="${parametro.tecnicaParametroC}"></td>
                                 <td th:text="${parametro.normaReferencialParametroC}"></td>
                                 <td th:text="${parametro.unidadParametroC}"></td>

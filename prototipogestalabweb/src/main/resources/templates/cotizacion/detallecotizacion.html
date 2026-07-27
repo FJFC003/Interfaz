@@ -15,9 +15,17 @@ layout:decorate="~{/plantilla/plantilla}">
                 <i class="fas fa-file-invoice-dollar"></i>
                 Cotización #<span th:text="${cotizacion.idCotizacionC}"></span>
             </h1>
-            <a href="/cotizacion/listar" class="btn btn-sm btn-secondary shadow-sm">
-                <i class="fas fa-arrow-left"></i> Volver al Listado
-            </a>
+            <div>
+                <a th:href="@{/cotizacion/pdf/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-danger shadow-sm" target="_blank">
+                    <i class="fas fa-file-pdf"></i> PDF (tabla combinada)
+                </a>
+                <a th:href="@{/cotizacion/pdf-fiel/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-outline-danger shadow-sm" target="_blank">
+                    <i class="fas fa-file-pdf"></i> PDF (por componente)
+                </a>
+                <a href="/cotizacion/listar" class="btn btn-sm btn-secondary shadow-sm">
+                    <i class="fas fa-arrow-left"></i> Volver al Listado
+                </a>
+            </div>
         </div>
 
         <div class="card shadow mb-4">
