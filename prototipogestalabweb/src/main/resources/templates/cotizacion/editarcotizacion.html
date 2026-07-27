@@ -141,6 +141,9 @@ layout:decorate="~{/plantilla/plantilla}">
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar y Continuar</button>
                                 <a href="/cotizacion/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                                <a th:href="@{/cotizacion/detalle/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-info">
+    <i class="fas fa-list"></i> Gestionar Líneas de Detalle
+</a>
                             </div>
 
                         </form>
