@@ -24,4 +24,12 @@ public class CotizacionCResponseDto {
 	private EmpleadoResponseDto fkEmpleado;
 	private CatalogoNormServiCResponseDto fkNormaServicio;
 	private LmpCResponseDto fkLmp;
+
+	
+	private String estadoAprobacion;
+	private Date fechaEnvioCotizacionC;
+	private Date fechaLimitePagoCotizacionC;
+	private Date fechaPagoCotizacionC;
+	private Date fechaAprobacionCotizacionC;
+	private EmpleadoResponseDto fkEmpleadoAprueba;
 }
