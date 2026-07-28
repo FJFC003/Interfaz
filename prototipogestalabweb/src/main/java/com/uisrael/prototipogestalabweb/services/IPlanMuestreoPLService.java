@@ -15,4 +15,8 @@ public interface IPlanMuestreoPLService {
 	List<PlanMuestreoPLResponseDto> listarPorDetalle(int idDetalleC);
 	List<PlanMuestreoPLResponseDto> listarPorResponsable(int idEmpleado);
 
+	PlanMuestreoPLResponseDto enviarATecnico(int idPlan);
+	PlanMuestreoPLResponseDto devolverAElaboracion(int idPlan);
+	PlanMuestreoPLResponseDto marcarCompletado(int idPlan);
+
 }

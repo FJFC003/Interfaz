@@ -79,4 +79,25 @@ public class PlanMuestreoPLServiceImpl implements IPlanMuestreoPLService {
 				.block();
 	}
 
+	@Override
+	public PlanMuestreoPLResponseDto enviarATecnico(int idPlan) {
+		// TODO Auto-generated method stub
+		return webClient.put().uri("/gestalab/plan-muestreo-pl/enviar/{id}", idPlan)
+				.retrieve().bodyToMono(PlanMuestreoPLResponseDto.class).block();
+	}
+
+	@Override
+	public PlanMuestreoPLResponseDto devolverAElaboracion(int idPlan) {
+		// TODO Auto-generated method stub
+		return webClient.put().uri("/gestalab/plan-muestreo-pl/devolver/{id}", idPlan)
+				.retrieve().bodyToMono(PlanMuestreoPLResponseDto.class).block();
+	}
+
+	@Override
+	public PlanMuestreoPLResponseDto marcarCompletado(int idPlan) {
+		// TODO Auto-generated method stub
+		return webClient.put().uri("/gestalab/plan-muestreo-pl/completar/{id}", idPlan)
+				.retrieve().bodyToMono(PlanMuestreoPLResponseDto.class).block();
+	}
+
 }

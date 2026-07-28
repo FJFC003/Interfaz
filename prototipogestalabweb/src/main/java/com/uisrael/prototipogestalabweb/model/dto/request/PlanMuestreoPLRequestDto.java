@@ -20,4 +20,6 @@ public class PlanMuestreoPLRequestDto {
 	private int fkDetalleCotizacion;
 	private int fkeep;
 
+	private String estadoPlan;
+
 }

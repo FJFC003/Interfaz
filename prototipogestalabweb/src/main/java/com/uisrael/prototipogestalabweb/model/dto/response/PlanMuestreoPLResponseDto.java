@@ -15,4 +15,7 @@ public class PlanMuestreoPLResponseDto {
 	private DetalleCResponseDto fkDetalleCotizacion;
 	private EEPPLResponseDto fkeep;
 
+	private String estadoPlan;
+	private Date fechaEnvioTecnico;
+
 }
