@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Error - GestaLab</title>
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg o-hidden border-0 my-5">
+                    <div class="card-body p-5 text-center">
+                        <div class="text-danger mb-3" style="font-size:3rem;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h1 class="h4 text-gray-900 mb-3">Ocurrió un error</h1>
+                        <p class="mb-4 text-gray-700">
+                            No se pudo completar la operación. Revise la consola del backend
+                            para ver el detalle técnico.
+                        </p>
+
+                        <div class="alert alert-light text-left small" th:if="${mensajeError != null}">
+                            <strong>Detalle:</strong>
+                            <span th:text="${mensajeError}"></span>
+                        </div>
+
+                        <a href="/plan/listar" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Volver a Planes de Muestreo
+                        </a>
+                        <a href="/" class="btn btn-secondary">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
