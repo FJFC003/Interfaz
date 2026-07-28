@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.EEPPLRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.InformacionAdicionalPLRequestDto;
@@ -123,10 +124,24 @@ public class PlanMuestreoPLController {
 	}
 
 	@PostMapping("/guardar")
-	public String guardarPlan(@ModelAttribute PlanMuestreoPLRequestDto plan) {
-		PlanMuestreoPLResponseDto creado = planService.guardar(plan);
-		prellenarDesdeCotizacion(creado.getIdPlan(), plan.getFkDetalleCotizacion());
-		return "redirect:/plan/detalle/" + creado.getIdPlan() + "?success=true";
+	public String guardarPlan(@ModelAttribute PlanMuestreoPLRequestDto plan, Model model) {
+		try {
+			PlanMuestreoPLResponseDto creado = planService.guardar(plan);
+			prellenarDesdeCotizacion(creado.getIdPlan(), plan.getFkDetalleCotizacion());
+			return "redirect:/plan/detalle/" + creado.getIdPlan() + "?success=true";
+
+		} catch (WebClientResponseException ex) {
+			// El backend devuelve el detalle del error en el cuerpo de la
+			// respuesta. Se muestra en pantalla para no tener que ir a la
+			// consola cada vez.
+			model.addAttribute("mensajeError", ex.getResponseBodyAsString());
+			return "error";
+
+		} catch (Exception ex) {
+			model.addAttribute("mensajeError",
+					ex.getClass().getSimpleName() + " - " + ex.getMessage());
+			return "error";
+		}
 	}
 
 	
