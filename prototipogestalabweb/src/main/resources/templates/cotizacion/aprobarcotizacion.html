@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Aprobar Cotización - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-check-circle"></i> Aprobar Cotización</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Apruebe la cotización <strong>solo después de confirmar el pago del cliente</strong>.
+                    Al aprobarla, la Coordinación Técnica podrá generar el Plan de Muestreo.
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3" style="background-color:#c5d86d;">
+                        <h6 class="m-0 font-weight-bold">DATOS DE LA COTIZACIÓN</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered mb-0">
+                            <tr>
+                                <th style="width:25%">Cotización No:</th>
+                                <td th:text="${cotizacion.idCotizacionC}"></td>
+                                <th style="width:25%">Fecha de elaboración:</th>
+                                <td th:text="${#dates.format(cotizacion.fechaElaboracionCotizacionC, 'dd/MM/yyyy')}"></td>
+                            </tr>
+                            <tr>
+                                <th>Cliente:</th>
+                                <td th:text="${cotizacion.fkCliente != null ? cotizacion.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
+                                <th>Contacto:</th>
+                                <td th:text="${cotizacion.fkCliente != null ? cotizacion.fkCliente.nombrePersonaContactoClienteC : '-'}"></td>
+                            </tr>
+                            <tr>
+                                <th>Total:</th>
+                                <td class="font-weight-bold text-primary"
+                                    th:text="'$ ' + ${#numbers.formatDecimal(cotizacion.totalCotizacionC, 1, 2)}"></td>
+                                <th>Estado actual:</th>
+                                <td>
+                                    <span class="badge badge-secondary"
+                                          th:text="${cotizacion.estadoAprobacion != null ? cotizacion.estadoAprobacion : 'BORRADOR'}"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/cotizacion/aprobar/{id}(id=${cotizacion.idCotizacionC})}"
+                              th:object="${aprobacion}" method="POST">
+
+                            <h6 class="font-weight-bold text-primary mb-3">Confirmación de pago</h6>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fechaPago" class="form-control-label">Fecha en que se recibió el pago *</label>
+                                    <input type="date" class="form-control" id="fechaPago" th:field="*{fechaPago}" required>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkEmpleadoAprueba" class="form-control-label">Quien aprueba *</label>
+                                    <select class="form-control" id="fkEmpleadoAprueba" th:field="*{fkEmpleadoAprueba}" required>
+                                        <option value="">-- Seleccione --</option>
+                                        <option th:each="emp : ${empleados}"
+                                                th:value="${emp.idEmpleado}"
+                                                th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
+                                    </select>
+                                    <small class="text-muted">Queda registrado para trazabilidad.</small>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('¿Confirma que el cliente ya pagó y desea aprobar esta cotización?')">
+                                    <i class="fas fa-check"></i> Aprobar Cotización
+                                </button>
+                                <a th:href="@{/cotizacion/rechazar/{id}(id=${cotizacion.idCotizacionC})}"
+                                   class="btn btn-outline-danger"
+                                   onclick="return confirm('¿Rechazar esta cotización?')">
+                                    <i class="fas fa-times"></i> Rechazar
+                                </a>
+                                <a href="/cotizacion/listar" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Cancelar
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

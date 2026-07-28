@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.uisrael.prototipogestalabweb.model.dto.request.AprobacionCotizacionRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.CotizacionCRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CotizacionCResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICotizacionCService;
@@ -55,6 +56,25 @@ public class CotizacionCServiceImpl implements ICotizacionCService{
 		.retrieve()
 		.toBodilessEntity()
 		.block();
+	}
+
+	@Override
+	public CotizacionCResponseDto aprobar(int idCotizacionC, AprobacionCotizacionRequestDto aprobacion) {
+		// TODO Auto-generated method stub
+		return webClient.put().uri("/gestalab/cotizacion/aprobar/{id}", idCotizacionC)
+				.bodyValue(aprobacion)
+				.retrieve()
+				.bodyToMono(CotizacionCResponseDto.class)
+				.block();
+	}
+
+	@Override
+	public CotizacionCResponseDto rechazar(int idCotizacionC) {
+		// TODO Auto-generated method stub
+		return webClient.put().uri("/gestalab/cotizacion/rechazar/{id}", idCotizacionC)
+				.retrieve()
+				.bodyToMono(CotizacionCResponseDto.class)
+				.block();
 	}
 
 }

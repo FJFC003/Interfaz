@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" 
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/plantilla/plantilla}">
 
 <head>
@@ -15,6 +15,19 @@ layout:decorate="~{/plantilla/plantilla}">
             <a href="/cotizacion/nuevo" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                 <i class="fas fa-plus fa-sm text-white-50"></i> Nueva Cotización
             </a>
+        </div>
+
+        <div th:if="${param.aprobada}" class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> Cotización aprobada. Ya puede generarse el Plan de Muestreo.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        <div th:if="${param.rechazada}" class="alert alert-warning alert-dismissible fade show">
+            Cotización rechazada.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+            No se pudo completar la operación.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
         </div>
 
         <div class="card shadow mb-4">
@@ -46,6 +59,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Elaborado Por</th>
                                 <th>Vigencia</th>
                                 <th>Total</th>
+                                <th>Aprobación</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -59,17 +73,38 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${cotizacion.vigenciaDiasCotizacionC}"></td>
                                 <td th:text="'$ ' + ${#numbers.formatDecimal(cotizacion.totalCotizacionC, 1, 2)}"></td>
                                 <td>
+                                    <span th:if="${cotizacion.estadoAprobacion == 'APROBADA'}" class="badge badge-success">Aprobada</span>
+                                    <span th:if="${cotizacion.estadoAprobacion == 'RECHAZADA'}" class="badge badge-danger">Rechazada</span>
+                                    <span th:if="${cotizacion.estadoAprobacion == 'VENCIDA'}" class="badge badge-dark">Vencida</span>
+                                    <span th:if="${cotizacion.estadoAprobacion == 'ENVIADA'}" class="badge badge-info">Enviada</span>
+                                    <span th:if="${cotizacion.estadoAprobacion == 'PAGADA'}" class="badge badge-primary">Pagada</span>
+                                    <span th:if="${cotizacion.estadoAprobacion == null or cotizacion.estadoAprobacion == 'BORRADOR'}"
+                                          class="badge badge-secondary">Borrador</span>
+                                </td>
+                                <td>
                                     <span th:if="${cotizacion.estadoCotizacionC}" class="badge badge-success">Activa</span>
                                     <span th:unless="${cotizacion.estadoCotizacionC}" class="badge badge-danger">Inactiva</span>
                                 </td>
                                 <td>
-                                    <a th:href="@{/cotizacion/detalle/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-info">
+                                    <a th:href="@{/cotizacion/detalle/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-info" title="Ver detalle">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a th:href="@{/cotizacion/editar/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-warning">
+                                    <a th:href="@{/cotizacion/editar/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-warning" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a th:href="@{/cotizacion/eliminar/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                    <a th:href="@{/cotizacion/pdf/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-danger" title="Descargar PDF" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+
+                                    <!-- Aprobar: solo si todavia no esta aprobada ni rechazada -->
+                                    <a th:href="@{/cotizacion/aprobar/{id}(id=${cotizacion.idCotizacionC})}"
+                                       th:if="${cotizacion.estadoAprobacion != 'APROBADA' and cotizacion.estadoAprobacion != 'RECHAZADA'}"
+                                       class="btn btn-sm btn-success" title="Aprobar (cliente pagó)">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+
+                                    <a th:href="@{/cotizacion/eliminar/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-outline-danger"
+                                       title="Eliminar" onclick="return confirm('¿Está seguro?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -112,5 +147,4 @@ layout:decorate="~{/plantilla/plantilla}">
     </th:block>
 
 </body>
-
 </html>
