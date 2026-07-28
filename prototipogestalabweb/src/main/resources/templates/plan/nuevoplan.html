@@ -4,65 +4,105 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/plantilla/plantilla}">
 
 <head>
-    <title>Planes de Muestreo - GestaLab</title>
+    <title>Nuevo Plan de Muestreo - GestaLab</title>
 </head>
 
 <body>
     <div layout:fragment="content">
 
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-flask"></i> Planes de Muestreo</h1>
-            <a href="/plan/pendientes"
-               th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}"
-               class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Plan desde Cotización
-            </a>
-        </div>
+        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-flask"></i> Nuevo Plan de Muestreo</h1>
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Lista de Planes de Muestreo</h6>
-            </div>
-            <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Código</th>
-                                <th>Organización</th>
-                                <th>Objetivo</th>
-                                <th>Fecha Elaboración</th>
-                                <th>Responsable</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="plan : ${planes}">
-                                <td th:text="${plan.idPlan}"></td>
-                                <td th:text="${plan.codigoPlan}"></td>
-                                <td th:text="${plan.fkDetalleCotizacion != null and plan.fkDetalleCotizacion.fkCotizacion != null and plan.fkDetalleCotizacion.fkCotizacion.fkCliente != null ? plan.fkDetalleCotizacion.fkCotizacion.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
-                                <td th:text="${plan.objetivoPlan}"></td>
-                                <td th:text="${plan.fechaElaboracion != null ? #dates.format(plan.fechaElaboracion, 'dd/MM/yyyy') : '-'}"></td>
-                                <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
-                                <td>
-                                    <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a th:href="@{/plan/eliminar/{id}(id=${plan.idPlan})}"
-                                       th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}"
-                                       class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- INFORMACION DE LA ORGANIZACION (viene de la cotizacion, solo lectura) -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3" style="background-color:#c5d86d;">
+                        <h6 class="m-0 font-weight-bold">INFORMACIÓN DE LA ORGANIZACIÓN</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3">
+                                <label class="form-control-label">Organización</label>
+                                <input type="text" class="form-control" readonly
+                                       th:value="${cotizacion.fkCliente != null ? cotizacion.fkCliente.nombreRazonSocialClienteC : '-'}">
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="form-control-label">Contacto</label>
+                                <input type="text" class="form-control" readonly
+                                       th:value="${cotizacion.fkCliente != null ? cotizacion.fkCliente.nombrePersonaContactoClienteC : '-'}">
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="form-control-label">Actividad</label>
+                                <input type="text" class="form-control" readonly
+                                       th:value="${cotizacion.fkCliente != null ? cotizacion.fkCliente.tipoClienteC : '-'}">
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="form-control-label">Cotización aprobada</label>
+                                <input type="text" class="form-control" readonly th:value="${cotizacion.idCotizacionC}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div th:if="${#lists.isEmpty(planes)}" class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No hay planes de muestreo registrados
+                <!-- DATOS DEL PLAN -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/plan/guardar}" th:object="${plan}" method="POST">
+
+                            <h6 class="font-weight-bold text-primary mb-3">Datos del Plan</h6>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="codigoPlan" class="form-control-label">Identificación del plan de muestreo *</label>
+                                    <input type="text" class="form-control" id="codigoPlan" th:field="*{codigoPlan}"
+                                           placeholder="Ej: PM-26-235801" required>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fechaElaboracion" class="form-control-label">Fecha de elaboración *</label>
+                                    <input type="date" class="form-control" id="fechaElaboracion" th:field="*{fechaElaboracion}" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-12 mb-3">
+                                    <label for="ObjetivoPlan" class="form-control-label">Objetivo *</label>
+                                    <textarea class="form-control" id="ObjetivoPlan" th:field="*{ObjetivoPlan}" rows="3"
+                                              placeholder="Ej: Determinar el parámetro cloro residual en agua residual de la descarga de la PTAR" required></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkResponsable" class="form-control-label">Responsable del plan de muestreo *</label>
+                                    <select class="form-control" id="fkResponsable" th:field="*{fkResponsable}" required>
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="emp : ${empleados}"
+                                                th:value="${emp.idEmpleado}"
+                                                th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="fkDetalleCotizacion" class="form-control-label">Línea de cotización (servicio) *</label>
+                                    <select class="form-control" id="fkDetalleCotizacion" th:field="*{fkDetalleCotizacion}" required>
+                                        <option value="0">-- Seleccione --</option>
+                                        <option th:each="det : ${detalles}"
+                                                th:value="${det.idDetalleC}"
+                                                th:text="'#' + ${det.idDetalleC} + ' - ' + (${det.fkParametro != null} ? ${det.fkParametro.ensayoParametroC} : 'Sin parámetro') + ' (' + ${det.cantidadPuntosDetalleC} + ' puntos)'"></option>
+                                    </select>
+                                    <small th:if="${#lists.isEmpty(detalles)}" class="text-danger d-block mt-1">
+                                        Esta cotización no tiene líneas de detalle. Agréguelas antes de planificar.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Crear Plan y Continuar</button>
+                                <a href="/plan/pendientes" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
 
             </div>
