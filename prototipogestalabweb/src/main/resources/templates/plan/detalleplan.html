@@ -1,10 +1,486 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
 
+<head>
+    <title>Plan de Muestreo - GestaLab</title>
+</head>
+
+<body>
+<div layout:fragment="content"
+     th:with="puedeEditar=${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-flask"></i> F-PO-02-01: Plan de Muestreo
+            <small class="text-muted" th:text="${plan.codigoPlan}"></small>
+        </h1>
+        <a href="/plan/listar" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        Cambios guardados correctamente.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show">
+        Registro eliminado.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <!-- ============ INFORMACION DE LA ORGANIZACION ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">INFORMACIÓN DE LA ORGANIZACIÓN</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered mb-0"
+                   th:with="cot=${plan.fkDetalleCotizacion != null ? plan.fkDetalleCotizacion.fkCotizacion : null}">
+                <tr>
+                    <th style="width:18%">Organización:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
+                    <th style="width:20%">Identificación del plan:</th>
+                    <td th:text="${plan.codigoPlan}"></td>
+                </tr>
+                <tr>
+                    <th>Contacto:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombrePersonaContactoClienteC : '-'}"></td>
+                    <th>Responsable del plan:</th>
+                    <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
+                </tr>
+                <tr>
+                    <th>Actividad:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.tipoClienteC : '-'}"></td>
+                    <th>Fecha de elaboración:</th>
+                    <td th:text="${plan.fechaElaboracion != null ? #dates.format(plan.fechaElaboracion, 'dd/MM/yyyy') : '-'}"></td>
+                </tr>
+                <tr>
+                    <th>Objetivo:</th>
+                    <td colspan="3" th:text="${plan.objetivoPlan}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <h5 class="text-center font-weight-bold mb-3">INFORMACIÓN PRELIMINAR</h5>
+
+    <!-- ============ 1. INFORMACION DE LA MATRIZ ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">INFORMACIÓN DE LA MATRIZ</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>No.</th><th>Tipo de matriz</th><th>Ubicación</th>
+                        <th>Descripción del punto</th><th>Accesibilidad</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${matrices}">
+                        <td th:text="${m.noItem}"></td>
+                        <td th:text="${m.tipoMatriz}"></td>
+                        <td th:text="${m.ubicacion}"></td>
+                        <td th:text="${m.descripcionDelPunto}"></td>
+                        <td th:text="${m.accesibilidad}"></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/matriz/eliminar/{id}/{p}(id=${m.idInfoMatriz},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(matrices)}">
+                        <td colspan="6" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/matriz/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevaMatriz}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No." required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{tipoMatriz}" placeholder="Tipo de matriz" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{Ubicacion}" placeholder="Ubicación" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{descripcionDelPunto}" placeholder="Descripción del punto" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{Accesibilidad}" placeholder="Accesibilidad" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ 2. PARAMETROS A ANALIZAR ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">PARÁMETROS A ANALIZAR</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>No.</th><th>Parámetros</th><th>Unidad de medida</th>
+                        <th>Sitio de medición</th><th>Preservación</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${parametros}">
+                        <td th:text="${p.noParametroPL}"></td>
+                        <td th:text="${p.parametros}"></td>
+                        <td th:text="${p.unidadMedida}"></td>
+                        <td th:text="${p.sitioMedicion}"></td>
+                        <td th:text="${p.preservacion}"></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/parametro/eliminar/{id}/{p}(id=${p.idParametroPL},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(parametros)}">
+                        <td colspan="6" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/parametro/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevoParametro}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noParametroPL}" placeholder="No." required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{Parametros}" placeholder="Parámetro" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{unidadMedida}" placeholder="Unidad (mg/L)" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{sitioMedicion}" placeholder="Sitio (laboratorio)" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{preservacion}" placeholder="Preservación" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ 3. TIPO DE TOMA / FRECUENCIA Y HORARIOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">TIPO DE TOMA / FRECUENCIA Y HORARIOS DE MUESTREO</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>No.</th><th>Frecuencia</th><th>Tipo de toma de muestra</th>
+                        <th>Toma compuesta: número de alícuotas</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${tiposToma}">
+                        <td th:text="${t.noItem}"></td>
+                        <td th:text="${t.frecuencia}"></td>
+                        <td th:text="${t.tipo}"></td>
+                        <td th:text="${t.alicuotas}"></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/tipotoma/eliminar/{id}/{p}(id=${t.idTipoFre},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tiposToma)}">
+                        <td colspan="5" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevoTipoToma}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No." required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{frecuencia}" placeholder="Frecuencia (Única)" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{tipo}" placeholder="Tipo de toma (Simple)" required>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{alicuotas}" placeholder="Alícuotas (NA)" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ 4. PROCEDIMIENTO DE MUESTREO ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">PROCEDIMIENTO DE MUESTREO</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>No.</th><th>Tipo de matriz</th>
+                        <th>Descripción relevante para la toma de la muestra</th>
+                        <th>Precauciones en el muestreo</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pr : ${procedimientos}">
+                        <td th:text="${pr.noItem}"></td>
+                        <td th:text="${pr.tipo}"></td>
+                        <td th:text="${pr.descripcion}"></td>
+                        <td th:text="${pr.precausiones}"></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/procedimiento/eliminar/{id}/{p}(id=${pr.idProcedimiento},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(procedimientos)}">
+                        <td colspan="5" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/procedimiento/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevoProcedimiento}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No." required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{Tipo}" placeholder="Tipo de matriz" required>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{descripcion}" placeholder="Descripción relevante" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{precausiones}" placeholder="Precauciones (Uso de EPP)" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ 5. RECURSOS Y CRONOGRAMA ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">RECURSOS Y CRONOGRAMA</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Fecha de muestreo</th><th>Técnico responsable</th>
+                        <th>Recursos</th><th>Hora definida</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${recursos}">
+                        <td th:text="${r.fechaMuestreo != null ? #dates.format(r.fechaMuestreo, 'dd/MM/yyyy') : '-'}"></td>
+                        <td th:text="${r.fkTecnico != null ? r.fkTecnico.nombre + ' ' + r.fkTecnico.apellido : '-'}"></td>
+                        <td th:text="${r.recurso}"></td>
+                        <td th:text="${r.horaDefinida != null ? #dates.format(r.horaDefinida, 'HH:mm') : '-'}"></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/recurso/eliminar/{id}/{p}(id=${r.idRecursos},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recursos)}">
+                        <td colspan="5" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/recurso/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevoRecurso}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-3 mb-2">
+                        <input type="date" class="form-control form-control-sm" th:field="*{fechaMuestreo}" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select class="form-control form-control-sm" th:field="*{fkTecnico}" required>
+                            <option value="0">-- Técnico de campo --</option>
+                            <option th:each="tec : ${tecnicos}"
+                                    th:value="${tec.idEmpleado}"
+                                    th:text="${tec.nombre} + ' ' + ${tec.apellido}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{recurso}" placeholder="Recursos" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="datetime-local" class="form-control form-control-sm" th:field="*{horaDefinida}" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <small class="text-muted">El técnico que elija aquí es quien verá este trabajo en su bandeja.</small>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ 6. VERIFICACION ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">VERIFICACIÓN DE LA INFORMACIÓN PRELIMINAR DURANTE EL MUESTREO</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>No.</th>
+                        <th>Tipo de matriz corresponde con la declarada</th>
+                        <th>Frecuencia de descarga corresponde con la declarada</th>
+                        <th>Los sitios de toma de muestra corresponden a los declarados</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="v : ${verificaciones}">
+                        <td th:text="${v.noItem}"></td>
+                        <td><span th:if="${v.tipoMatrizDeclarada}" class="badge badge-success">Sí</span>
+                            <span th:unless="${v.tipoMatrizDeclarada}" class="badge badge-danger">No</span></td>
+                        <td><span th:if="${v.frecuanciaDeclarada}" class="badge badge-success">Sí</span>
+                            <span th:unless="${v.frecuanciaDeclarada}" class="badge badge-danger">No</span></td>
+                        <td><span th:if="${v.sitiosDeclarados}" class="badge badge-success">Sí</span>
+                            <span th:unless="${v.sitiosDeclarados}" class="badge badge-danger">No</span></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/verificacion/eliminar/{id}/{p}(id=${v.idVerificacion},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(verificaciones)}">
+                        <td colspan="5" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/verificacion/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevaVerificacion}" method="POST" class="border-top pt-3">
+                <div class="form-row align-items-center">
+                    <div class="col-md-2 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No." required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="vMatriz" th:field="*{tipoMatrizDeclarada}">
+                            <label class="custom-control-label" for="vMatriz">Matriz corresponde</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="vFrec" th:field="*{frecuanciaDeclarada}">
+                            <label class="custom-control-label" for="vFrec">Frecuencia corresponde</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="vSitios" th:field="*{sitiosDeclarados}">
+                            <label class="custom-control-label" for="vSitios">Sitios corresponden</label>
+                        </div>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ 7. INFORMACION ADICIONAL ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">INFORMACIÓN ADICIONAL</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width:45%">Pregunta</th><th>Respuesta</th>
+                        <th th:if="${puedeEditar}">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="i : ${infoAdicional}">
+                        <td th:text="${i.preguntas}"></td>
+                        <td th:text="${i.respuesta}"></td>
+                        <td th:if="${puedeEditar}">
+                            <a th:href="@{/plan/infoadicional/eliminar/{id}/{p}(id=${i.idInformacion},p=${plan.idPlan})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(infoAdicional)}">
+                        <td colspan="3" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:if="${puedeEditar}" th:action="@{/plan/infoadicional/guardar/{p}(p=${plan.idPlan})}"
+                  th:object="${nuevaInfoAdicional}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-5 mb-2">
+                        <select class="form-control form-control-sm" th:field="*{preguntas}" required>
+                            <option value="">-- Seleccione la pregunta --</option>
+                            <option value="Se verificó que no existen más descargas de las declaradas / detallar">Se verificó que no existen más descargas de las declaradas / detallar</option>
+                            <option value="Las descargas se realizan en: alcantarillado, efluente, detallar">Las descargas se realizan en: alcantarillado, efluente, detallar</option>
+                            <option value="Describir los procesos de tratamientos de las muestras colectadas">Describir los procesos de tratamientos de las muestras colectadas</option>
+                            <option value="Descripción tipo de transporte de muestras colectadas">Descripción tipo de transporte de muestras colectadas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{respuesta}" placeholder="Respuesta" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-muted small mb-4">
+        F-PO-02-01 · Versión 00 · Plan generado por el sistema GestaLab
+    </div>
+
+</div>
 </body>
 </html>

@@ -1,10 +1,73 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
 
+<head>
+    <title>Planes de Muestreo - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-flask"></i> Planes de Muestreo</h1>
+            <a href="/plan/pendientes"
+               th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}"
+               class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Plan desde Cotización
+            </a>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lista de Planes de Muestreo</h6>
+            </div>
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Código</th>
+                                <th>Organización</th>
+                                <th>Objetivo</th>
+                                <th>Fecha Elaboración</th>
+                                <th>Responsable</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="plan : ${planes}">
+                                <td th:text="${plan.idPlan}"></td>
+                                <td th:text="${plan.codigoPlan}"></td>
+                                <td th:text="${plan.fkDetalleCotizacion != null and plan.fkDetalleCotizacion.fkCotizacion != null and plan.fkDetalleCotizacion.fkCotizacion.fkCliente != null ? plan.fkDetalleCotizacion.fkCotizacion.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
+                                <td th:text="${plan.objetivoPlan}"></td>
+                                <td th:text="${plan.fechaElaboracion != null ? #dates.format(plan.fechaElaboracion, 'dd/MM/yyyy') : '-'}"></td>
+                                <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
+                                <td>
+                                    <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{/plan/eliminar/{id}(id=${plan.idPlan})}"
+                                       th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}"
+                                       class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${#lists.isEmpty(planes)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No hay planes de muestreo registrados
+                </div>
+
+            </div>
+        </div>
+
+    </div>
 </body>
 </html>
