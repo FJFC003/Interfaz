@@ -260,13 +260,46 @@ public class PlanMuestreoPLController {
 		model.addAttribute("epp", epp);
 	}
 
+	// ================= ENVIO AL TECNICO DE CAMPO =================
+
+	/**
+	 * Marca el plan como ENVIADO. Recien entonces aparece en la bandeja del
+	 * Tecnico de Campo. Antes se valida que tenga al menos un tecnico asignado
+	 * en Recursos y cronograma: sin eso, nadie lo recibiria.
+	 */
+	@GetMapping("/enviar/{idPlan}")
+	public String enviarATecnico(@PathVariable int idPlan) {
+		try {
+			if (recursosService.listarPorPlan(idPlan).isEmpty()) {
+				return "redirect:/plan/detalle/" + idPlan + "?sinTecnico=true";
+			}
+			planService.enviarATecnico(idPlan);
+			return "redirect:/plan/detalle/" + idPlan + "?enviado=true";
+		} catch (Exception e) {
+			return "redirect:/plan/detalle/" + idPlan + "?error=true";
+		}
+	}
+
+	/** Devuelve el plan a elaboracion: deja de verlo el Tecnico de Campo. */
+	@GetMapping("/devolver/{idPlan}")
+	public String devolverAElaboracion(@PathVariable int idPlan) {
+		try {
+			planService.devolverAElaboracion(idPlan);
+			return "redirect:/plan/detalle/" + idPlan + "?devuelto=true";
+		} catch (Exception e) {
+			return "redirect:/plan/detalle/" + idPlan + "?error=true";
+		}
+	}
+
 	@GetMapping("/eliminar/{idPlan}")
 	public String eliminarPlan(@PathVariable int idPlan) {
 		try {
 			planService.eliminar(idPlan);
 			return "redirect:/plan/listar?deleted=true";
 		} catch (Exception e) {
-			return "redirect:/plan/listar?error=true";
+			// La causa habitual: el plan tiene Ordenes de Trabajo emitidas,
+			// que no se borran en cascada porque son documentos con valor propio.
+			return "redirect:/plan/listar?errorEliminar=true";
 		}
 	}
 

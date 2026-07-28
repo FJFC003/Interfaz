@@ -29,7 +29,7 @@ layout:decorate="~{/plantilla/plantilla}">
                         <thead class="bg-light">
                             <tr>
                                 <th>ID</th><th>Código</th><th>Organización</th><th>Objetivo</th>
-                                <th>Fecha Elaboración</th><th>Responsable</th><th>Acciones</th>
+                                <th>Fecha Elaboración</th><th>Responsable</th><th>Estado</th><th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,6 +40,12 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${plan.objetivoPlan}"></td>
                                 <td th:text="${plan.fechaElaboracion != null ? #dates.format(plan.fechaElaboracion, 'dd/MM/yyyy') : '-'}"></td>
                                 <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
+                                <td>
+                                    <span th:if="${plan.estadoPlan == null or plan.estadoPlan == 'EN_ELABORACION'}"
+                                          class="badge badge-secondary">En elaboración</span>
+                                    <span th:if="${plan.estadoPlan == 'ENVIADO'}" class="badge badge-primary">Enviado</span>
+                                    <span th:if="${plan.estadoPlan == 'COMPLETADO'}" class="badge badge-success">Completado</span>
+                                </td>
                                 <td>
                                     <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info" title="Ver plan">
                                         <i class="fas fa-eye"></i>
@@ -58,6 +64,17 @@ layout:decorate="~{/plantilla/plantilla}">
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div th:if="${param.errorEliminar}" class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No se pudo eliminar el plan. Lo mas probable es que tenga
+                    <strong>Órdenes de Trabajo</strong> emitidas: elimínelas primero.
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+                <div th:if="${param.deleted}" class="alert alert-success alert-dismissible fade show">
+                    Plan eliminado correctamente.
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
 
                 <div th:if="${#lists.isEmpty(planes)}" class="alert alert-info">

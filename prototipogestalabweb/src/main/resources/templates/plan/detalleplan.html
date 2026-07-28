@@ -17,6 +17,16 @@ layout:decorate="~{/plantilla/plantilla}">
             <small class="text-muted" th:text="${plan.codigoPlan}"></small>
         </h1>
         <div>
+            <a th:if="${puedeEditar and (plan.estadoPlan == null or plan.estadoPlan == 'EN_ELABORACION')}"
+               th:href="@{/plan/enviar/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-primary shadow-sm"
+               onclick="return confirm('¿Enviar este plan al Técnico de Campo? Podrá verlo en su bandeja de trabajos.')">
+                <i class="fas fa-paper-plane"></i> Enviar al Técnico de Campo
+            </a>
+            <a th:if="${puedeEditar and plan.estadoPlan == 'ENVIADO'}"
+               th:href="@{/plan/devolver/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-outline-warning shadow-sm"
+               onclick="return confirm('¿Devolver el plan a elaboración? El Técnico de Campo dejará de verlo.')">
+                <i class="fas fa-undo"></i> Devolver a elaboración
+            </a>
             <a th:href="@{/plan/pdf/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-danger shadow-sm" target="_blank">
                 <i class="fas fa-file-pdf"></i> Descargar PDF
             </a>
@@ -40,6 +50,37 @@ layout:decorate="~{/plantilla/plantilla}">
     <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
         No se pudo completar la operación.
         <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.enviado}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-paper-plane"></i> Plan enviado al Técnico de Campo. Ya aparece en su bandeja.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.devuelto}" class="alert alert-warning alert-dismissible fade show">
+        Plan devuelto a elaboración. El Técnico de Campo ya no lo ve.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.sinTecnico}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-triangle"></i>
+        No se puede enviar: primero asigne un Técnico de Campo en
+        <strong>Recursos y cronograma</strong>.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <div class="card shadow mb-4 border-left-primary">
+        <div class="card-body py-3">
+            <span class="font-weight-bold text-gray-700 mr-2">Estado del plan:</span>
+            <span th:if="${plan.estadoPlan == null or plan.estadoPlan == 'EN_ELABORACION'}"
+                  class="badge badge-secondary p-2">En elaboración</span>
+            <span th:if="${plan.estadoPlan == 'ENVIADO'}" class="badge badge-primary p-2">
+                Enviado al Técnico de Campo</span>
+            <span th:if="${plan.estadoPlan == 'COMPLETADO'}" class="badge badge-success p-2">
+                Muestreo completado</span>
+            <small class="text-muted ml-2" th:if="${plan.fechaEnvioTecnico != null}"
+                   th:text="'Enviado el ' + ${#dates.format(plan.fechaEnvioTecnico, 'dd/MM/yyyy HH:mm')}"></small>
+            <small class="text-muted ml-2" th:if="${plan.estadoPlan == null or plan.estadoPlan == 'EN_ELABORACION'}">
+                El Técnico de Campo no lo ve hasta que lo envíe.
+            </small>
+        </div>
     </div>
 
     <div class="alert alert-info small">
