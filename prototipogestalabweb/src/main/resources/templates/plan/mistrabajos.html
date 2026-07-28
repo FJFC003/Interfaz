@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Mis Trabajos de Campo - GestaLab</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-hard-hat"></i> Mis Trabajos de Campo
+        </h1>
+        <span th:if="${empleado != null}" class="badge badge-primary p-2"
+              th:text="${empleado.nombre} + ' ' + ${empleado.apellido}"></span>
+    </div>
+
+    <!-- El usuario no tiene ficha de empleado -->
+    <div th:if="${sinEmpleado}" class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        Su usuario no está vinculado a ninguna ficha de empleado, así que el sistema no puede
+        saber qué muestreos le corresponden. Solicite al Gerente General que registre su empleado
+        y lo asocie a este usuario.
+    </div>
+
+    <div th:unless="${sinEmpleado}">
+
+        <div class="alert alert-info small">
+            <i class="fas fa-info-circle"></i>
+            Aquí aparecen los muestreos que la Coordinación Técnica le asignó.
+            Entre a cada uno para registrar lo que observe en el sitio.
+        </div>
+
+        <!-- Una tarjeta por plan asignado -->
+        <div th:each="entrada : ${trabajosPorPlan}" class="card shadow mb-4 border-left-primary">
+            <div th:with="primera=${entrada.value[0]}, plan=${entrada.value[0].fkPlanMuestreo}">
+
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-flask"></i>
+                        <span th:text="${plan != null ? plan.codigoPlan : 'Plan'}"></span>
+                    </h6>
+                    <a th:href="@{/plan/campo/{id}(id=${entrada.key})}" class="btn btn-sm btn-success">
+                        <i class="fas fa-clipboard-check"></i> Registrar muestreo
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3"
+                         th:with="cot=${plan != null and plan.fkDetalleCotizacion != null ? plan.fkDetalleCotizacion.fkCotizacion : null}">
+                        <div class="col-md-6 mb-2">
+                            <small class="text-muted d-block">Organización</small>
+                            <strong th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombreRazonSocialClienteC : '-'}"></strong>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <small class="text-muted d-block">Dirección</small>
+                            <span th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.direccionClienteC : '-'}"></span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <small class="text-muted d-block">Contacto en sitio</small>
+                            <span th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombrePersonaContactoClienteC : '-'}"></span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <small class="text-muted d-block">Teléfono</small>
+                            <span th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.telefonoClienteC : '-'}"></span>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <small class="text-muted d-block">Objetivo</small>
+                            <span th:text="${plan != null ? plan.objetivoPlan : '-'}"></span>
+                        </div>
+                    </div>
+
+                    <h6 class="small font-weight-bold text-gray-700">Fechas asignadas</h6>
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead class="bg-light">
+                            <tr><th>Fecha de muestreo</th><th>Hora</th><th>Recursos</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${entrada.value}">
+                                <td th:text="${r.fechaMuestreo != null ? #dates.format(r.fechaMuestreo, 'dd/MM/yyyy') : '-'}"></td>
+                                <td th:text="${r.horaDefinida != null ? #dates.format(r.horaDefinida, 'HH:mm') : '-'}"></td>
+                                <td th:text="${r.recurso}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- EPP que debe llevar -->
+                    <div class="mt-3" th:if="${plan != null and plan.fkeep != null}" th:object="${plan.fkeep}">
+                        <h6 class="small font-weight-bold text-gray-700">
+                            <i class="fas fa-hard-hat text-warning"></i> Equipo de protección a llevar
+                        </h6>
+                        <span th:if="*{chaleco}" class="badge badge-warning mr-1 mb-1">Chaleco reflectivo</span>
+                        <span th:if="*{casco}" class="badge badge-warning mr-1 mb-1">Casco</span>
+                        <span th:if="*{mascarilla}" class="badge badge-warning mr-1 mb-1">Mascarilla</span>
+                        <span th:if="*{mandil}" class="badge badge-warning mr-1 mb-1">Mandil</span>
+                        <span th:if="*{gafas}" class="badge badge-warning mr-1 mb-1">Gafas de seguridad</span>
+                        <span th:if="*{botas}" class="badge badge-warning mr-1 mb-1">Botas de caucho</span>
+                        <span th:if="*{zapatos}" class="badge badge-warning mr-1 mb-1">Zapatos punta de acero</span>
+                        <span th:if="*{accesoProPrivada}" class="badge badge-danger mr-1 mb-1">
+                            <i class="fas fa-key"></i> Requiere acceso a propiedad privada</span>
+                    </div>
+                    <div class="mt-3" th:if="${plan != null and plan.fkeep == null}">
+                        <small class="text-muted">
+                            <i class="fas fa-exclamation-circle"></i>
+                            La Coordinación Técnica todavía no definió el EPP para este plan.
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${totalAsignaciones == 0}" class="card shadow">
+            <div class="card-body text-center py-5">
+                <div class="text-gray-400 mb-3" style="font-size:3rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h5 class="text-gray-700">No tiene muestreos asignados</h5>
+                <p class="text-muted mb-0">
+                    Cuando la Coordinación Técnica le asigne un trabajo en la sección
+                    "Recursos y cronograma" de un plan, aparecerá aquí.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

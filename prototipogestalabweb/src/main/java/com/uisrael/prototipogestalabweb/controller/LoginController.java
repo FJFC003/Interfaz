@@ -47,9 +47,10 @@ public class LoginController {
 				return "redirect:/plan/listar";
 			}
 
-			// Tecnico de campo -> planes de muestreo (solo lectura)
-			if (rol.equalsIgnoreCase("Tecnico") || rol.equalsIgnoreCase("Técnico")) {
-				return "redirect:/plan/listar";
+			// Tecnico de Campo -> su bandeja de trabajos asignados
+			if (rol.equalsIgnoreCase("Tecnico") || rol.equalsIgnoreCase("Técnico")
+					|| rol.equalsIgnoreCase("Tecnico de campo") || rol.equalsIgnoreCase("Técnico de campo")) {
+				return "redirect:/campo/mis-trabajos";
 			}
 
 			// Gerente General y cualquier otro rol

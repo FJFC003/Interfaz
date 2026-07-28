@@ -53,4 +53,11 @@ public class RecursosCronoPLServiceImpl implements IRecursosCronoPLService {
 				.block();
 	}
 
+	@Override
+	public List<RecursosCronoPLResponseDto> listarPorTecnico(int idEmpleado) {
+		// TODO Auto-generated method stub
+		return webClient.get().uri("/gestalab/recursos-crono-pl/tecnico/{id}", idEmpleado)
+				.retrieve().bodyToFlux(RecursosCronoPLResponseDto.class).collectList().block();
+	}
+
 }

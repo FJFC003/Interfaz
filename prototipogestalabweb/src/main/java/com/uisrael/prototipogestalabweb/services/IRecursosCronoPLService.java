@@ -11,5 +11,6 @@ public interface IRecursosCronoPLService {
 	RecursosCronoPLResponseDto guardar(RecursosCronoPLRequestDto dto);
 	void eliminar(int idRecursos);
 	List<RecursosCronoPLResponseDto> listarPorPlan(int idPlan);
+	List<RecursosCronoPLResponseDto> listarPorTecnico(int idEmpleado);
 
 }
