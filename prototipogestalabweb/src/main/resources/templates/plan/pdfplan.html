@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Plan de Muestreo</title>
+    <style>
+        @page { size: A4; margin: 1.5cm; }
+        body { font-family: 'Helvetica','Arial',sans-serif; font-size: 8.5pt; color: #222; }
+        table { width: 100%; border-collapse: collapse; }
+        .header-table td { vertical-align: top; padding: 4px; }
+        .titulo { text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 10px; }
+        .empresa { font-size: 8pt; line-height: 1.3; }
+        h2.seccion-verde { background-color: #c5d86d; color: #000; font-size: 9.5pt;
+                           padding: 4px 8px; margin: 12px 0 4px 0; text-align: center; }
+        h2.seccion-azul { background-color: #9dc3e6; color: #000; font-size: 9.5pt;
+                          padding: 4px 8px; margin: 12px 0 4px 0; text-align: center; }
+        h3.preliminar { text-align: center; font-size: 10pt; margin: 14px 0 6px 0; }
+        table.datos td { border: 1px solid #999; padding: 4px 6px; }
+        table.datos td.label { font-weight: bold; background-color: #f2f2f2; width: 20%; }
+        table.grid { font-size: 8pt; }
+        table.grid th, table.grid td { border: 1px solid #999; padding: 3px 5px; text-align: left; }
+        table.grid th { background-color: #dce6f1; text-align: center; font-weight: bold; }
+        table.epp td { border: 1px solid #999; padding: 5px 8px; width: 25%; }
+        .pie { font-size: 7pt; color: #666; margin-top: 18px; text-align: center; }
+        .vacio { color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <table class="header-table">
+        <tr>
+            <td width="70%" class="empresa">
+                <strong style="font-size:11pt;">LABORATORIOS GESTALAB</strong><br/>
+                GESTIÓN AMBIENTAL, LABORAL Y DE CALIDAD<br/>
+                RUC: 1793190324001 &#160;|&#160; Quito - Ecuador
+            </td>
+            <td width="30%" style="text-align:right; font-size:9pt;">
+                <strong>F-PO-02-01</strong><br/>
+                Página 1 de 1<br/>
+                Versión 00
+            </td>
+        </tr>
+    </table>
+
+    <div class="titulo">F-PO-02-01: PLAN DE MUESTREO DE AGUA</div>
+
+    <h2 class="seccion-verde">INFORMACIÓN DE LA ORGANIZACIÓN</h2>
+    <table class="datos"
+           th:with="cot=${plan.fkDetalleCotizacion != null ? plan.fkDetalleCotizacion.fkCotizacion : null}">
+        <tr>
+            <td class="label">Organización:</td>
+            <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
+            <td class="label">Identificación del plan de muestreo:</td>
+            <td th:text="${plan.codigoPlan}"></td>
+        </tr>
+        <tr>
+            <td class="label">Contacto:</td>
+            <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombrePersonaContactoClienteC : '-'}"></td>
+            <td class="label">Responsable del plan de Muestreo:</td>
+            <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
+        </tr>
+        <tr>
+            <td class="label">Actividad:</td>
+            <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.tipoClienteC : '-'}"></td>
+            <td class="label">Fecha de elaboración:</td>
+            <td th:text="${plan.fechaElaboracion != null ? #dates.format(plan.fechaElaboracion, 'dd/MM/yyyy') : '-'}"></td>
+        </tr>
+        <tr>
+            <td class="label">Objetivo:</td>
+            <td colspan="3" th:text="${plan.objetivoPlan}"></td>
+        </tr>
+    </table>
+
+    <h3 class="preliminar">INFORMACIÓN PRELIMINAR</h3>
+
+    <h2 class="seccion-azul">INFORMACIÓN DE LA MATRIZ</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="6%">No.</th><th width="20%">Tipo de matriz</th><th width="18%">Ubicación</th>
+                <th width="30%">Descripción del punto</th><th width="26%">Accesibilidad</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="m : ${matrices}">
+                <td th:text="${m.noItem}"></td>
+                <td th:text="${m.tipoMatriz}"></td>
+                <td th:text="${m.ubicacion}"></td>
+                <td th:text="${m.descripcionDelPunto}"></td>
+                <td th:text="${m.accesibilidad}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(matrices)}"><td colspan="5" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <h2 class="seccion-azul">PARÁMETROS A ANALIZAR</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="6%">No.</th><th width="30%">Parámetros</th><th width="18%">Unidad de medida</th>
+                <th width="23%">Sitio de medición</th><th width="23%">Preservación</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${parametros}">
+                <td th:text="${p.noParametroPL}"></td>
+                <td th:text="${p.parametros}"></td>
+                <td th:text="${p.unidadMedida}"></td>
+                <td th:text="${p.sitioMedicion}"></td>
+                <td th:text="${p.preservacion}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(parametros)}"><td colspan="5" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <h2 class="seccion-azul">TIPO DE TOMA / FRECUENCIA Y HORARIOS DE MUESTREO</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="6%">No.</th><th width="28%">Frecuencia</th><th width="36%">Tipo de toma de muestra</th>
+                <th width="30%">Toma compuesta: número de alícuotas</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="t : ${tiposToma}">
+                <td th:text="${t.noItem}"></td>
+                <td th:text="${t.frecuencia}"></td>
+                <td th:text="${t.tipo}"></td>
+                <td th:text="${t.alicuotas}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(tiposToma)}"><td colspan="4" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <h2 class="seccion-azul">PROCEDIMIENTO DE MUESTREO</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="6%">No.</th><th width="20%">Tipo de matriz</th>
+                <th width="48%">Descripción relevante para la toma de la muestra</th>
+                <th width="26%">Precauciones en el muestreo</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="pr : ${procedimientos}">
+                <td th:text="${pr.noItem}"></td>
+                <td th:text="${pr.tipo}"></td>
+                <td th:text="${pr.descripcion}"></td>
+                <td th:text="${pr.precausiones}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(procedimientos)}"><td colspan="4" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <h2 class="seccion-azul">RECURSOS Y CRONOGRAMA</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="22%">Fecha de muestreo</th><th width="30%">Técnicos responsables</th>
+                <th width="28%">Recursos</th><th width="20%">Hora definida</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="r : ${recursos}">
+                <td th:text="${r.fechaMuestreo != null ? #dates.format(r.fechaMuestreo, 'dd/MM/yyyy') : ''}"></td>
+                <td th:text="${r.fkTecnico != null ? r.fkTecnico.nombre + ' ' + r.fkTecnico.apellido : ''}"></td>
+                <td th:text="${r.recurso}"></td>
+                <td th:text="${r.horaDefinida != null ? #dates.format(r.horaDefinida, 'HH:mm') : ''}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(recursos)}"><td colspan="4" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <h2 class="seccion-verde">CONSIDERACIONES DE SEGURIDAD (EPP)</h2>
+    <table class="epp" th:if="${plan.fkeep != null}" th:object="${plan.fkeep}">
+        <tr>
+            <td><span th:text="*{chaleco} ? '[X]' : '[ ]'"></span> Chaleco reflectivo</td>
+            <td><span th:text="*{casco} ? '[X]' : '[ ]'"></span> Casco</td>
+            <td><span th:text="*{mascarilla} ? '[X]' : '[ ]'"></span> Mascarilla</td>
+            <td><span th:text="*{mandil} ? '[X]' : '[ ]'"></span> Mandil</td>
+        </tr>
+        <tr>
+            <td><span th:text="*{gafas} ? '[X]' : '[ ]'"></span> Gafas de seguridad</td>
+            <td><span th:text="*{botas} ? '[X]' : '[ ]'"></span> Botas de caucho</td>
+            <td><span th:text="*{zapatos} ? '[X]' : '[ ]'"></span> Zapatos punta de acero</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <span th:text="*{accesoProPrivada} ? '[X]' : '[ ]'"></span>
+                Acceso aprobado para sitios de propiedad privada
+            </td>
+        </tr>
+    </table>
+    <p th:if="${plan.fkeep == null}" class="vacio">EPP no definido para este plan.</p>
+
+    <h2 class="seccion-verde">VERIFICACIÓN DE LA INFORMACIÓN PRELIMINAR DURANTE EL MUESTREO</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="8%">No.</th>
+                <th width="31%">Tipo de matriz corresponde con la declarada</th>
+                <th width="31%">Frecuencia de descarga corresponde con la declarada</th>
+                <th width="30%">Los sitios de toma de muestra corresponden a los declarados</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="v : ${verificaciones}">
+                <td th:text="${v.noItem}"></td>
+                <td th:text="${v.tipoMatrizDeclarada} ? '[X] Si   [ ] No' : '[ ] Si   [X] No'"></td>
+                <td th:text="${v.frecuanciaDeclarada} ? '[X] Si   [ ] No' : '[ ] Si   [X] No'"></td>
+                <td th:text="${v.sitiosDeclarados} ? '[X] Si   [ ] No' : '[ ] Si   [X] No'"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(verificaciones)}"><td colspan="4" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <h2 class="seccion-verde">INFORMACIÓN ADICIONAL</h2>
+    <table class="grid">
+        <thead>
+            <tr><th width="45%">Pregunta</th><th width="55%">Respuesta</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="i : ${infoAdicional}">
+                <td th:text="${i.preguntas}"></td>
+                <td th:text="${i.respuesta}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(infoAdicional)}"><td colspan="2" class="vacio">Sin registros</td></tr>
+        </tbody>
+    </table>
+
+    <p class="pie">
+        F-PO-02-01 · Versión 00, del 31 de marzo de 2025 · Documento generado por el sistema GestaLab el
+        <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}"></span>
+    </p>
+
+</body>
+</html>

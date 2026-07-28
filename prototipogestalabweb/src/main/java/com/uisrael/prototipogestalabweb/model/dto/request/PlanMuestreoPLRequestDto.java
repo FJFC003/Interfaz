@@ -18,5 +18,6 @@ public class PlanMuestreoPLRequestDto {
 
 	private int fkResponsable;
 	private int fkDetalleCotizacion;
+	private int fkeep;
 
 }

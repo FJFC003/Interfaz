@@ -44,4 +44,11 @@ public class EEPPLServiceImpl implements IEEPPLService {
 				.block();
 	}
 
+	@Override
+	public EEPPLResponseDto buscarPorId(int idEEP) {
+		// TODO Auto-generated method stub
+		return webClient.get().uri("/gestalab/eeppl/{id}", idEEP)
+				.retrieve().bodyToMono(EEPPLResponseDto.class).block();
+	}
+
 }

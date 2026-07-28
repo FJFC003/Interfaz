@@ -13,5 +13,6 @@ public class PlanMuestreoPLResponseDto {
 	private Date fechaElaboracion;
 	private EmpleadoResponseDto fkResponsable;
 	private DetalleCResponseDto fkDetalleCotizacion;
+	private EEPPLResponseDto fkeep;
 
 }

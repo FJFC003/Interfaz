@@ -9,6 +9,7 @@ public interface IEEPPLService {
 
 	List<EEPPLResponseDto> listarEpp();
 	EEPPLResponseDto guardar(EEPPLRequestDto dto);
+	EEPPLResponseDto buscarPorId(int idEEP);
 	void eliminar(int idEEP);
 
 }

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Trabajo de Campo - GestaLab</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-hard-hat"></i> Trabajo de Campo
+            <small class="text-muted" th:text="${plan.codigoPlan}"></small>
+        </h1>
+        <a href="/plan/listar" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        Registrado correctamente.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <div class="alert alert-info small">
+        <i class="fas fa-info-circle"></i>
+        Complete aquí lo que se observa <strong>en el sitio</strong>. Los datos en gris vienen del plan
+        y no se modifican.
+    </div>
+
+    <!-- ============ RESUMEN DEL TRABAJO ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">DATOS DEL MUESTREO</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm mb-0"
+                   th:with="cot=${plan.fkDetalleCotizacion != null ? plan.fkDetalleCotizacion.fkCotizacion : null}">
+                <tr>
+                    <th style="width:20%">Organización:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
+                    <th style="width:20%">Contacto en sitio:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombrePersonaContactoClienteC : '-'}"></td>
+                </tr>
+                <tr>
+                    <th>Dirección:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.direccionClienteC : '-'}"></td>
+                    <th>Teléfono:</th>
+                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.telefonoClienteC : '-'}"></td>
+                </tr>
+                <tr>
+                    <th>Objetivo:</th>
+                    <td colspan="3" th:text="${plan.objetivoPlan}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============ EPP QUE DEBE LLEVAR ============ -->
+    <div class="card shadow mb-4 border-left-warning">
+        <div class="card-header py-3" style="background-color:#ffc107;">
+            <h6 class="m-0 font-weight-bold text-dark">
+                <i class="fas fa-hard-hat"></i> EQUIPO DE PROTECCIÓN QUE DEBE LLEVAR
+            </h6>
+        </div>
+        <div class="card-body">
+            <div th:if="${plan.fkeep == null}" class="alert alert-warning mb-0">
+                <i class="fas fa-exclamation-triangle"></i>
+                La Coordinadora Técnica todavía no definió el EPP para este plan.
+            </div>
+            <div th:if="${plan.fkeep != null}" class="row" th:object="${plan.fkeep}">
+                <div class="col-md-3 mb-2" th:if="*{chaleco}"><i class="fas fa-check-circle text-success"></i> Chaleco reflectivo</div>
+                <div class="col-md-3 mb-2" th:if="*{casco}"><i class="fas fa-check-circle text-success"></i> Casco</div>
+                <div class="col-md-3 mb-2" th:if="*{mascarilla}"><i class="fas fa-check-circle text-success"></i> Mascarilla</div>
+                <div class="col-md-3 mb-2" th:if="*{mandil}"><i class="fas fa-check-circle text-success"></i> Mandil</div>
+                <div class="col-md-3 mb-2" th:if="*{gafas}"><i class="fas fa-check-circle text-success"></i> Gafas de seguridad</div>
+                <div class="col-md-3 mb-2" th:if="*{botas}"><i class="fas fa-check-circle text-success"></i> Botas de caucho</div>
+                <div class="col-md-3 mb-2" th:if="*{zapatos}"><i class="fas fa-check-circle text-success"></i> Zapatos punta de acero</div>
+                <div class="col-md-12 mb-2" th:if="*{accesoProPrivada}">
+                    <i class="fas fa-key text-warning"></i> <strong>Requiere acceso aprobado a propiedad privada</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MATRIZ: descripcion y accesibilidad ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">PUNTOS DE MUESTREO</h6>
+        </div>
+        <div class="card-body">
+            <div th:each="m : ${matrices}" class="border rounded p-3 mb-3">
+                <form th:action="@{/plan/matriz/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                    <input type="hidden" name="idInfoMatriz" th:value="${m.idInfoMatriz}">
+                    <input type="hidden" name="noItem" th:value="${m.noItem}">
+                    <input type="hidden" name="tipoMatriz" th:value="${m.tipoMatriz}">
+                    <input type="hidden" name="Ubicacion" th:value="${m.ubicacion}">
+                    <input type="hidden" name="volverA" value="campo">
+
+                    <div class="form-row align-items-end">
+                        <div class="col-md-1 mb-2">
+                            <label class="small text-muted">Punto</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${m.noItem}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="small text-muted">Tipo de matriz</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${m.tipoMatriz}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="small text-muted">Ubicación</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${m.ubicacion}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="small font-weight-bold">Descripción del punto *</label>
+                            <input type="text" class="form-control form-control-sm" name="descripcionDelPunto"
+                                   th:value="${m.descripcionDelPunto}" placeholder="Ej: Descarga Salida de la PTAR">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="small font-weight-bold">Accesibilidad *</label>
+                            <input type="text" class="form-control form-control-sm" name="Accesibilidad"
+                                   th:value="${m.accesibilidad}" placeholder="Ej: Acceso directo con acompañamiento">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(matrices)}" class="text-muted">Sin puntos definidos en el plan.</div>
+        </div>
+    </div>
+
+    <!-- ============ PARAMETROS: sitio y preservacion ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">PARÁMETROS A ANALIZAR</h6>
+        </div>
+        <div class="card-body">
+            <div th:each="p : ${parametros}" class="border rounded p-3 mb-3">
+                <form th:action="@{/plan/parametro/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                    <input type="hidden" name="idParametroPL" th:value="${p.idParametroPL}">
+                    <input type="hidden" name="noParametroPL" th:value="${p.noParametroPL}">
+                    <input type="hidden" name="Parametros" th:value="${p.parametros}">
+                    <input type="hidden" name="unidadMedida" th:value="${p.unidadMedida}">
+                    <input type="hidden" name="volverA" value="campo">
+
+                    <div class="form-row align-items-end">
+                        <div class="col-md-3 mb-2">
+                            <label class="small text-muted">Parámetro</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${p.parametros}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="small text-muted">Unidad</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${p.unidadMedida}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="small font-weight-bold">Sitio de medición *</label>
+                            <input type="text" class="form-control form-control-sm" name="sitioMedicion"
+                                   th:value="${p.sitioMedicion}" placeholder="laboratorio / In situ">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="small font-weight-bold">Preservación *</label>
+                            <input type="text" class="form-control form-control-sm" name="preservacion"
+                                   th:value="${p.preservacion}" placeholder="No aplica / Refrigeración">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(parametros)}" class="text-muted">Sin parámetros definidos.</div>
+        </div>
+    </div>
+
+    <!-- ============ TIPO DE TOMA: alicuotas ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">TIPO DE TOMA DE MUESTRA</h6>
+        </div>
+        <div class="card-body">
+            <div th:each="t : ${tiposToma}" class="border rounded p-3 mb-3">
+                <form th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                    <input type="hidden" name="idTipoFre" th:value="${t.idTipoFre}">
+                    <input type="hidden" name="noItem" th:value="${t.noItem}">
+                    <input type="hidden" name="frecuencia" th:value="${t.frecuencia}">
+                    <input type="hidden" name="tipo" th:value="${t.tipo}">
+                    <input type="hidden" name="volverA" value="campo">
+
+                    <div class="form-row align-items-end">
+                        <div class="col-md-3 mb-2">
+                            <label class="small text-muted">Frecuencia</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${t.frecuencia}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="small text-muted">Tipo de toma</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${t.tipo}">
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="small font-weight-bold">Toma compuesta: número de alícuotas *</label>
+                            <input type="text" class="form-control form-control-sm" name="alicuotas"
+                                   th:value="${t.alicuotas}" placeholder="NA si es simple">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(tiposToma)}" class="text-muted">Sin registros.</div>
+        </div>
+    </div>
+
+    <!-- ============ PROCEDIMIENTO: descripcion y precauciones ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">PROCEDIMIENTO DE MUESTREO</h6>
+        </div>
+        <div class="card-body">
+            <div th:each="pr : ${procedimientos}" class="border rounded p-3 mb-3">
+                <form th:action="@{/plan/procedimiento/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                    <input type="hidden" name="idProcedimiento" th:value="${pr.idProcedimiento}">
+                    <input type="hidden" name="noItem" th:value="${pr.noItem}">
+                    <input type="hidden" name="Tipo" th:value="${pr.tipo}">
+                    <input type="hidden" name="volverA" value="campo">
+
+                    <div class="form-row align-items-end">
+                        <div class="col-md-2 mb-2">
+                            <label class="small text-muted">Tipo de matriz</label>
+                            <input type="text" class="form-control form-control-sm bg-light" readonly th:value="${pr.tipo}">
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="small font-weight-bold">Descripción relevante para la toma *</label>
+                            <input type="text" class="form-control form-control-sm" name="descripcion"
+                                   th:value="${pr.descripcion}" placeholder="Ej: Toma de muestra a la salida de la PTAR">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="small font-weight-bold">Precauciones en el muestreo *</label>
+                            <input type="text" class="form-control form-control-sm" name="precausiones"
+                                   th:value="${pr.precausiones}" placeholder="Ej: Uso de EPP">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(procedimientos)}" class="text-muted">Sin registros.</div>
+        </div>
+    </div>
+
+    <!-- ============ VERIFICACION: si / no ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">VERIFICACIÓN DE LA INFORMACIÓN PRELIMINAR</h6>
+        </div>
+        <div class="card-body">
+            <p class="small text-muted">Marque la casilla si la información declarada corresponde con lo observado en sitio.</p>
+            <div th:each="v : ${verificaciones}" class="border rounded p-3 mb-3">
+                <form th:action="@{/plan/verificacion/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                    <input type="hidden" name="idVerificacion" th:value="${v.idVerificacion}">
+                    <input type="hidden" name="noItem" th:value="${v.noItem}">
+                    <input type="hidden" name="volverA" value="campo">
+
+                    <div class="form-row align-items-center">
+                        <div class="col-md-1 mb-2">
+                            <span class="badge badge-primary" th:text="'Punto ' + ${v.noItem}"></span>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="tipoMatrizDeclarada"
+                                       th:id="'vm' + ${v.idVerificacion}" th:checked="${v.tipoMatrizDeclarada}" value="true">
+                                <label class="custom-control-label" th:for="'vm' + ${v.idVerificacion}">
+                                    Tipo de matriz corresponde</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="frecuanciaDeclarada"
+                                       th:id="'vf' + ${v.idVerificacion}" th:checked="${v.frecuanciaDeclarada}" value="true">
+                                <label class="custom-control-label" th:for="'vf' + ${v.idVerificacion}">
+                                    Frecuencia corresponde</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="sitiosDeclarados"
+                                       th:id="'vs' + ${v.idVerificacion}" th:checked="${v.sitiosDeclarados}" value="true">
+                                <label class="custom-control-label" th:for="'vs' + ${v.idVerificacion}">
+                                    Sitios corresponden</label>
+                            </div>
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(verificaciones)}" class="alert alert-warning mb-0">
+                La Coordinadora Técnica todavía no creó las filas de verificación.
+            </div>
+        </div>
+    </div>
+
+    <div class="text-muted small mb-4">
+        F-PO-02-01 · Vista de campo · GestaLab
+    </div>
+
+</div>
+</body>
+</html>

@@ -8,12 +8,12 @@ layout:decorate="~{/plantilla/plantilla}">
 </head>
 
 <body>
-    <div layout:fragment="content">
+    <div layout:fragment="content"
+         th:with="esCoordinador=${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-flask"></i> Planes de Muestreo</h1>
-            <a href="/plan/pendientes"
-               th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}"
+            <a href="/plan/pendientes" th:if="${esCoordinador}"
                class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                 <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Plan desde Cotización
             </a>
@@ -24,18 +24,12 @@ layout:decorate="~{/plantilla/plantilla}">
                 <h6 class="m-0 font-weight-bold text-primary">Lista de Planes de Muestreo</h6>
             </div>
             <div class="card-body">
-
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
                         <thead class="bg-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Código</th>
-                                <th>Organización</th>
-                                <th>Objetivo</th>
-                                <th>Fecha Elaboración</th>
-                                <th>Responsable</th>
-                                <th>Acciones</th>
+                                <th>ID</th><th>Código</th><th>Organización</th><th>Objetivo</th>
+                                <th>Fecha Elaboración</th><th>Responsable</th><th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -47,12 +41,17 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${plan.fechaElaboracion != null ? #dates.format(plan.fechaElaboracion, 'dd/MM/yyyy') : '-'}"></td>
                                 <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
                                 <td>
-                                    <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info">
+                                    <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info" title="Ver plan">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a th:href="@{/plan/eliminar/{id}(id=${plan.idPlan})}"
-                                       th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico')}"
-                                       class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                    <a th:href="@{/plan/campo/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-success" title="Trabajo de campo">
+                                        <i class="fas fa-hard-hat"></i>
+                                    </a>
+                                    <a th:href="@{/plan/pdf/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-danger" title="Descargar PDF" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    <a th:href="@{/plan/eliminar/{id}(id=${plan.idPlan})}" th:if="${esCoordinador}"
+                                       class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -64,7 +63,6 @@ layout:decorate="~{/plantilla/plantilla}">
                 <div th:if="${#lists.isEmpty(planes)}" class="alert alert-info">
                     <i class="fas fa-info-circle"></i> No hay planes de muestreo registrados
                 </div>
-
             </div>
         </div>
 
