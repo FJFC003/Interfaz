@@ -165,13 +165,21 @@ layout:decorate="~{/plantilla/plantilla}">
                         </div>
                         <div class="col-md-3 mb-2">
                             <label class="small font-weight-bold">Sitio de medición *</label>
-                            <input type="text" class="form-control form-control-sm" name="sitioMedicion"
-                                   th:value="${p.sitioMedicion}" placeholder="laboratorio / In situ">
+                            <select class="form-control form-control-sm" name="sitioMedicion" required>
+                                <option value="" th:selected="${p.sitioMedicion == null or #strings.isEmpty(p.sitioMedicion)}">
+                                    -- Seleccione --</option>
+                                <option value="Laboratorio" th:selected="${p.sitioMedicion == 'Laboratorio'}">Laboratorio</option>
+                                <option value="In situ" th:selected="${p.sitioMedicion == 'In situ'}">In situ</option>
+                            </select>
                         </div>
                         <div class="col-md-3 mb-2">
                             <label class="small font-weight-bold">Preservación *</label>
-                            <input type="text" class="form-control form-control-sm" name="preservacion"
-                                   th:value="${p.preservacion}" placeholder="No aplica / Refrigeración">
+                            <select class="form-control form-control-sm" name="preservacion" required>
+                                <option value="" th:selected="${p.preservacion == null or #strings.isEmpty(p.preservacion)}">
+                                    -- Seleccione --</option>
+                                <option value="No aplica" th:selected="${p.preservacion == 'No aplica'}">No aplica</option>
+                                <option value="Refrigeración" th:selected="${p.preservacion == 'Refrigeración'}">Refrigeración</option>
+                            </select>
                         </div>
                         <div class="col-md-1 mb-2">
                             <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
@@ -180,6 +188,11 @@ layout:decorate="~{/plantilla/plantilla}">
                 </form>
             </div>
             <div th:if="${#lists.isEmpty(parametros)}" class="text-muted">Sin parámetros definidos.</div>
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i>
+                El sitio de medición y la preservación son valores cerrados: la Orden de Trabajo
+                depende de ellos para saber qué se analiza en laboratorio y qué in situ.
+            </small>
         </div>
     </div>
 
