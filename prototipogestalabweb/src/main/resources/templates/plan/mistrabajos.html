@@ -31,7 +31,8 @@ layout:decorate="~{/plantilla/plantilla}">
         <div class="alert alert-info small">
             <i class="fas fa-info-circle"></i>
             Aquí aparecen los muestreos que la Coordinación Técnica le asignó.
-            Entre a cada uno para registrar lo que observe en el sitio.
+            Use <strong>Imprimir plan</strong> para llevarlo en papel al sitio y
+            <strong>Registrar muestreo</strong> para cargar lo observado.
         </div>
 
         <!-- Una tarjeta por plan asignado -->
@@ -43,9 +44,15 @@ layout:decorate="~{/plantilla/plantilla}">
                         <i class="fas fa-flask"></i>
                         <span th:text="${plan != null ? plan.codigoPlan : 'Plan'}"></span>
                     </h6>
-                    <a th:href="@{/plan/campo/{id}(id=${entrada.key})}" class="btn btn-sm btn-success">
-                        <i class="fas fa-clipboard-check"></i> Registrar muestreo
-                    </a>
+                    <div>
+                        <a th:href="@{/plan/pdf/{id}(id=${entrada.key})}" class="btn btn-sm btn-danger"
+                           target="_blank" title="Descargar el plan para llevarlo impreso">
+                            <i class="fas fa-file-pdf"></i> Imprimir plan
+                        </a>
+                        <a th:href="@{/plan/campo/{id}(id=${entrada.key})}" class="btn btn-sm btn-success">
+                            <i class="fas fa-clipboard-check"></i> Registrar muestreo
+                        </a>
+                    </div>
                 </div>
 
                 <div class="card-body">

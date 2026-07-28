@@ -15,9 +15,16 @@ layout:decorate="~{/plantilla/plantilla}">
             <i class="fas fa-hard-hat"></i> Trabajo de Campo
             <small class="text-muted" th:text="${plan.codigoPlan}"></small>
         </h1>
-        <a href="/plan/listar" class="btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
+        <div>
+            <a th:href="@{/plan/pdf/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-danger shadow-sm"
+               target="_blank" title="Descargar el plan en PDF">
+                <i class="fas fa-file-pdf"></i> Imprimir plan
+            </a>
+            <!-- El Tecnico vuelve a SU bandeja, no al listado general de planes -->
+            <a href="/campo/mis-trabajos" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left"></i> Volver a mis trabajos
+            </a>
+        </div>
     </div>
 
     <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
@@ -369,6 +376,20 @@ layout:decorate="~{/plantilla/plantilla}">
             <div th:if="${#lists.isEmpty(verificaciones)}" class="alert alert-warning mb-0">
                 La Coordinadora Técnica todavía no creó las filas de verificación.
             </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body text-center">
+            <p class="text-muted mb-3">
+                Cuando termine de registrar todo, descargue el plan completo para archivarlo o firmarlo.
+            </p>
+            <a th:href="@{/plan/pdf/{id}(id=${plan.idPlan})}" class="btn btn-danger" target="_blank">
+                <i class="fas fa-file-pdf"></i> Descargar plan completo en PDF
+            </a>
+            <a href="/campo/mis-trabajos" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver a mis trabajos
+            </a>
         </div>
     </div>
 
