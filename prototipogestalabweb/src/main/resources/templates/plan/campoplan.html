@@ -210,7 +210,74 @@ layout:decorate="~{/plantilla/plantilla}">
                     </div>
                 </form>
             </div>
-            <div th:if="${#lists.isEmpty(tiposToma)}" class="text-muted">Sin registros.</div>
+            <div th:if="${#lists.isEmpty(tiposToma)}" class="text-muted mb-3">
+                Todavía no ha registrado ningún tipo de toma.
+            </div>
+
+            <!-- El Tecnico de Campo crea estas filas completas -->
+            <form th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}" method="POST" class="border-top pt-3">
+                <input type="hidden" name="volverA" value="campo">
+                <h6 class="small font-weight-bold">Registrar tipo de toma</h6>
+                <div class="form-row align-items-end">
+                    <div class="col-md-2 mb-2">
+                        <label class="small">No. *</label>
+                        <input type="number" class="form-control form-control-sm" name="noItem" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="small">Frecuencia *</label>
+                        <input type="text" class="form-control form-control-sm" name="frecuencia" placeholder="Única" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="small">Tipo de toma de muestra *</label>
+                        <input type="text" class="form-control form-control-sm" name="tipo" placeholder="Simple" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="small">Alícuotas *</label>
+                        <input type="text" class="form-control form-control-sm" name="alicuotas" placeholder="NA si es simple" required>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ INFORMACION ADICIONAL: el tecnico responde ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">INFORMACIÓN ADICIONAL</h6>
+        </div>
+        <div class="card-body">
+            <p class="small text-muted">
+                Responda las preguntas que definió la Coordinadora Técnica.
+            </p>
+            <div th:each="i : ${infoAdicional}" class="border rounded p-3 mb-3">
+                <form th:action="@{/plan/infoadicional/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                    <input type="hidden" name="idInformacion" th:value="${i.idInformacion}">
+                    <input type="hidden" name="preguntas" th:value="${i.preguntas}">
+                    <input type="hidden" name="volverA" value="campo">
+
+                    <div class="form-row align-items-end">
+                        <div class="col-md-5 mb-2">
+                            <label class="small text-muted">Pregunta</label>
+                            <textarea class="form-control form-control-sm bg-light" rows="2" readonly
+                                      th:text="${i.preguntas}"></textarea>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="small font-weight-bold">Respuesta *</label>
+                            <input type="text" class="form-control form-control-sm" name="respuesta"
+                                   th:value="${i.respuesta}" placeholder="Escriba lo observado en sitio">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(infoAdicional)}" class="alert alert-warning mb-0">
+                La Coordinadora Técnica todavía no definió las preguntas.
+            </div>
         </div>
     </div>
 
@@ -238,9 +305,9 @@ layout:decorate="~{/plantilla/plantilla}">
                                    th:value="${pr.descripcion}" placeholder="Ej: Toma de muestra a la salida de la PTAR">
                         </div>
                         <div class="col-md-4 mb-2">
-                            <label class="small font-weight-bold">Precauciones en el muestreo *</label>
-                            <input type="text" class="form-control form-control-sm" name="precausiones"
-                                   th:value="${pr.precausiones}" placeholder="Ej: Uso de EPP">
+                            <label class="small text-muted">Precauciones en el muestreo</label>
+                            <input type="text" class="form-control form-control-sm bg-light" name="precausiones"
+                                   th:value="${pr.precausiones}" readonly title="Valor fijo del formulario">
                         </div>
                         <div class="col-md-1 mb-2">
                             <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>

@@ -41,6 +41,13 @@ import com.uisrael.prototipogestalabweb.services.IVerificacionPLService;
 @RequestMapping("/plan")
 public class PlanMuestreoPLController {
 
+	private static final java.util.List<String> PREGUNTAS_INFORMACION_ADICIONAL = java.util.List.of(
+			"Se verificó que no existen más descargas de las declaradas / detallar",
+			"Las descargas se realizan en: alcantarillado, efluente, detallar",
+			"Describir los procesos de tratamientos de las muestras colectadas",
+			"Descripción tipo de transporte de muestras colectadas");
+
+
 	private final IPlanMuestreoPLService planService;
 	private final IInformacionMatrizPLService matrizService;
 	private final IParametroAnalizarPLService parametroService;
@@ -75,7 +82,6 @@ public class PlanMuestreoPLController {
 		this.empleadoService = empleadoService;
 	}
 
-	// ================= LISTADO =================
 
 	@GetMapping("/listar")
 	public String listarPlanes(Model model) {
@@ -95,7 +101,6 @@ public class PlanMuestreoPLController {
 		return "plan/pendientesplan";
 	}
 
-	// ================= CREAR PLAN (con prellenado) =================
 
 	@GetMapping("/nuevo/{idCotizacion}")
 	public String mostrarFormularioNuevo(@PathVariable int idCotizacion, Model model) {
@@ -124,14 +129,7 @@ public class PlanMuestreoPLController {
 		return "redirect:/plan/detalle/" + creado.getIdPlan() + "?success=true";
 	}
 
-	/**
-	 * Copia al plan lo que la cotizacion ya sabe, para que la Coordinadora
-	 * Tecnica no lo teclee de nuevo:
-	 *  - un Parametro a Analizar por la linea de cotizacion (ensayo + unidad)
-	 *  - una fila de Matriz por cada punto contratado
-	 *  - una fila de Verificacion por cada punto contratado
-	 * Los campos que llena el Tecnico de Campo se dejan vacios a proposito.
-	 */
+	
 	private void prellenarDesdeCotizacion(int idPlan, int idDetalleC) {
 		try {
 			DetalleCResponseDto detalle = detalleService.buscarPorId(idDetalleC);
@@ -141,26 +139,36 @@ public class PlanMuestreoPLController {
 
 			int puntos = detalle.getCantidadPuntosDetalleC() > 0 ? detalle.getCantidadPuntosDetalleC() : 1;
 
-			// 1. Parametro a analizar (viene del catalogo de parametros de la cotizacion)
+			String tipoMatriz = (detalle.getFkDescripcionServicio() != null
+					&& detalle.getFkDescripcionServicio().getTextoDescripcionServicioC() != null)
+							? detalle.getFkDescripcionServicio().getTextoDescripcionServicioC()
+							: "Por definir";
+
+			String ubicacion = "Por definir";
+			if (detalle.getFkCotizacion() != null && detalle.getFkCotizacion().getFkCliente() != null
+					&& detalle.getFkCotizacion().getFkCliente().getDireccionClienteC() != null) {
+				ubicacion = detalle.getFkCotizacion().getFkCliente().getDireccionClienteC();
+			}
+
+			// 1. PARAMETROS A ANALIZAR <- Ensayo/parametro y Unidad de la cotizacion
 			if (detalle.getFkParametro() != null) {
 				ParametroAnalizarPLRequestDto par = new ParametroAnalizarPLRequestDto();
 				par.setNoParametroPL(1);
 				par.setParametros(detalle.getFkParametro().getEnsayoParametroC());
 				par.setUnidadMedida(detalle.getFkParametro().getUnidadParametroC());
-				par.setSitioMedicion("");   // lo completa el Tecnico de Campo
-				par.setPreservacion("");    // lo completa el Tecnico de Campo
+				par.setSitioMedicion(null);   // lo completa el Tecnico de Campo
+				par.setPreservacion(null);    // lo completa el Tecnico de Campo
 				par.setFkPlanMuestreo(idPlan);
 				parametroService.guardar(par);
 			}
 
-			// 2. Una fila de matriz y una de verificacion por cada punto contratado
 			for (int i = 1; i <= puntos; i++) {
 				InformacionMatrizPLRequestDto mat = new InformacionMatrizPLRequestDto();
 				mat.setNoItem(i);
-				mat.setTipoMatriz("");
-				mat.setUbicacion("");
-				mat.setDescripcionDelPunto("");   // Tecnico de Campo
-				mat.setAccesibilidad("");         // Tecnico de Campo
+				mat.setTipoMatriz(tipoMatriz);
+				mat.setUbicacion(ubicacion);
+				mat.setDescripcionDelPunto(null);   // Tecnico de Campo
+				mat.setAccesibilidad(null);         // Tecnico de Campo
 				mat.setFkPlanMuestreo(idPlan);
 				matrizService.guardar(mat);
 
@@ -169,13 +177,30 @@ public class PlanMuestreoPLController {
 				ver.setFkPlanMuestreo(idPlan);
 				verificacionService.guardar(ver);
 			}
+
+			ProcedimientoMuePLRequestDto proc = new ProcedimientoMuePLRequestDto();
+			proc.setNoItem(1);
+			proc.setTipo(tipoMatriz);
+			proc.setDescripcion(null);            // Tecnico de Campo
+			proc.setPrecausiones("Uso de EPP");
+			proc.setFkPlanMuestreo(idPlan);
+			procedimientoService.guardar(proc);
+
+			for (String pregunta : PREGUNTAS_INFORMACION_ADICIONAL) {
+				InformacionAdicionalPLRequestDto info = new InformacionAdicionalPLRequestDto();
+				info.setPreguntas(pregunta);
+				info.setRespuesta(null);
+				info.setFkPlanMuestreo(idPlan);
+				infoAdicionalService.guardar(info);
+			}
+
+
 		} catch (Exception e) {
-			// El prellenado es una ayuda, no debe impedir la creacion del plan.
 			e.printStackTrace();
 		}
 	}
 
-	// ================= DETALLE (Coordinadora Tecnica) =================
+
 
 	@GetMapping("/detalle/{idPlan}")
 	public String verDetalle(@PathVariable int idPlan, Model model) {
@@ -195,7 +220,6 @@ public class PlanMuestreoPLController {
 		}
 	}
 
-	// ================= TRABAJO DE CAMPO (Tecnico) =================
 
 	@GetMapping("/campo/{idPlan}")
 	public String trabajoDeCampo(@PathVariable int idPlan, Model model) {
@@ -246,7 +270,6 @@ public class PlanMuestreoPLController {
 		}
 	}
 
-	// ================= EPP =================
 
 	@PostMapping("/epp/guardar/{idPlan}")
 	public String guardarEpp(@PathVariable int idPlan, @ModelAttribute EEPPLRequestDto epp) {
@@ -272,8 +295,6 @@ public class PlanMuestreoPLController {
 		}
 	}
 
-	// ================= SECCIONES: alta y edicion =================
-	// El backend hace upsert: si el DTO trae id, actualiza; si no, inserta.
 
 	@PostMapping("/matriz/guardar/{idPlan}")
 	public String guardarMatriz(@PathVariable int idPlan, @ModelAttribute InformacionMatrizPLRequestDto dto,

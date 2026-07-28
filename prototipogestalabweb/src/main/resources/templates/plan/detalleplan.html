@@ -257,23 +257,11 @@ layout:decorate="~{/plantilla/plantilla}">
                 </tbody>
             </table>
 
-            <form th:if="${puedeEditar}" th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}"
-                  th:object="${nuevoTipoToma}" method="POST" class="border-top pt-3">
-                <div class="form-row">
-                    <div class="col-md-2 mb-2">
-                        <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No." required>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <input type="text" class="form-control form-control-sm" th:field="*{frecuencia}" placeholder="Frecuencia (Única)" required>
-                    </div>
-                    <div class="col-md-5 mb-2">
-                        <input type="text" class="form-control form-control-sm" th:field="*{tipo}" placeholder="Tipo de toma (Simple)" required>
-                    </div>
-                    <div class="col-md-1 mb-2">
-                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
-                    </div>
-                </div>
-            </form>
+            <div class="alert alert-secondary small mb-0">
+                <i class="fas fa-hard-hat"></i>
+                Esta sección la registra completa el <strong>Técnico de Campo</strong> desde su pantalla
+                (número de ítem, frecuencia, tipo de toma y alícuotas).
+            </div>
         </div>
     </div>
 
@@ -322,8 +310,12 @@ layout:decorate="~{/plantilla/plantilla}">
                     <div class="col-md-3 mb-2">
                         <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No." required>
                     </div>
-                    <div class="col-md-8 mb-2">
+                    <div class="col-md-5 mb-2">
                         <input type="text" class="form-control form-control-sm" th:field="*{Tipo}" placeholder="Tipo de matriz" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm bg-light" th:field="*{precausiones}"
+                               value="Uso de EPP" readonly title="Valor fijo del formulario">
                     </div>
                     <div class="col-md-1 mb-2">
                         <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
@@ -470,7 +462,7 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
         <div class="card-body">
             <p class="small text-muted">
-                Cree una fila por cada punto declarado. El Técnico de Campo responderá Sí/No en el sitio.
+                Una fila por cada punto contratado. Las preguntas son fijas; el Técnico de Campo responde Sí/No en el sitio.
             </p>
             <table class="table table-bordered table-sm">
                 <thead class="bg-light">
@@ -503,18 +495,11 @@ layout:decorate="~{/plantilla/plantilla}">
                 </tbody>
             </table>
 
-            <form th:if="${puedeEditar}" th:action="@{/plan/verificacion/guardar/{p}(p=${plan.idPlan})}"
-                  th:object="${nuevaVerificacion}" method="POST" class="border-top pt-3">
-                <div class="form-row">
-                    <div class="col-md-4 mb-2">
-                        <input type="number" class="form-control form-control-sm" th:field="*{noItem}" placeholder="No. de punto" required>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-sm btn-primary btn-block">
-                            <i class="fas fa-plus"></i> Agregar fila</button>
-                    </div>
-                </div>
-            </form>
+            <div class="alert alert-secondary small mb-0">
+                <i class="fas fa-info-circle"></i>
+                Las filas se crean solas al generar el plan (una por cada punto contratado) y las tres
+                preguntas son fijas. El <strong>Técnico de Campo</strong> responde Sí/No en el sitio.
+            </div>
         </div>
     </div>
 
@@ -526,13 +511,16 @@ layout:decorate="~{/plantilla/plantilla}">
         <div class="card-body">
             <table class="table table-bordered table-sm">
                 <thead class="bg-light">
-                    <tr><th style="width:45%">Pregunta</th><th>Respuesta</th>
+                    <tr><th style="width:45%">Pregunta</th><th>Respuesta <span class="badge badge-secondary">campo</span></th>
                         <th th:if="${puedeEditar}">Acciones</th></tr>
                 </thead>
                 <tbody>
                     <tr th:each="i : ${infoAdicional}">
                         <td th:text="${i.preguntas}"></td>
-                        <td th:text="${i.respuesta}"></td>
+                        <td class="bg-light">
+                            <span th:if="${i.respuesta != null and !#strings.isEmpty(i.respuesta)}" th:text="${i.respuesta}"></span>
+                            <em th:unless="${i.respuesta != null and !#strings.isEmpty(i.respuesta)}" class="text-muted">pendiente</em>
+                        </td>
                         <td th:if="${puedeEditar}">
                             <a th:href="@{/plan/infoadicional/eliminar/{id}/{p}(id=${i.idInformacion},p=${plan.idPlan})}"
                                class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
@@ -557,11 +545,9 @@ layout:decorate="~{/plantilla/plantilla}">
                             <option value="Descripción tipo de transporte de muestras colectadas">Descripción tipo de transporte de muestras colectadas</option>
                         </select>
                     </div>
-                    <div class="col-md-6 mb-2">
-                        <input type="text" class="form-control form-control-sm" th:field="*{respuesta}" placeholder="Respuesta" required>
-                    </div>
-                    <div class="col-md-1 mb-2">
-                        <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-plus"></i></button>
+                    <div class="col-md-3 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Agregar pregunta</button>
                     </div>
                 </div>
             </form>
