@@ -165,21 +165,13 @@ layout:decorate="~{/plantilla/plantilla}">
                         </div>
                         <div class="col-md-3 mb-2">
                             <label class="small font-weight-bold">Sitio de medición *</label>
-                            <select class="form-control form-control-sm" name="sitioMedicion" required>
-                                <option value="" th:selected="${p.sitioMedicion == null or #strings.isEmpty(p.sitioMedicion)}">
-                                    -- Seleccione --</option>
-                                <option value="Laboratorio" th:selected="${p.sitioMedicion == 'Laboratorio'}">Laboratorio</option>
-                                <option value="In situ" th:selected="${p.sitioMedicion == 'In situ'}">In situ</option>
-                            </select>
+                            <input type="text" class="form-control form-control-sm" name="sitioMedicion"
+                                   th:value="${p.sitioMedicion}" placeholder="laboratorio / In situ">
                         </div>
                         <div class="col-md-3 mb-2">
                             <label class="small font-weight-bold">Preservación *</label>
-                            <select class="form-control form-control-sm" name="preservacion" required>
-                                <option value="" th:selected="${p.preservacion == null or #strings.isEmpty(p.preservacion)}">
-                                    -- Seleccione --</option>
-                                <option value="No aplica" th:selected="${p.preservacion == 'No aplica'}">No aplica</option>
-                                <option value="Refrigeración" th:selected="${p.preservacion == 'Refrigeración'}">Refrigeración</option>
-                            </select>
+                            <input type="text" class="form-control form-control-sm" name="preservacion"
+                                   th:value="${p.preservacion}" placeholder="No aplica / Refrigeración">
                         </div>
                         <div class="col-md-1 mb-2">
                             <button type="submit" class="btn btn-sm btn-success btn-block"><i class="fas fa-save"></i></button>
@@ -188,11 +180,6 @@ layout:decorate="~{/plantilla/plantilla}">
                 </form>
             </div>
             <div th:if="${#lists.isEmpty(parametros)}" class="text-muted">Sin parámetros definidos.</div>
-            <small class="text-muted d-block mt-2">
-                <i class="fas fa-info-circle"></i>
-                El sitio de medición y la preservación son valores cerrados: la Orden de Trabajo
-                depende de ellos para saber qué se analiza en laboratorio y qué in situ.
-            </small>
         </div>
     </div>
 
@@ -392,10 +379,35 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
     </div>
 
+    <!-- ENVIO A COORDINACION TECNICA -->
+    <div class="card shadow mb-4 border-left-success" th:if="${plan.estadoPlan == 'ENVIADO'}">
+        <div class="card-header py-3" style="background-color:#1cc88a;">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="fas fa-paper-plane"></i> TERMINAR Y ENVIAR A COORDINACIÓN TÉCNICA
+            </h6>
+        </div>
+        <div class="card-body text-center">
+            <p class="text-muted mb-3">
+                Revise que haya completado <strong>todas las secciones</strong>. Al enviar, la
+                Coordinación Técnica recibirá el plan lleno y podrá generar la Orden de Trabajo.
+            </p>
+            <a th:href="@{/campo/completar/{id}(id=${plan.idPlan})}" class="btn btn-success btn-lg"
+               onclick="return confirm('¿Enviar el plan completo a Coordinación Técnica? Confirme que registró todo lo observado en el sitio.')">
+                <i class="fas fa-paper-plane"></i> Enviar a Coordinación Técnica
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-success" th:if="${plan.estadoPlan == 'COMPLETADO'}">
+        <i class="fas fa-check-circle"></i>
+        <strong>Trabajo enviado a Coordinación Técnica.</strong>
+        Ya pueden generar la Orden de Trabajo con esta información.
+    </div>
+
     <div class="card shadow mb-4">
         <div class="card-body text-center">
             <p class="text-muted mb-3">
-                Cuando termine de registrar todo, descargue el plan completo para archivarlo o firmarlo.
+                Descargue el plan completo para archivarlo o firmarlo.
             </p>
             <a th:href="@{/plan/pdf/{id}(id=${plan.idPlan})}" class="btn btn-danger" target="_blank">
                 <i class="fas fa-file-pdf"></i> Descargar plan completo en PDF

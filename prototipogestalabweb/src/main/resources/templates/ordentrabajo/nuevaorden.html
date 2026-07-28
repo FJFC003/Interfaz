@@ -6,88 +6,142 @@ layout:decorate="~{/plantilla/plantilla}">
 <body>
 <div layout:fragment="content">
 
-    <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-clipboard-list"></i> F-PP-07-04: Orden de Ejecución del Trabajo</h1>
+    <h1 class="h3 mb-4 text-gray-800">
+        <i class="fas fa-clipboard-list"></i> F-PP-07-04: Orden de Ejecución del Trabajo
+    </h1>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
+    <div class="alert alert-success small">
+        <i class="fas fa-magic"></i>
+        El sistema ya completó los datos a partir de la cotización y del plan de muestreo.
+        Revise y confirme.
+    </div>
 
-            <div class="card shadow mb-4">
-                <div class="card-header py-3" style="background-color:#c5d86d;">
-                    <h6 class="m-0 font-weight-bold">DATOS DE LA ORDEN</h6>
+    <form th:action="@{/ordentrabajo/guardar}" th:object="${orden}" method="POST">
+        <input type="hidden" th:field="*{fkPlanMuestreo}">
+
+        <!-- ============ CABECERA ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#c5d86d;">
+                <h6 class="m-0 font-weight-bold">DATOS DE LA ORDEN</h6>
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-sm-3 mb-3">
+                        <label class="form-control-label">Cotización aprobada</label>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${cotizacion != null ? cotizacion.idCotizacionC : '-'}">
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <label for="fkResponsableEmision" class="form-control-label">Responsable *</label>
+                        <select class="form-control" id="fkResponsableEmision" th:field="*{fkResponsableEmision}" required>
+                            <option value="0">-- Seleccione --</option>
+                            <option th:each="emp : ${empleados}" th:value="${emp.idEmpleado}"
+                                    th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2 mb-3">
+                        <label for="fechaEmisionOT" class="form-control-label">Fecha de emisión *</label>
+                        <input type="date" class="form-control" id="fechaEmisionOT" th:field="*{fechaEmisionOT}" required>
+                    </div>
+                    <div class="col-sm-3 mb-3">
+                        <label for="nombrePersonaContactoOT" class="form-control-label">Persona de contacto (cliente) *</label>
+                        <input type="text" class="form-control" id="nombrePersonaContactoOT"
+                               th:field="*{nombrePersonaContactoOT}" required>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form th:action="@{/ordentrabajo/guardar}" th:object="${orden}" method="POST">
 
-                        <input type="hidden" th:field="*{fkPlanMuestreo}">
-
-                        <div class="form-group row">
-                            <div class="col-sm-6 mb-3">
-                                <label class="form-control-label">Plan de muestreo</label>
-                                <input type="text" class="form-control" readonly th:value="${plan.codigoPlan}">
-                            </div>
-                            <div class="col-sm-6 mb-3"
-                                 th:with="cot=${plan.fkDetalleCotizacion != null ? plan.fkDetalleCotizacion.fkCotizacion : null}">
-                                <label class="form-control-label">Cotización aprobada</label>
-                                <input type="text" class="form-control" readonly
-                                       th:value="${cot != null ? cot.idCotizacionC : '-'}">
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-sm-3 mb-3">
-                                <label for="noItemOT" class="form-control-label">Ítem No. *</label>
-                                <input type="number" class="form-control" id="noItemOT" th:field="*{noItemOT}" required>
-                            </div>
-                            <div class="col-sm-4 mb-3">
-                                <label for="fechaEmisionOT" class="form-control-label">Fecha de emisión *</label>
-                                <input type="date" class="form-control" id="fechaEmisionOT" th:field="*{fechaEmisionOT}" required>
-                            </div>
-                            <div class="col-sm-5 mb-3">
-                                <label for="nombrePersonaContactoOT" class="form-control-label">Persona de contacto (cliente) *</label>
-                                <input type="text" class="form-control" id="nombrePersonaContactoOT"
-                                       th:field="*{nombrePersonaContactoOT}" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-sm-6 mb-3">
-                                <label for="fkResponsableEmision" class="form-control-label">Responsable de emisión *</label>
-                                <select class="form-control" id="fkResponsableEmision" th:field="*{fkResponsableEmision}" required>
-                                    <option value="0">-- Seleccione --</option>
-                                    <option th:each="emp : ${empleados}" th:value="${emp.idEmpleado}"
-                                            th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
-                                </select>
-                            </div>
-                            <div class="col-sm-6 mb-3">
-                                <label for="fkTecnicoAsignado" class="form-control-label">Técnico de campo asignado *</label>
-                                <select class="form-control" id="fkTecnicoAsignado" th:field="*{fkTecnicoAsignado}" required>
-                                    <option value="0">-- Seleccione --</option>
-                                    <option th:each="emp : ${empleados}" th:value="${emp.idEmpleado}"
-                                            th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
-                                </select>
-                                <small class="text-muted">Este técnico verá la orden en su bandeja de trabajo.</small>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-sm-4 mb-3">
-                                <label for="fechaCierreCampoOT" class="form-control-label">Fecha de cierre en campo</label>
-                                <input type="date" class="form-control" id="fechaCierreCampoOT" th:field="*{fechaCierreCampoOT}">
-                                <small class="text-muted">Dejar en blanco al emitir la orden.</small>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Emitir Orden</button>
-                            <a href="/ordentrabajo/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
-                        </div>
-
-                    </form>
+                <div class="form-group row">
+                    <div class="col-sm-3 mb-3">
+                        <label for="noItemOT" class="form-control-label">Ítem No. *</label>
+                        <input type="number" class="form-control" id="noItemOT" th:field="*{noItemOT}" min="1" required>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <label for="fkTecnicoAsignado" class="form-control-label">Técnico que ejecutó el muestreo *</label>
+                        <select class="form-control" id="fkTecnicoAsignado" th:field="*{fkTecnicoAsignado}" required>
+                            <option value="0">-- Seleccione --</option>
+                            <option th:each="emp : ${empleados}" th:value="${emp.idEmpleado}"
+                                    th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-5 mb-3">
+                        <label class="form-control-label">Plan de muestreo</label>
+                        <input type="text" class="form-control bg-light" readonly th:value="${plan.codigoPlan}">
+                    </div>
                 </div>
             </div>
-
         </div>
-    </div>
+
+        <!-- ============ VISTA PREVIA DE LO QUE SE GENERARA ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#9dc3e6;">
+                <h6 class="m-0 font-weight-bold">MONITOREOS Y MUESTREO PLANIFICADOS (se generan solos)</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-sm mb-0">
+                    <thead class="bg-light">
+                        <tr><th>Ítem</th><th>Descripción de la actividad</th><th>Fecha planificada</th>
+                            <th>Puntos planificados</th><th>Puntos ejecutados</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <span th:if="${detalle != null and detalle.fkDescripcionServicio != null}"
+                                      th:text="${detalle.fkDescripcionServicio.textoDescripcionServicioC}"></span>
+                                <span th:text="'. ' + ${plan.objetivoPlan}"></span>
+                            </td>
+                            <td th:text="${!#lists.isEmpty(recursos) and recursos[0].fechaMuestreo != null ? #dates.format(recursos[0].fechaMuestreo, 'dd/MM/yyyy') : '-'}"></td>
+                            <td th:text="${detalle != null ? detalle.cantidadPuntosDetalleC : 1}"></td>
+                            <td class="bg-warning-light text-muted"><em>Lo escribe usted al cerrar</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============ DESVIOS QUE SE DETECTARON ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#c5d86d;">
+                <h6 class="m-0 font-weight-bold">DESVÍOS / SOLICITUDES IN SITU (se generan solos)</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Se genera una línea por cada parámetro que el Técnico de Campo registró como
+                    <strong>In situ</strong> en el plan de muestreo.
+                </p>
+                <table class="table table-bordered table-sm mb-0">
+                    <thead class="bg-light">
+                        <tr><th>Ítem</th><th>Descripción del desvío</th><th>Puntos modificados</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p, iter : ${parametros}" th:if="${#strings.equalsIgnoreCase(p.sitioMedicion, 'In situ')}">
+                            <td th:text="${iter.count}"></td>
+                            <td>
+                                <span th:text="'Parámetro medido In situ: ' + ${p.parametros}"></span>
+                                <span th:if="${p.unidadMedida != null}" th:text="' (' + ${p.unidadMedida} + ')'"></span>
+                                <span th:if="${p.preservacion != null}" th:text="'. Preservación: ' + ${p.preservacion}"></span>
+                            </td>
+                            <td>0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="alert alert-light small mt-2 mb-0">
+                    Si no aparece ninguna línea, es porque todos los parámetros se analizan en laboratorio.
+                    Podrá agregar desvíos a mano después de crear la orden.
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mb-5">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Emitir Orden de Trabajo
+            </button>
+            <a href="/ordentrabajo/pendientes" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+
+    </form>
 
 </div>
 </body>

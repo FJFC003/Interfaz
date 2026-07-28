@@ -16,8 +16,16 @@ layout:decorate="~{/plantilla/plantilla}">
         </a>
     </div>
 
-    <div th:if="${param.success}" class="alert alert-success">Orden emitida correctamente.</div>
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        Cambios guardados correctamente.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show">
+        Registro eliminado.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
 
+    <!-- ============ CABECERA ============ -->
     <div class="card shadow mb-4">
         <div class="card-header py-3" style="background-color:#c5d86d;">
             <h6 class="m-0 font-weight-bold">DATOS DE LA ORDEN</h6>
@@ -40,32 +48,144 @@ layout:decorate="~{/plantilla/plantilla}">
                 <tr>
                     <th>Plan de muestreo:</th>
                     <td th:text="${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.codigoPlan : '-'}"></td>
-                    <th>Técnico asignado:</th>
+                    <th>Técnico que ejecutó:</th>
                     <td th:text="${orden.fkTecnicoAsignado != null ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : '-'}"></td>
-                </tr>
-                <tr>
-                    <th>Organización:</th>
-                    <td th:text="${cot != null and cot.fkCliente != null ? cot.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
-                    <th>Fecha de cierre en campo:</th>
-                    <td th:text="${orden.fechaCierreCampoOT != null ? #dates.format(orden.fechaCierreCampoOT, 'dd/MM/yyyy') : 'Pendiente'}"></td>
                 </tr>
             </table>
         </div>
     </div>
 
+    <!-- ============ MONITOREOS ============ -->
     <div class="card shadow mb-4">
         <div class="card-header py-3" style="background-color:#9dc3e6;">
             <h6 class="m-0 font-weight-bold">MONITOREOS Y MUESTREO PLANIFICADOS Y ESTIPULADOS EN EL CONTRATO</h6>
         </div>
         <div class="card-body">
-            <div class="alert alert-warning mb-0">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>Pendiente de la Fase 3.</strong>
-                Las líneas de monitoreo y los desvíos in situ requieren invertir las relaciones de
-                <code>DetalleOrdenTrabajoOT</code> y <code>DesviosOrdenOT</code> hacia
-                <code>OrdenTrabajoOT</code>. Hoy el modelo solo permite una línea por orden.
-                Ver el apartado correspondiente en el LEEME.
-            </div>
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width:6%">Ítem No.</th>
+                        <th>Descripción de la actividad</th>
+                        <th style="width:12%">Fecha planificada</th>
+                        <th style="width:12%">No. puntos planificados</th>
+                        <th style="width:14%">No. puntos ejecutados</th>
+                        <th style="width:8%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${monitoreos}">
+                        <td th:text="${m.noItemDetalleOrdenOT}"></td>
+                        <td th:text="${m.descripcionActividadDetalleOrdenOT}"></td>
+                        <td th:text="${m.fechaPlanificadaDetalleOrdenOT != null ? #dates.format(m.fechaPlanificadaDetalleOrdenOT, 'dd/MM/yyyy') : '-'}"></td>
+                        <td th:text="${m.puntosPlanificadosDetalleOrdenOT}"></td>
+                        <td>
+                            <!-- Los puntos ejecutados los escribe la Coordinacion Tecnica -->
+                            <form th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}" method="POST" class="form-inline">
+                                <input type="hidden" name="idDetalleOrdenOT" th:value="${m.idDetalleOrdenOT}">
+                                <input type="hidden" name="noItemDetalleOrdenOT" th:value="${m.noItemDetalleOrdenOT}">
+                                <input type="hidden" name="descripcionActividadDetalleOrdenOT" th:value="${m.descripcionActividadDetalleOrdenOT}">
+                                <input type="hidden" name="fechaPlanificadaDetalleOrdenOT"
+                                       th:value="${m.fechaPlanificadaDetalleOrdenOT != null ? #dates.format(m.fechaPlanificadaDetalleOrdenOT, 'yyyy-MM-dd') : ''}">
+                                <input type="hidden" name="puntosPlanificadosDetalleOrdenOT" th:value="${m.puntosPlanificadosDetalleOrdenOT}">
+                                <input type="number" class="form-control form-control-sm mr-1" style="width:70px" min="0"
+                                       name="puntosEjecutadosDetalleOrdenOT" th:value="${m.puntosEjecutadosDetalleOrdenOT}">
+                                <button type="submit" class="btn btn-sm btn-outline-primary" title="Guardar">
+                                    <i class="fas fa-save"></i></button>
+                            </form>
+                        </td>
+                        <td>
+                            <a th:href="@{/ordentrabajo/monitoreo/eliminar/{id}/{o}(id=${m.idDetalleOrdenOT},o=${orden.idOT})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(monitoreos)}">
+                        <td colspan="6" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}"
+                  th:object="${nuevoMonitoreo}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItemDetalleOrdenOT}"
+                               placeholder="No." min="1" required>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{descripcionActividadDetalleOrdenOT}"
+                               placeholder="Descripción de la actividad" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="date" class="form-control form-control-sm" th:field="*{fechaPlanificadaDetalleOrdenOT}" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{puntosPlanificadosDetalleOrdenOT}"
+                               placeholder="Puntos planificados" min="1" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Agregar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ DESVIOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">DESVÍOS / SOLICITUDES IN SITU</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width:8%">Ítem No.</th>
+                        <th>Descripción del desvío o solicitudes</th>
+                        <th style="width:18%">No. de puntos aumentados o disminuidos</th>
+                        <th style="width:8%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${desvios}">
+                        <td th:text="${d.noItemDesviosOrdenOT}"></td>
+                        <td th:text="${d.descripcionDesviosOrdenOT}"></td>
+                        <td th:text="${d.puntosModificadosDesviosOrdenOT}"></td>
+                        <td>
+                            <a th:href="@{/ordentrabajo/desvio/eliminar/{id}/{o}(id=${d.idDesviosOrdenOT},o=${orden.idOT})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(desvios)}">
+                        <td colspan="4" class="text-center text-muted">Sin desvíos registrados</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:action="@{/ordentrabajo/desvio/guardar/{o}(o=${orden.idOT})}"
+                  th:object="${nuevoDesvio}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItemDesviosOrdenOT}"
+                               placeholder="No." min="1" required>
+                    </div>
+                    <div class="col-md-7 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{descripcionDesviosOrdenOT}"
+                               placeholder="Descripción del desvío o solicitud" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{puntosModificadosDesviosOrdenOT}"
+                               placeholder="Puntos +/-">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Agregar</button>
+                    </div>
+                </div>
+                <small class="text-muted">Los puntos pueden ir en negativo si disminuyeron.</small>
+            </form>
         </div>
     </div>
 
