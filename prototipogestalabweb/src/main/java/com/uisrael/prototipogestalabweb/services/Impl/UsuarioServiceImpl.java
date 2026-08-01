@@ -1,6 +1,7 @@
 package com.uisrael.prototipogestalabweb.services.Impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,22 +22,27 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
 	@Override
 	public List<UsuarioResponseDto> listarUsuarios() {
-		// TODO Auto-generated method stub
 		return webClient.get().uri("/gestalab/usuario")
-				.retrieve()
-				.bodyToFlux(UsuarioResponseDto.class)
-				.collectList()
-				.block();
+				.retrieve().bodyToFlux(UsuarioResponseDto.class).collectList().block();
 	}
 
 	@Override
 	public UsuarioResponseDto guardarUsuarios(UsuarioRequestDto usuario) {
-		// TODO Auto-generated method stub
 		return webClient.post().uri("/gestalab/usuario")
-				.bodyValue(usuario)
-				.retrieve()
-				.bodyToMono(UsuarioResponseDto.class)
-				.block();
+				.bodyValue(usuario).retrieve().bodyToMono(UsuarioResponseDto.class).block();
+	}
+
+	@Override
+	public void eliminarUsuarios(int idUsuario) {
+		webClient.delete().uri("/gestalab/usuario/{id}", idUsuario)
+				.retrieve().toBodilessEntity().block();
+	}
+
+	@Override
+	public UsuarioResponseDto cambiarContrasenia(int idUsuario, String contraseniaEnClaro) {
+		return webClient.put().uri("/gestalab/usuario/contrasenia/{id}", idUsuario)
+				.bodyValue(Map.of("contrasenia", contraseniaEnClaro))
+				.retrieve().bodyToMono(UsuarioResponseDto.class).block();
 	}
 
 }

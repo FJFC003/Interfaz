@@ -9,5 +9,8 @@ public interface IUsuarioService {
 	
 	List<UsuarioResponseDto> listarUsuarios();
 	UsuarioResponseDto guardarUsuarios(UsuarioRequestDto usuario);
+	void eliminarUsuarios(int idUsuario);
+
+	UsuarioResponseDto cambiarContrasenia(int idUsuario, String contraseniaEnClaro);
 
 }
