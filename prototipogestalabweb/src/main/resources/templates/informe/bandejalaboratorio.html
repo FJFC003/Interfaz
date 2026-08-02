@@ -85,17 +85,17 @@ layout:decorate="~{/plantilla/plantilla}">
                                     : '-'}"></td>
 
                             <td>
-                                <span th:if="${trabajo.estadoInforme == null or trabajo.estadoInforme == 'PENDIENTE'}"
-                                      class="badge badge-secondary">Pendiente</span>
-                                <span th:if="${trabajo.estadoInforme == 'EN_PROCESO'}"
-                                      class="badge badge-warning">En Proceso</span>
-                                <span th:if="${trabajo.estadoInforme == 'COMPLETADO'}"
+                                <span th:if="${#lists.contains(ordenesConInforme, trabajo.idOT)}"
                                       class="badge badge-success">Completado</span>
+                                <span th:unless="${#lists.contains(ordenesConInforme, trabajo.idOT)}"
+                                      class="badge badge-secondary">Pendiente</span>
                             </td>
 
                             <td>
                                 <a th:href="@{/informe/resultados/{id}(id=${trabajo.idOT})}"
-                                   class="btn btn-sm btn-primary" title="Llenar resultados">
+                                   class="btn btn-sm btn-primary"
+                                   th:title="${#lists.contains(ordenesConInforme, trabajo.idOT)}
+                                             ? 'Ya tiene informe emitido' : 'Llenar resultados'">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </td>

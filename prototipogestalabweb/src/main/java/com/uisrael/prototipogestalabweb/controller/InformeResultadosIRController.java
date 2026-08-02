@@ -17,6 +17,7 @@ import com.uisrael.prototipogestalabweb.model.dto.integrador.InformeCompletoIRRe
 import com.uisrael.prototipogestalabweb.model.dto.request.CondicionAmbientalIRRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.EquiposUtilizadosIRRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.ResultadosIRRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.InformeResultadosIRResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.OrdenTrabajoOTResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ParametroAnalizarPLResponseDto;
 import com.uisrael.prototipogestalabweb.services.IInformeResultadosIRService;
@@ -45,12 +46,32 @@ public class InformeResultadosIRController {
 		@GetMapping("/bandeja")
 		public String bandeja(Model model) {
 			try {
-				model.addAttribute("trabajos", ordenService.listarOrdenes());
+				List<OrdenTrabajoOTResponseDto> trabajos = ordenService.listarOrdenes();
+				model.addAttribute("trabajos", trabajos);
+				model.addAttribute("ordenesConInforme", obtenerOrdenesConInforme());
 				return "informe/bandejalaboratorio";
 			} catch (Exception e) {
 				model.addAttribute("mensajeError", e.getMessage());
 				return "error";
 			}
+		}
+
+		
+		private List<Integer> obtenerOrdenesConInforme() {
+			List<Integer> ids = new ArrayList<>();
+			try {
+				List<InformeResultadosIRResponseDto> informes = informeService.listarInformes();
+				if (informes != null) {
+					for (InformeResultadosIRResponseDto informe : informes) {
+						if (informe.getFkOrdenTrabajo() != null) {
+							ids.add(informe.getFkOrdenTrabajo().getIdOT());
+						}
+					}
+				}
+			} catch (Exception e) {
+				// La bandeja debe mostrarse aunque el listado de informes falle.
+			}
+			return ids;
 		}
 
 		@GetMapping("/resultados/{idOT}")
