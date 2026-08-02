@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Nuevo Equipo de Laboratorio - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <h1 class="h3 mb-4 text-gray-800">
+            <i class="fas fa-plus"></i> Nuevo Equipo de Laboratorio
+        </h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/equipolaboratorio/guardar}" th:object="${item}" method="POST">
+
+                            <div class="form-group mb-3">
+                                <label for="nombre" class="form-control-label">Nombre del equipo *</label>
+                                <input type="text" class="form-control" id="nombre" th:field="*{nombre}"
+                                       placeholder="Ej: Espectrofotómetro UV-Vis" required>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="marca" class="form-control-label">Marca</label>
+                                    <input type="text" class="form-control" id="marca" th:field="*{marca}"
+                                           placeholder="Ej: HACH">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="modelo" class="form-control-label">Modelo</label>
+                                    <input type="text" class="form-control" id="modelo" th:field="*{modelo}"
+                                           placeholder="Ej: DR6000">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="serie" class="form-control-label">No. de Serie</label>
+                                    <input type="text" class="form-control" id="serie" th:field="*{serie}"
+                                           placeholder="Ej: 1548792">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="codigoInterno" class="form-control-label">Código Interno *</label>
+                                    <input type="text" class="form-control" id="codigoInterno"
+                                           th:field="*{codigoInterno}" placeholder="Ej: EQ-LAB-001" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group form-check mb-4">
+                                <input type="checkbox" class="form-check-input" id="estadoEquipoLab"
+                                       th:field="*{estadoEquipoLab}">
+                                <label class="form-check-label" for="estadoEquipoLab">
+                                    Equipo activo (disponible para elegir en los informes)
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <a href="/equipolaboratorio/listar" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

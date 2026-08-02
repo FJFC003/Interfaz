@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Equipos de Laboratorio - GestaLab</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-microscope"></i> Equipos de Laboratorio
+            </h1>
+            <a href="/equipolaboratorio/nuevo" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Equipo
+            </a>
+        </div>
+
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+            Equipo guardado correctamente.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show">
+            Equipo eliminado.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+            No se pudo eliminar el equipo. Probablemente ya fue usado en un informe emitido;
+            en ese caso edítelo y márquelo como <strong>De baja</strong> en lugar de borrarlo.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+
+        <div class="alert alert-info small">
+            <i class="fas fa-info-circle"></i>
+            Los equipos marcados como <strong>Activo</strong> son los que el Técnico de Laboratorio
+            puede elegir al emitir un informe de resultados.
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lista de Equipos</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre equipo</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Serie</th>
+                                <th>Código Interno</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="e : ${items}">
+                                <td th:text="${e.idEquipoLab}"></td>
+                                <td th:text="${e.nombre}"></td>
+                                <td th:text="${e.marca}"></td>
+                                <td th:text="${e.modelo}"></td>
+                                <td th:text="${e.serie}"></td>
+                                <td th:text="${e.codigoInterno}"></td>
+                                <td>
+                                    <span th:if="${e.estadoEquipoLab}" class="badge badge-success">Activo</span>
+                                    <span th:unless="${e.estadoEquipoLab}" class="badge badge-secondary">De baja</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/equipolaboratorio/editar/{id}(id=${e.idEquipoLab})}"
+                                       class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/equipolaboratorio/eliminar/{id}(id=${e.idEquipoLab})}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('¿Está seguro? Si el equipo ya se usó en un informe, mejor márquelo como De baja.')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${#lists.isEmpty(items)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Todavía no hay equipos registrados.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
