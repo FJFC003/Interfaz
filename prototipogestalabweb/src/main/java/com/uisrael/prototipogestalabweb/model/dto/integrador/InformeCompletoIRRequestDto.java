@@ -1,5 +1,13 @@
 package com.uisrael.prototipogestalabweb.model.dto.integrador;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.uisrael.prototipogestalabweb.model.dto.request.CondicionAmbientalIRRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.EquiposUtilizadosIRRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.InformeResultadosIRRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.ResultadosIRRequestDto;
+
 import lombok.Data;
 
 @Data

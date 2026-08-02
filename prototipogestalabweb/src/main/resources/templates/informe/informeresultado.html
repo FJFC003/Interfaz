@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Informe de Resultados - GestaLab</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-file-medical-alt"></i> Informe de Resultados
+        </h1>
+        <a href="/informe/bandeja" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left"></i> Volver a la bandeja
+        </a>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- UN SOLO FORM para todo el ecosistema IR                          -->
+    <!-- ================================================================ -->
+    <form th:action="@{/informe/guardar/{id}(id=${orden.idOT})}"
+          th:object="${informeCompleto}" method="POST">
+
+        <input type="hidden" th:field="*{informe.idInforme}">
+        <input type="hidden" th:field="*{informe.fkOrdenTrabajo}">
+
+        <!-- ============ CABECERA DEL INFORME ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    Registro de Resultados de Laboratorio
+                    <span th:text="'- OT-' + ${orden.idOT}"></span>
+                </h6>
+            </div>
+            <div class="card-body">
+
+                <h5 class="text-primary font-weight-bold mb-3">
+                    <i class="fas fa-info-circle"></i> 1. Información General
+                </h5>
+
+                <!-- Datos que vienen de la Orden de Trabajo (solo lectura) -->
+                <div class="row mb-3"
+                     th:with="cot=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null
+                             ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion : null}">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-control-label text-muted">Cliente / Empresa</label>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${cot != null and cot.fkCliente != null
+                                       ? cot.fkCliente.nombreRazonSocialClienteC : '-'}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-control-label text-muted">Procedencia de la Muestra</label>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${cot != null and cot.fkCliente != null
+                                       ? cot.fkCliente.direccionClienteC : '-'}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-control-label text-muted">Fecha de Toma de Muestra</label>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${orden.fechaEmisionOT != null
+                                       ? #dates.format(orden.fechaEmisionOT, 'dd/MM/yyyy') : '-'}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-control-label text-muted">Técnico de Campo</label>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${orden.fkTecnicoAsignado != null
+                                       ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : '-'}">
+                    </div>
+
+                </div>
+
+                <!-- Datos que llena el Tecnico de Laboratorio -->
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="codigoInforme" class="form-control-label">Código del informe *</label>
+                        <input type="text" class="form-control" id="codigoInforme"
+                               th:field="*{informe.codigoInforme}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="fechaEmisionInforme" class="form-control-label">Fecha de emisión *</label>
+                        <input type="date" class="form-control" id="fechaEmisionInforme"
+                               th:field="*{informe.fechaEmisionInforme}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="nombreResponsable" class="form-control-label">Responsable del análisis *</label>
+                        <input type="text" class="form-control" id="nombreResponsable"
+                               th:field="*{informe.nombreResponsable}" required>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============ TABLA IR 1: PARAMETROS ANALIZADOS ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#9dc3e6;">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-vial"></i> 2. Resultados de Parámetros Analizados
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Los parámetros vienen precargados del Plan de Muestreo. Complete los resultados.
+                    Las filas que deje en blanco no se guardan.
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width:5%">No.</th>
+                                <th style="width:18%">Parámetro</th>
+                                <th style="width:17%">Método Referencial</th>
+                                <th style="width:9%">Unidad</th>
+                                <th style="width:13%">Resultado</th>
+                                <th style="width:13%">Incertidumbre</th>
+                                <th style="width:11%">LMP</th>
+                                <th style="width:14%">Conformidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="fila, stat : *{listaResultados}">
+
+                                <td class="text-center align-middle" th:text="${stat.count}"></td>
+
+                                <td>
+                                    <input type="hidden"
+                                           th:field="*{listaResultados[__${stat.index}__].idResultados}">
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaResultados[__${stat.index}__].parametros}"
+                                           placeholder="Ej: Cloro libre residual">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaResultados[__${stat.index}__].metodoReferencial}"
+                                           placeholder="Ej: APHA 4500-Cl G">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaResultados[__${stat.index}__].unidad}"
+                                           placeholder="mg/L">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaResultados[__${stat.index}__].resultado}"
+                                           placeholder="Valor">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaResultados[__${stat.index}__].incertidumbre}"
+                                           placeholder="± valor">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaResultados[__${stat.index}__].LMP}"
+                                           placeholder="Límite">
+                                </td>
+
+                                <td>
+                                    <select class="form-control form-control-sm"
+                                            th:field="*{listaResultados[__${stat.index}__].conformidad}">
+                                        <option value="">--</option>
+                                        <option value="Cumple">Cumple</option>
+                                        <option value="No Cumple">No Cumple</option>
+                                        <option value="No aplica">No aplica</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TABLA IR 2: CONDICIONES AMBIENTALES ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#9dc3e6;">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-cloud-sun"></i> 3. Condiciones Ambientales
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width:5%">No.</th>
+                                <th style="width:20%">No. de Alícuota</th>
+                                <th style="width:18%">Hora de Toma</th>
+                                <th style="width:19%">Temperatura</th>
+                                <th style="width:19%">Humedad</th>
+                                <th style="width:19%">Precipitación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="fila, stat : *{listaCondiciones}">
+
+                                <td class="text-center align-middle" th:text="${stat.count}"></td>
+
+                                <td>
+                                    <input type="hidden"
+                                           th:field="*{listaCondiciones[__${stat.index}__].idCondi}">
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaCondiciones[__${stat.index}__].noAlicuota}"
+                                           placeholder="Ej: A-01">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaCondiciones[__${stat.index}__].horaToma}"
+                                           placeholder="10:00">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaCondiciones[__${stat.index}__].temperatura}"
+                                           placeholder="Ej: 22 °C">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaCondiciones[__${stat.index}__].humedad}"
+                                           placeholder="Ej: 65 %">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaCondiciones[__${stat.index}__].precipitacion}"
+                                           placeholder="Ej: Sin lluvia">
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TABLA IR 3: EQUIPOS UTILIZADOS ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#9dc3e6;">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-tools"></i> 4. Equipos Utilizados en la Medición
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width:5%">No.</th>
+                                <th style="width:26%">Nombre del Equipo</th>
+                                <th style="width:17%">Marca</th>
+                                <th style="width:17%">Modelo</th>
+                                <th style="width:17%">Serie</th>
+                                <th style="width:18%">Código Interno</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="fila, stat : *{listaEquipos}">
+
+                                <td class="text-center align-middle" th:text="${stat.count}"></td>
+
+                                <td>
+                                    <input type="hidden"
+                                           th:field="*{listaEquipos[__${stat.index}__].idEquipos}">
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaEquipos[__${stat.index}__].nombre}"
+                                           placeholder="Ej: Espectrofotómetro">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaEquipos[__${stat.index}__].marca}"
+                                           placeholder="Marca">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaEquipos[__${stat.index}__].modelo}"
+                                           placeholder="Modelo">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaEquipos[__${stat.index}__].serie}"
+                                           placeholder="No. de serie">
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           th:field="*{listaEquipos[__${stat.index}__].codigoInterno}"
+                                           placeholder="Código">
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ OBSERVACIONES Y VERIFICACION ============ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background-color:#c5d86d;">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-clipboard-check"></i> 5. Observaciones y Verificación
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-8 mb-3">
+                        <label for="notasAdvertencia" class="form-control-label">
+                            Observaciones en campo / laboratorio
+                        </label>
+                        <textarea class="form-control" id="notasAdvertencia" rows="4"
+                                  th:field="*{informe.notasAdvertencia}"
+                                  placeholder="Registre cualquier observación relevante del análisis"></textarea>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="conformidadGeneral" class="form-control-label">
+                            Cumple / No Cumple la normativa *
+                        </label>
+                        <select class="form-control" id="conformidadGeneral"
+                                th:field="*{informe.conformidadGeneral}" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="Cumple">Cumple</option>
+                            <option value="No Cumple">No Cumple</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ UN SOLO BOTON DE GUARDAR ============ -->
+        <div class="form-group mb-5">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Guardar Informe Completo
+            </button>
+            <a href="/informe/bandeja" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+
+    </form>
+
+</div>
+</body>
+</html>

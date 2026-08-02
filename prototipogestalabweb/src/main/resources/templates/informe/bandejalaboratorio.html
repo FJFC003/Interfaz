@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Bandeja de Trabajo - GestaLab</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <!-- ============ ENCABEZADO ============ -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-vials"></i> Bandeja de Trabajo
+        </h1>
+        <span th:if="${tecnico != null}" class="badge badge-primary p-2"
+              th:text="${tecnico.nombre} + ' ' + ${tecnico.apellido}"></span>
+    </div>
+
+    <!-- ============ AVISOS ============ -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i> Resultados guardados correctamente.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+        No se pudo completar la operación.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <!-- ============ TABLA DE TRABAJOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Órdenes asignadas</h6>
+        </div>
+        <div class="card-body">
+
+            <!-- Buscador propio, adicional al de DataTables -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control"
+                               placeholder="Buscar por cliente, orden o tipo de muestra...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="filterTable()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>ID Orden</th>
+                            <th>Fecha de Ingreso</th>
+                            <th>Cliente</th>
+                            <th>Tipo de Muestra</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="trabajo : ${trabajos}">
+
+                            <td th:text="'OT-' + ${trabajo.idOT}"></td>
+
+                            <td th:text="${trabajo.fechaEmisionOT != null
+                                    ? #dates.format(trabajo.fechaEmisionOT, 'dd/MM/yyyy') : '-'}"></td>
+
+                            <td th:text="${trabajo.fkPlanMuestreo != null
+                                    and trabajo.fkPlanMuestreo.fkDetalleCotizacion != null
+                                    and trabajo.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion != null
+                                    and trabajo.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion.fkCliente != null
+                                    ? trabajo.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion.fkCliente.nombreRazonSocialClienteC
+                                    : '-'}"></td>
+
+                            <td th:text="${trabajo.fkPlanMuestreo != null
+                                    and trabajo.fkPlanMuestreo.fkDetalleCotizacion != null
+                                    and trabajo.fkPlanMuestreo.fkDetalleCotizacion.fkDescripcionServicio != null
+                                    ? trabajo.fkPlanMuestreo.fkDetalleCotizacion.fkDescripcionServicio.textoDescripcionServicioC
+                                    : '-'}"></td>
+
+                            <td>
+                                <span th:if="${trabajo.estadoInforme == null or trabajo.estadoInforme == 'PENDIENTE'}"
+                                      class="badge badge-secondary">Pendiente</span>
+                                <span th:if="${trabajo.estadoInforme == 'EN_PROCESO'}"
+                                      class="badge badge-warning">En Proceso</span>
+                                <span th:if="${trabajo.estadoInforme == 'COMPLETADO'}"
+                                      class="badge badge-success">Completado</span>
+                            </td>
+
+                            <td>
+                                <a th:href="@{/informe/resultados/{id}(id=${trabajo.idOT})}"
+                                   class="btn btn-sm btn-primary" title="Llenar resultados">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(trabajos)}" class="alert alert-info mb-0">
+                <i class="fas fa-info-circle"></i> No tiene órdenes asignadas.
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
+                pageLength: 10,
+                order: [[0, 'desc']]
+            });
+        });
+
+        function filterTable() {
+            const searchInput = document.getElementById('searchInput').value;
+            $('#dataTable').DataTable().search(searchInput).draw();
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterTable();
+            }
+        });
+    </script>
+</th:block>
+
+</body>
+</html>
