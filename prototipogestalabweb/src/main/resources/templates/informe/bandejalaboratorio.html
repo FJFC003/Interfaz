@@ -43,7 +43,7 @@ layout:decorate="~{/plantilla/plantilla}">
                         <input type="text" id="searchInput" class="form-control"
                                placeholder="Buscar por cliente, orden o tipo de muestra...">
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" onclick="filterTable()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="filtrarBandeja()">
                                 <i class="fas fa-search"></i> Buscar
                             </button>
                         </div>
@@ -115,29 +115,32 @@ layout:decorate="~{/plantilla/plantilla}">
 </div>
 
 <!-- ============ SCRIPTS ============ -->
+<!-- Sin th:inline="javascript": este script no usa variables del servidor y la
+     secuencia [[ ... ]] de la ordenacion chocaba con la sintaxis de Thymeleaf. -->
 <th:block layout:fragment="scripts">
-    <script th:inline="javascript">
+    <script>
         $(document).ready(function () {
             $('#dataTable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                 },
                 pageLength: 10,
-                order: [[0, 'desc']]
+                order: [ [ 0, 'desc' ] ]
+            });
+
+            $('#searchInput').on('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filtrarBandeja();
+                }
             });
         });
 
-        function filterTable() {
-            const searchInput = document.getElementById('searchInput').value;
-            $('#dataTable').DataTable().search(searchInput).draw();
+        // Nombre propio para no chocar con la funcion filterTable() que define plantilla.html
+        function filtrarBandeja() {
+            const texto = document.getElementById('searchInput').value;
+            $('#dataTable').DataTable().search(texto).draw();
         }
-
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                filterTable();
-            }
-        });
     </script>
 </th:block>
 
