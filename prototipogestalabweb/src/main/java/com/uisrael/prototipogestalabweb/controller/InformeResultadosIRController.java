@@ -17,9 +17,11 @@ import com.uisrael.prototipogestalabweb.model.dto.integrador.InformeCompletoIRRe
 import com.uisrael.prototipogestalabweb.model.dto.request.CondicionAmbientalIRRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.EquiposUtilizadosIRRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.ResultadosIRRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.EquipoLaboratorioResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.InformeResultadosIRResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.OrdenTrabajoOTResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ParametroAnalizarPLResponseDto;
+import com.uisrael.prototipogestalabweb.services.IEquipoLaboratorioService;
 import com.uisrael.prototipogestalabweb.services.IInformeResultadosIRService;
 import com.uisrael.prototipogestalabweb.services.IOrdenTrabajoOTService;
 import com.uisrael.prototipogestalabweb.services.IParametroAnalizarPLService;
@@ -35,13 +37,16 @@ public class InformeResultadosIRController {
 	private final IInformeResultadosIRService informeService;
 	private final IOrdenTrabajoOTService ordenService;
 	private final IParametroAnalizarPLService parametroService;
+	private final IEquipoLaboratorioService equipoService;
 	
 	public InformeResultadosIRController(IInformeResultadosIRService informeService,
-			IOrdenTrabajoOTService ordenService, IParametroAnalizarPLService parametroService) {
+			IOrdenTrabajoOTService ordenService, IParametroAnalizarPLService parametroService,
+			IEquipoLaboratorioService equipoService) {
 		super();
 		this.informeService = informeService;
 		this.ordenService = ordenService;
 		this.parametroService = parametroService;
+		this.equipoService = equipoService;
 	}
 	
 	@GetMapping("/bandeja")
@@ -59,6 +64,20 @@ public class InformeResultadosIRController {
 	}
 
 	
+	/**
+	 * Catalogo de equipos vigentes para el desplegable del informe.
+	 * Si el catalogo falla, la pantalla debe abrirse igual y el tecnico
+	 * podra escribir los equipos a mano.
+	 */
+	private List<EquipoLaboratorioResponseDto> obtenerEquiposActivos() {
+		try {
+			List<EquipoLaboratorioResponseDto> equipos = equipoService.listarActivos();
+			return equipos != null ? equipos : new ArrayList<>();
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+	}
+
 	private List<Integer> obtenerOrdenesConInforme() {
 		List<Integer> ids = new ArrayList<>();
 		try {
@@ -115,6 +134,7 @@ public class InformeResultadosIRController {
 
 			model.addAttribute("informeCompleto", form);
 			model.addAttribute("orden", orden);
+			model.addAttribute("equiposCatalogo", obtenerEquiposActivos());
 			return "informe/informeresultado";
 
 		} catch (Exception e) {

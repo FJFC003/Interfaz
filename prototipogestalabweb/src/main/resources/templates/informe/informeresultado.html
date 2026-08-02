@@ -339,11 +339,16 @@ layout:decorate="~{/plantilla/plantilla}">
                 <h6 class="m-0 font-weight-bold">EQUIPOS UTILIZADOS EN LA MEDICIÓN</h6>
             </div>
             <div class="card-body">
+                <p class="small text-muted">
+                    Elija el equipo en el desplegable y los demás campos se completan solos.
+                    Si el equipo no está en el catálogo, puede escribirlo a mano.
+                    <a href="/equipolaboratorio/listar" target="_blank">Administrar catálogo de equipos</a>.
+                </p>
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm">
                         <thead style="background-color:#dce6f1;">
                             <tr class="text-center">
-                                <th style="width:24%">Nombre equipo</th>
+                                <th style="width:28%">Nombre equipo</th>
                                 <th style="width:19%">Marca</th>
                                 <th style="width:19%">Modelo</th>
                                 <th style="width:19%">Serie</th>
@@ -356,6 +361,23 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td>
                                     <input type="hidden"
                                            th:field="*{listaEquipos[__${stat.index}__].idEquipos}">
+
+                                    <!-- Desplegable alimentado por el catálogo de equipos.
+                                         Al elegir uno, el JavaScript del final rellena los
+                                         cinco campos de la fila. -->
+                                    <select class="form-control form-control-sm mb-1 border-primary"
+                                            onchange="cargarEquipoDelCatalogo(this)">
+                                        <option value="">-- Elegir del catálogo --</option>
+                                        <option th:each="eq : ${equiposCatalogo}"
+                                                th:value="${eq.idEquipoLab}"
+                                                th:text="${eq.nombre} + ' — ' + ${eq.codigoInterno}"
+                                                th:attr="data-nombre=${eq.nombre},
+                                                         data-marca=${eq.marca},
+                                                         data-modelo=${eq.modelo},
+                                                         data-serie=${eq.serie},
+                                                         data-codigo=${eq.codigoInterno}"></option>
+                                    </select>
+
                                     <input type="text" class="form-control form-control-sm"
                                            th:field="*{listaEquipos[__${stat.index}__].nombre}"
                                            placeholder="Ej: Espectrofotómetro">
@@ -582,5 +604,41 @@ layout:decorate="~{/plantilla/plantilla}">
     </form>
 
 </div>
+
+<!-- ============ SCRIPTS ============ -->
+<th:block layout:fragment="scripts">
+    <script>
+        // Rellena los cinco campos de la fila con el equipo elegido en el catálogo.
+        // Los datos viajan en los atributos data-* de cada <option>, así que no
+        // hace falta ninguna llamada al servidor.
+        function cargarEquipoDelCatalogo(select) {
+            if (!select.value) {
+                return;
+            }
+
+            var opcion = select.options[select.selectedIndex];
+            var fila = select.closest('tr');
+
+            var dato = function (nombreAtributo) {
+                var valor = opcion.getAttribute(nombreAtributo);
+                return (valor === null || valor === 'null') ? '' : valor;
+            };
+
+            var asignar = function (sufijo, valor) {
+                var campo = fila.querySelector('input[name$="' + sufijo + '"]');
+                if (campo) {
+                    campo.value = valor;
+                }
+            };
+
+            asignar('.nombre', dato('data-nombre'));
+            asignar('.marca', dato('data-marca'));
+            asignar('.modelo', dato('data-modelo'));
+            asignar('.serie', dato('data-serie'));
+            asignar('.codigoInterno', dato('data-codigo'));
+        }
+    </script>
+</th:block>
+
 </body>
 </html>
