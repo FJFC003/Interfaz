@@ -15,5 +15,7 @@ public class OrdenTrabajoOTResponseDto {
 	private String nombrePersonaContactoOT;
 	private Date fechaCierreCampoOT;
 	private PlanMuestreoPLResponseDto fkPlanMuestreo;
+	private String estadoOT;
+	private Date fechaEnvioLaboratorio;
 
 }

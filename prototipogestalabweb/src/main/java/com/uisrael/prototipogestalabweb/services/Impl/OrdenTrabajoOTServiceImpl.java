@@ -54,4 +54,22 @@ public class OrdenTrabajoOTServiceImpl implements IOrdenTrabajoOTService {
 				.retrieve().bodyToFlux(OrdenTrabajoOTResponseDto.class).collectList().block();
 	}
 
+	@Override
+	public OrdenTrabajoOTResponseDto enviarALaboratorio(int idOT) {
+		return webClient.put().uri("/gestalab/ordentrabajo/enviar-laboratorio/{id}", idOT)
+				.retrieve().bodyToMono(OrdenTrabajoOTResponseDto.class).block();
+	}
+
+	@Override
+	public OrdenTrabajoOTResponseDto devolverACoordinacion(int idOT) {
+		return webClient.put().uri("/gestalab/ordentrabajo/devolver/{id}", idOT)
+				.retrieve().bodyToMono(OrdenTrabajoOTResponseDto.class).block();
+	}
+
+	@Override
+	public List<OrdenTrabajoOTResponseDto> listarParaLaboratorio() {
+		return webClient.get().uri("/gestalab/ordentrabajo/laboratorio")
+				.retrieve().bodyToFlux(OrdenTrabajoOTResponseDto.class).collectList().block();
+	}
+
 }

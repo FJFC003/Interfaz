@@ -14,4 +14,8 @@ public interface IOrdenTrabajoOTService {
 	List<OrdenTrabajoOTResponseDto> listarPorTecnico(int idEmpleado);
 	List<OrdenTrabajoOTResponseDto> listarPorPlan(int idPlan);
 
+	OrdenTrabajoOTResponseDto enviarALaboratorio(int idOT);
+	OrdenTrabajoOTResponseDto devolverACoordinacion(int idOT);
+	List<OrdenTrabajoOTResponseDto> listarParaLaboratorio();
+
 }
