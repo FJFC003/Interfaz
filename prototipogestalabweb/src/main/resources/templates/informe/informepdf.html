@@ -6,32 +6,37 @@
     <style>
         @page {
             size: A4;
-            margin: 1.6cm 1.4cm 1.8cm 1.4cm;
+            margin: 1.4cm 1.3cm 1.4cm 1.3cm;
         }
         body {
             font-family: Helvetica, Arial, sans-serif;
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #222222;
             margin: 0;
         }
-        .titulo {
-            background-color: #4f6228;
-            color: #ffffff;
+        .encabezado {
+            border-bottom: 2px solid #4f6228;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .encabezado .nombre {
             font-size: 12pt;
             font-weight: bold;
-            text-align: center;
-            padding: 8px 4px;
-            margin-bottom: 14px;
+            color: #1f3864;
+        }
+        .encabezado .marca {
+            font-size: 8pt;
+            color: #4f6228;
         }
         .seccion {
             background-color: #4f6228;
             color: #ffffff;
-            font-size: 9.5pt;
+            font-size: 9pt;
             font-weight: bold;
             text-align: center;
-            padding: 4px;
-            margin-top: 12px;
-            margin-bottom: 6px;
+            padding: 3px;
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
         table {
             width: 100%;
@@ -39,57 +44,64 @@
         }
         table.datos td {
             border: 1px solid #999999;
-            padding: 4px 6px;
+            padding: 3px 5px;
             vertical-align: top;
+            height: 16px;
         }
         table.datos td.etiqueta {
             background-color: #dce6f1;
             font-weight: bold;
-            width: 22%;
+            text-align: right;
+            width: 20%;
         }
         table.lista th {
             border: 1px solid #999999;
             background-color: #dce6f1;
-            padding: 4px;
-            font-size: 8.5pt;
+            padding: 3px;
+            font-size: 8pt;
             text-align: center;
         }
         table.lista td {
             border: 1px solid #999999;
-            padding: 4px;
-            font-size: 8.5pt;
+            padding: 3px;
+            font-size: 8pt;
+            height: 16px;
         }
-        .vacio {
-            color: #888888;
+        .mapa {
+            border: 1px solid #999999;
+            height: 190px;
+            text-align: center;
+            color: #aaaaaa;
             font-style: italic;
-            padding: 6px 2px;
+            padding-top: 90px;
         }
         .notas {
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #444444;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .notas p {
-            margin: 2px 0;
+            margin: 1px 0;
         }
         .observaciones {
             border: 1px solid #999999;
-            padding: 6px;
-            min-height: 50px;
+            padding: 5px;
+            height: 60px;
         }
         .firma {
-            margin-top: 90px;
-            width: 60%;
+            margin-top: 70px;
+            width: 55%;
         }
         .lineafirma {
             border-top: 1px solid #333333;
-            padding-top: 4px;
+            padding-top: 3px;
         }
         .pie {
             font-size: 7.5pt;
-            color: #777777;
-            margin-top: 26px;
-            text-align: center;
+            color: #555555;
+            margin-top: 18px;
+            border-top: 1px solid #cccccc;
+            padding-top: 4px;
         }
         .saltopagina {
             page-break-before: always;
@@ -98,26 +110,28 @@
 </head>
 <body>
 
-<div class="titulo">INFORME DE RESULTADOS</div>
+<!-- ==================== PAGINA 1 ==================== -->
+<div class="encabezado">
+    <div class="nombre">INFORME DE RESULTADOS</div>
+    <div class="marca">LABORATORIOS GESTALAB · Gestión ambiental, laboral y de calidad</div>
+</div>
 
-<!-- ===================== DATOS DEL LABORATORIO ===================== -->
 <div class="seccion">DATOS DEL LABORATORIO</div>
 <table class="datos" th:with="lab=${informe.fkDatosLaboratorio}">
     <tr>
         <td class="etiqueta">Organización:</td>
-        <td th:text="${lab != null and lab.organizacion != null ? lab.organizacion : 'LABORATORIOS GESTALAB CÍA. LTDA.'}">-</td>
+        <td th:text="${lab != null and lab.organizacion != null ? lab.organizacion : 'LABORATORIOS GESTALAB CÍA. LTDA.'}"></td>
         <td class="etiqueta">Teléfono:</td>
-        <td th:text="${lab != null and lab.telefono != null ? lab.telefono : ''}">-</td>
+        <td th:text="${lab != null and lab.telefono != null ? lab.telefono : ''}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Dirección:</td>
-        <td th:text="${lab != null and lab.direccion != null ? lab.direccion : ''}">-</td>
+        <td th:text="${lab != null and lab.direccion != null ? lab.direccion : ''}"></td>
         <td class="etiqueta">Correo:</td>
-        <td th:text="${lab != null and lab.correo != null ? lab.correo : ''}">-</td>
+        <td th:text="${lab != null and lab.correo != null ? lab.correo : ''}"></td>
     </tr>
 </table>
 
-<!-- ===================== DATOS DEL CLIENTE ===================== -->
 <div class="seccion">DATOS DEL CLIENTE</div>
 <table class="datos"
        th:with="cot=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null
@@ -127,52 +141,105 @@
                       ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion.fkCliente : null}">
     <tr>
         <td class="etiqueta">Organización:</td>
-        <td th:text="${cli != null ? cli.nombreRazonSocialClienteC : ''}">-</td>
+        <td th:text="${cli != null ? cli.nombreRazonSocialClienteC : ''}"></td>
         <td class="etiqueta">Contacto:</td>
         <td th:text="${orden.nombrePersonaContactoOT != null ? orden.nombrePersonaContactoOT
-                       : (cli != null ? cli.nombrePersonaContactoClienteC : '')}">-</td>
+                       : (cli != null ? cli.nombrePersonaContactoClienteC : '')}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Dirección:</td>
-        <td th:text="${cli != null ? cli.direccionClienteC : ''}">-</td>
+        <td th:text="${cli != null ? cli.direccionClienteC : ''}"></td>
         <td class="etiqueta">Teléfono:</td>
-        <td th:text="${cli != null ? cli.telefonoClienteC : ''}">-</td>
+        <td th:text="${cli != null ? cli.telefonoClienteC : ''}"></td>
     </tr>
     <tr>
+        <td class="etiqueta"><sup>1</sup>Actividad productiva:</td>
+        <td></td>
         <td class="etiqueta">Correo:</td>
-        <td th:text="${cli != null ? cli.correoClienteC : ''}">-</td>
-        <td class="etiqueta">Código de proforma:</td>
-        <td th:text="${cot != null ? 'COT-' + cot.idCotizacionC : ''}">-</td>
+        <td th:text="${cli != null ? cli.correoClienteC : ''}"></td>
     </tr>
 </table>
 
-<!-- ===================== INFORMACION DEL MONITOREO ===================== -->
 <div class="seccion">INFORMACIÓN DEL MONITOREO</div>
-<table class="datos">
+<table class="datos"
+       th:with="cot=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null
+                      ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion : null}">
     <tr>
+        <td class="etiqueta">Código de proforma:</td>
+        <td th:text="${cot != null ? 'COT-' + cot.idCotizacionC : ''}"></td>
         <td class="etiqueta">Código de informe:</td>
-        <td th:text="${informe.codigoInforme}">-</td>
-        <td class="etiqueta">Fecha de emisión:</td>
+        <td th:text="${informe.codigoInforme}"></td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Fecha de muestreo:</td>
+        <td></td>
+        <td class="etiqueta">Fecha de emisión de informe:</td>
         <td th:text="${informe.fechaEmisionInforme != null
-                       ? #dates.format(informe.fechaEmisionInforme, 'dd/MM/yyyy') : ''}">-</td>
+                       ? #dates.format(informe.fechaEmisionInforme, 'dd/MM/yyyy') : ''}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Responsable de monitoreo:</td>
         <td th:text="${orden.fkTecnicoAsignado != null
-                       ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : ''}">-</td>
+                       ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : ''}"></td>
         <td class="etiqueta">Responsable de análisis:</td>
-        <td th:text="${informe.nombreResponsable}">-</td>
-    </tr>
-    <tr>
-        <td class="etiqueta">Orden de trabajo:</td>
-        <td th:text="'OT-' + ${orden.idOT}">-</td>
-        <td class="etiqueta">Plan de muestreo:</td>
-        <td th:text="${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.codigoPlan : ''}">-</td>
+        <td th:text="${informe.nombreResponsable}"></td>
     </tr>
 </table>
 
-<!-- ===================== PAGINA 2 ===================== -->
+<div class="seccion">INFORMACIÓN DEL SITIO DE MUESTREO</div>
+<div style="text-align:center; font-weight:bold; background-color:#eaf1dd; padding:3px; border:1px solid #999999; border-bottom:none;">
+    Mapa del lugar de muestreo
+</div>
+<div class="mapa">Espacio reservado para el mapa</div>
+
+<table class="datos" style="margin-top:6px;">
+    <tr>
+        <td class="etiqueta">Fecha de muestreo:</td>
+        <td></td>
+        <td class="etiqueta">Hora muestreo:</td>
+        <td></td>
+        <td class="etiqueta">Fecha de ingreso a laboratorio:</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Plan de muestreo:</td>
+        <td th:text="${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.codigoPlan : ''}"></td>
+        <td class="etiqueta">Identificación sitio muestreo:</td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Coordenadas UTM X:</td>
+        <td></td>
+        <td class="etiqueta">Código muestra cadena de custodia:</td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Coordenadas UTM Y:</td>
+        <td></td>
+        <td class="etiqueta">Código Laboratorio:</td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Tipo de matriz:</td>
+        <td></td>
+        <td class="etiqueta">Tipo de muestreo:</td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Procedimiento de toma de muestra:</td>
+        <td colspan="5"></td>
+    </tr>
+</table>
+
+<div class="pie">Página <strong>1</strong> de <strong>3</strong></div>
+
+<!-- ==================== PAGINA 2 ==================== -->
 <div class="saltopagina"></div>
+
+<div class="encabezado">
+    <div class="nombre">INFORME DE RESULTADOS</div>
+    <div class="marca">LABORATORIOS GESTALAB · Gestión ambiental, laboral y de calidad</div>
+</div>
 
 <div class="seccion">CONDICIONES AMBIENTALES</div>
 <table class="lista">
@@ -183,13 +250,18 @@
         <th style="width:25%">Precipitación</th>
     </tr>
     <tr th:each="c : ${condiciones}">
-        <td th:text="${c.noAlicuota}">-</td>
-        <td th:text="${c.temperatura}">-</td>
-        <td th:text="${c.humedad}">-</td>
-        <td th:text="${c.precipitacion}">-</td>
+        <td th:text="${c.noAlicuota}"></td>
+        <td th:text="${c.temperatura}"></td>
+        <td th:text="${c.humedad}"></td>
+        <td th:text="${c.precipitacion}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(condiciones)}">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
     </tr>
 </table>
-<div th:if="${#lists.isEmpty(condiciones)}" class="vacio">No se registraron condiciones ambientales.</div>
 
 <div class="seccion">EQUIPOS UTILIZADOS EN LA MEDICIÓN</div>
 <table class="lista">
@@ -201,43 +273,48 @@
         <th style="width:18%">Código Interno</th>
     </tr>
     <tr th:each="e : ${equipos}">
-        <td th:text="${e.nombre}">-</td>
-        <td th:text="${e.marca}">-</td>
-        <td th:text="${e.modelo}">-</td>
-        <td th:text="${e.serie}">-</td>
-        <td th:text="${e.codigoInterno}">-</td>
+        <td th:text="${e.nombre}"></td>
+        <td th:text="${e.marca}"></td>
+        <td th:text="${e.modelo}"></td>
+        <td th:text="${e.serie}"></td>
+        <td th:text="${e.codigoInterno}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(equipos)}">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
     </tr>
 </table>
-<div th:if="${#lists.isEmpty(equipos)}" class="vacio">No se registraron equipos.</div>
 
 <div class="seccion">RESULTADOS</div>
 <table class="lista">
     <tr>
-        <th style="width:17%">Parámetros</th>
-        <th style="width:20%">Método de Referencia / Método Interno</th>
+        <th style="width:16%">Parámetros</th>
+        <th style="width:22%">Método de Referencia/ Método Interno</th>
         <th style="width:10%">Unidad</th>
-        <th style="width:13%">Resultado</th>
-        <th style="width:13%">± U (k=2)</th>
-        <th style="width:12%">LMP</th>
-        <th style="width:15%">Conformidad</th>
+        <th style="width:12%">Resultado</th>
+        <th style="width:12%"><sup>2</sup>± U (k=2)</th>
+        <th style="width:12%"><sup>3</sup>LMP</th>
+        <th style="width:16%">Conformidad</th>
     </tr>
     <tr th:each="r : ${resultados}">
-        <td th:text="${r.parametros}">-</td>
-        <td th:text="${r.metodoReferencial}">-</td>
-        <td th:text="${r.unidad}">-</td>
-        <td th:text="${r.resultado}">-</td>
-        <td th:text="${r.incertidumbre}">-</td>
-        <td th:text="${r.LMP}">-</td>
-        <td th:text="${r.conformidad}">-</td>
+        <td th:text="${r.parametros}"></td>
+        <td th:text="${r.metodoReferencial}"></td>
+        <td th:text="${r.unidad}"></td>
+        <td th:text="${r.resultado}"></td>
+        <td th:text="${r.incertidumbre}"></td>
+        <td th:text="${r.LMP}"></td>
+        <td th:text="${r.conformidad}"></td>
     </tr>
 </table>
-<div th:if="${#lists.isEmpty(resultados)}" class="vacio">No se registraron resultados.</div>
 
 <div class="notas">
     <p><strong>Notas:</strong></p>
     <p>1. Información proporcionada por el cliente. El laboratorio no se responsabiliza de dicha información.</p>
-    <p>2. Incertidumbre expandida. La incertidumbre reportada se basa en la incertidumbre expandida
-        multiplicada por un factor de cobertura k=2, que garantiza un nivel de confianza aproximada del 95%.</p>
+    <p>2. Incertidumbre expandida. "La incertidumbre reportada se basa en la incertidumbre expandida
+        multiplicada por un factor de cobertura k=2, que garantiza un nivel de confianza aproximada del 95%".</p>
     <p>3. LMP: Límite máximo permisible tomado de la normativa aplicable al servicio contratado.</p>
     <p>4. Parámetros subcontratados.</p>
     <p>5. Prohibida la reproducción parcial por cualquier medio sin permiso por escrito del laboratorio.</p>
@@ -251,31 +328,43 @@
 <div class="seccion">OBSERVACIONES Y DESVIACIONES</div>
 <div class="observaciones">
     <span th:text="${informe.notasAdvertencia != null and !#strings.isEmpty(informe.notasAdvertencia)
-                     ? informe.notasAdvertencia : 'NA'}">NA</span>
+                     ? informe.notasAdvertencia : 'NA'}"></span>
 </div>
-<table class="datos" style="margin-top:8px;">
+<table class="datos" style="margin-top:5px;">
     <tr>
         <td class="etiqueta">Conformidad general:</td>
-        <td th:text="${informe.conformidadGeneral}">-</td>
+        <td th:text="${informe.conformidadGeneral}"></td>
     </tr>
 </table>
 
-<!-- ===================== PAGINA 3 ===================== -->
+<div class="pie">Página <strong>2</strong> de <strong>3</strong></div>
+
+<!-- ==================== PAGINA 3 ==================== -->
 <div class="saltopagina"></div>
 
-<div class="seccion">REVISIÓN Y AUTORIZACIÓN</div>
+<div class="encabezado">
+    <div class="nombre">INFORME DE RESULTADOS</div>
+    <div class="marca">LABORATORIOS GESTALAB · Gestión ambiental, laboral y de calidad</div>
+</div>
+
+<div style="margin-left:14px;">
+    <span th:text="${informe.notasAdvertencia != null and !#strings.isEmpty(informe.notasAdvertencia)
+                     ? informe.notasAdvertencia : 'NA'}"></span>
+</div>
+
+<div class="seccion" style="margin-top:26px;">REVISIÓN Y AUTORIZACIÓN</div>
 
 <div class="firma">
     <div class="lineafirma">
         <div th:text="${orden.fkResponsableEmision != null
                         ? 'Ing. ' + orden.fkResponsableEmision.nombre + ' ' + orden.fkResponsableEmision.apellido
-                        : 'Ing.'}">Ing.</div>
-        <div>Coordinación Técnica</div>
+                        : 'Ing.'}"></div>
+        <div>Coordinadora Técnica</div>
         <div><strong>LABORATORIOS GESTALAB CÍA. LTDA.</strong></div>
     </div>
 </div>
 
-<div class="pie">Informe de Resultados</div>
+<div class="pie">Página <strong>3</strong> de <strong>3</strong></div>
 
 </body>
 </html>

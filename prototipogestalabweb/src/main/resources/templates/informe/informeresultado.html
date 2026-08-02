@@ -627,13 +627,20 @@ layout:decorate="~{/plantilla/plantilla}">
     </form>
 
     <!-- ============ ENVIO A COORDINACION TECNICA ============ -->
-    <div th:if="${informeGuardado}" class="card shadow mb-5">
+    <div class="card shadow mb-5">
         <div class="card-header py-3" style="background-color:#9dc3e6;">
             <h6 class="m-0 font-weight-bold">ENVÍO A COORDINACIÓN TÉCNICA</h6>
         </div>
         <div class="card-body">
 
-            <div th:unless="${informeEnviado}">
+            <!-- Todavia no se ha guardado: no hay nada que enviar -->
+            <div th:unless="${informeGuardado}" class="alert alert-warning mb-0">
+                <i class="fas fa-exclamation-triangle"></i>
+                Guarde el informe con el botón <strong>Guardar Informe Completo</strong> antes de
+                enviarlo a Coordinación Técnica.
+            </div>
+
+            <div th:if="${informeGuardado and !informeEnviado}">
                 <p class="mb-3">
                     Al enviar el informe, la Coordinación Técnica podrá consultarlo y descargarlo en PDF.
                     Revise antes que los resultados y la conformidad estén completos.
@@ -646,7 +653,7 @@ layout:decorate="~{/plantilla/plantilla}">
                 </form>
             </div>
 
-            <div th:if="${informeEnviado}" class="alert alert-success mb-0">
+            <div th:if="${informeGuardado and informeEnviado}" class="alert alert-success mb-0">
                 <i class="fas fa-check-circle"></i>
                 Este informe ya fue enviado a Coordinación Técnica y está disponible en su bandeja.
                 Si lo modifica y vuelve a guardar, la coordinadora verá los datos actualizados.

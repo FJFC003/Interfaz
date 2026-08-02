@@ -190,6 +190,13 @@
     </a>
 </li>
 
+<!-- Nav Item - Informes Recibidos (Coordinacion Tecnica) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General'))}">
+    <a class="nav-link" href="/informe/coordinacion">
+        <i class="fas fa-fw fa-inbox"></i> <span>Informes Recibidos</span>
+    </a>
+</li>
+
 <!-- Nav Item - Equipos de Laboratorio (catalogo) -->
 <li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Laboratorista') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Analista') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General'))}">
     <a class="nav-link" href="/equipolaboratorio/listar">

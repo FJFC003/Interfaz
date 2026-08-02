@@ -26,6 +26,10 @@ layout:decorate="~{/plantilla/plantilla}">
             <a href="/ordentrabajo/listar?success=true" class="btn btn-sm btn-success shadow-sm">
                 <i class="fas fa-save"></i> Guardar y cerrar
             </a>
+            <a th:href="@{/ordentrabajo/pdf/{id}(id=${orden.idOT})}"
+               class="btn btn-sm btn-danger shadow-sm">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
+            </a>
         </div>
     </div>
 
