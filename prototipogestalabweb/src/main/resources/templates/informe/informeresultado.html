@@ -32,6 +32,11 @@ layout:decorate="~{/plantilla/plantilla}">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
 
+    <div th:if="${param.enviado}" class="alert alert-info alert-dismissible fade show">
+        <i class="fas fa-paper-plane"></i> El informe fue enviado a Coordinación Técnica.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
     <div th:if="${informeGuardado}" class="alert alert-secondary small">
         <i class="fas fa-lock-open"></i>
         Este informe ya está guardado. Los datos que ve son los almacenados; si los modifica y
@@ -621,6 +626,35 @@ layout:decorate="~{/plantilla/plantilla}">
 
     </form>
 
+    <!-- ============ ENVIO A COORDINACION TECNICA ============ -->
+    <div th:if="${informeGuardado}" class="card shadow mb-5">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">ENVÍO A COORDINACIÓN TÉCNICA</h6>
+        </div>
+        <div class="card-body">
+
+            <div th:unless="${informeEnviado}">
+                <p class="mb-3">
+                    Al enviar el informe, la Coordinación Técnica podrá consultarlo y descargarlo en PDF.
+                    Revise antes que los resultados y la conformidad estén completos.
+                </p>
+                <form th:action="@{/informe/enviar/{id}(id=${orden.idOT})}" method="POST">
+                    <button type="submit" class="btn btn-primary"
+                            onclick="return confirm('¿Enviar este informe a Coordinación Técnica?')">
+                        <i class="fas fa-paper-plane"></i> Enviar a Coordinación Técnica
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${informeEnviado}" class="alert alert-success mb-0">
+                <i class="fas fa-check-circle"></i>
+                Este informe ya fue enviado a Coordinación Técnica y está disponible en su bandeja.
+                Si lo modifica y vuelve a guardar, la coordinadora verá los datos actualizados.
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
 <!-- ============ SCRIPTS ============ -->
@@ -659,24 +693,4 @@ layout:decorate="~{/plantilla/plantilla}">
 </th:block>
 
 </body>
-</html>```
-
----
-# Verificación
-
-1. Aplica el backend, Clean, arranca. Prueba `http://localhost:8080/api/gestalab/informe/completo/6`: si esa orden no tiene informe debe responder 204 sin cuerpo; si lo tiene, el JSON con las tres listas.
-2. Aplica el cliente, Clean, arranca.
-3. Abre un informe, llénalo y guarda. Debe quedarse en la misma pantalla con el aviso verde.
-4. **Sal a la bandeja y vuelve a entrar.** Todo lo que escribiste debe seguir ahí.
-5. Cambia un resultado y guarda otra vez. Revisa en la base que `resultados_ir` **no** duplicó filas: deben ser las mismas con el valor actualizado.
-6. Pulsa **Descargar PDF**. Debe bajar `Informe-IR-6.pdf` con tres páginas.
-
-Si el PDF falla, el endpoint devuelve el mensaje de error como texto plano en el navegador en lugar de una descarga rota. Casi siempre será un problema de XHTML en la plantilla, y el mensaje te dirá la línea.
-
----
-
-# Dos cosas que quedan pendientes
-
-**Filas borradas.** Si abres un informe guardado y vacías una fila que antes tenía datos, esa fila **no se elimina** de la base: el guardado solo inserta y actualiza. Para resolverlo bien, `guardarInformeCompleto()` debería borrar las filas del informe antes de reinsertar. Es un cambio de una decena de líneas en el caso de uso del backend; dime si lo quieres ahora.
-
-**El estado INFORME_EMITIDO.** Sigue sin asignarse. Ahora tiene más sentido cerrarlo, porque ya existe el momento exacto en que ocurre: cuando se guarda el informe con éxito. Sería un `PUT /ordentrabajo/informe-emitido/{idOT}` llamado justo después de `guardarCompleto()`.
+</html>

@@ -1,9 +1,16 @@
 package com.uisrael.prototipogestalabweb.controller;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.DesviosOrdenOTRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.DetalleOrdenTrabajoOTRequestDto;
@@ -30,6 +41,7 @@ import com.uisrael.prototipogestalabweb.services.IParametroAnalizarPLService;
 import com.uisrael.prototipogestalabweb.services.IPlanMuestreoPLService;
 import com.uisrael.prototipogestalabweb.services.IRecursosCronoPLService;
 
+
 @Controller
 @RequestMapping("/ordentrabajo")
 public class OrdenTrabajoOTController {
@@ -41,11 +53,13 @@ public class OrdenTrabajoOTController {
 	private final IRecursosCronoPLService recursosService;
 	private final IParametroAnalizarPLService parametroService;
 	private final IEmpleadoService empleadoService;
+	private final SpringTemplateEngine templateEngine;
 
-	public OrdenTrabajoOTController(IOrdenTrabajoOTService ordenService,
-			IDetalleOrdenTrabajoOTService monitoreoService, IDesviosOrdenOTService desvioService,
-			IPlanMuestreoPLService planService, IRecursosCronoPLService recursosService,
-			IParametroAnalizarPLService parametroService, IEmpleadoService empleadoService) {
+	public OrdenTrabajoOTController(IOrdenTrabajoOTService ordenService, IDetalleOrdenTrabajoOTService monitoreoService,
+			IDesviosOrdenOTService desvioService, IPlanMuestreoPLService planService,
+			IRecursosCronoPLService recursosService, IParametroAnalizarPLService parametroService,
+			IEmpleadoService empleadoService, SpringTemplateEngine templateEngine) {
+		super();
 		this.ordenService = ordenService;
 		this.monitoreoService = monitoreoService;
 		this.desvioService = desvioService;
@@ -53,6 +67,7 @@ public class OrdenTrabajoOTController {
 		this.recursosService = recursosService;
 		this.parametroService = parametroService;
 		this.empleadoService = empleadoService;
+		this.templateEngine = templateEngine;
 	}
 
 	@GetMapping("/listar")
@@ -310,6 +325,46 @@ public class OrdenTrabajoOTController {
 	public String eliminarDesvio(@PathVariable int id, @PathVariable int idOT) {
 		desvioService.eliminar(id);
 		return "redirect:/ordentrabajo/detalle/" + idOT + "?deleted=true";
+	}
+
+	// ================= DESCARGA EN PDF =================
+
+	/**
+	 * Genera el PDF de la Orden de Ejecucion del Trabajo. Renderiza la plantilla
+	 * ordentrabajo/ordenpdf con Thymeleaf y convierte ese HTML a PDF con openhtmltopdf.
+	 */
+	@GetMapping("/pdf/{idOT}")
+	public ResponseEntity<byte[]> descargarPdf(@PathVariable int idOT) {
+		try {
+			OrdenTrabajoOTResponseDto orden = ordenService.buscarPorId(idOT);
+
+			Context contexto = new Context(new Locale("es", "EC"));
+			contexto.setVariable("orden", orden);
+			contexto.setVariable("monitoreos", monitoreoService.listarPorOrden(idOT));
+			contexto.setVariable("desvios", desvioService.listarPorOrden(idOT));
+
+			String html = templateEngine.process("ordentrabajo/ordenpdf", contexto);
+
+			ByteArrayOutputStream salida = new ByteArrayOutputStream();
+			PdfRendererBuilder constructor = new PdfRendererBuilder();
+			constructor.useFastMode();
+			constructor.withHtmlContent(html, null);
+			constructor.toStream(salida);
+			constructor.run();
+
+			HttpHeaders cabeceras = new HttpHeaders();
+			cabeceras.setContentType(MediaType.APPLICATION_PDF);
+			cabeceras.set(HttpHeaders.CONTENT_DISPOSITION,
+					"attachment; filename=\"Orden-Trabajo-OT-" + idOT + ".pdf\"");
+
+			return new ResponseEntity<>(salida.toByteArray(), cabeceras, HttpStatus.OK);
+
+		} catch (Exception e) {
+			byte[] mensaje = ("No se pudo generar el PDF: " + e.getMessage())
+					.getBytes(StandardCharsets.UTF_8);
+			return ResponseEntity.internalServerError()
+					.contentType(MediaType.TEXT_PLAIN).body(mensaje);
+		}
 	}
 
 }

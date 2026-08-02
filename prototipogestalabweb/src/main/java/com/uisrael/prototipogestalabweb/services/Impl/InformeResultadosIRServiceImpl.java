@@ -57,4 +57,16 @@ public class InformeResultadosIRServiceImpl implements IInformeResultadosIRServi
 				.bodyToMono(InformeResultadosIRResponseDto.class).block();
 	}
 
+	@Override
+	public InformeResultadosIRResponseDto enviarACoordinacion(int idInforme) {
+		return webClient.put().uri("/gestalab/informe/enviar-coordinacion/{id}", idInforme)
+				.retrieve().bodyToMono(InformeResultadosIRResponseDto.class).block();
+	}
+
+	@Override
+	public List<InformeResultadosIRResponseDto> listarEnviados() {
+		return webClient.get().uri("/gestalab/informe/enviados")
+				.retrieve().bodyToFlux(InformeResultadosIRResponseDto.class).collectList().block();
+	}
+
 }

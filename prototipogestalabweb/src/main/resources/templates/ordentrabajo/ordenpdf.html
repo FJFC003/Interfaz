@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Orden de Ejecución del Trabajo</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.6cm 1.4cm 1.8cm 1.4cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            color: #222222;
+            margin: 0;
+        }
+        .titulo {
+            background-color: #4f6228;
+            color: #ffffff;
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px 4px;
+            margin-bottom: 14px;
+        }
+        .seccion {
+            background-color: #4f6228;
+            color: #ffffff;
+            font-size: 9.5pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 4px;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.datos td {
+            border: 1px solid #999999;
+            padding: 4px 6px;
+            vertical-align: top;
+        }
+        table.datos td.etiqueta {
+            background-color: #dce6f1;
+            font-weight: bold;
+            width: 24%;
+        }
+        table.lista th {
+            border: 1px solid #999999;
+            background-color: #dce6f1;
+            padding: 4px;
+            font-size: 8.5pt;
+            text-align: center;
+        }
+        table.lista td {
+            border: 1px solid #999999;
+            padding: 4px;
+            font-size: 8.5pt;
+        }
+        .vacio {
+            color: #888888;
+            font-style: italic;
+            padding: 6px 2px;
+        }
+        .firma {
+            margin-top: 80px;
+            width: 60%;
+        }
+        .lineafirma {
+            border-top: 1px solid #333333;
+            padding-top: 4px;
+        }
+        .pie {
+            font-size: 7.5pt;
+            color: #777777;
+            margin-top: 26px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="titulo">ORDEN DE EJECUCIÓN DEL TRABAJO</div>
+
+<div class="seccion">DATOS DE LA ORDEN</div>
+<table class="datos"
+       th:with="plan=${orden.fkPlanMuestreo},
+                det=${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.fkDetalleCotizacion : null},
+                cot=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null
+                      ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion : null}">
+    <tr>
+        <td class="etiqueta">Orden No.:</td>
+        <td th:text="'OT-' + ${orden.idOT}">-</td>
+        <td class="etiqueta">Fecha de emisión:</td>
+        <td th:text="${orden.fechaEmisionOT != null
+                       ? #dates.format(orden.fechaEmisionOT, 'dd/MM/yyyy') : ''}">-</td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Cotización aprobada:</td>
+        <td th:text="${cot != null ? 'COT-' + cot.idCotizacionC : ''}">-</td>
+        <td class="etiqueta">Plan de muestreo:</td>
+        <td th:text="${plan != null ? plan.codigoPlan : ''}">-</td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Cliente:</td>
+        <td th:text="${cot != null and cot.fkCliente != null
+                       ? cot.fkCliente.nombreRazonSocialClienteC : ''}">-</td>
+        <td class="etiqueta">Persona de contacto:</td>
+        <td th:text="${orden.nombrePersonaContactoOT}">-</td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Responsable de emisión:</td>
+        <td th:text="${orden.fkResponsableEmision != null
+                       ? orden.fkResponsableEmision.nombre + ' ' + orden.fkResponsableEmision.apellido : ''}">-</td>
+        <td class="etiqueta">Técnico que ejecutó:</td>
+        <td th:text="${orden.fkTecnicoAsignado != null
+                       ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : ''}">-</td>
+    </tr>
+    <tr>
+        <td class="etiqueta">Cierre de campo:</td>
+        <td th:text="${orden.fechaCierreCampoOT != null
+                       ? #dates.format(orden.fechaCierreCampoOT, 'dd/MM/yyyy') : 'Pendiente'}">-</td>
+        <td class="etiqueta">Estado:</td>
+        <td th:text="${orden.estadoOT != null ? orden.estadoOT : 'EN_EJECUCION'}">-</td>
+    </tr>
+</table>
+
+<div class="seccion">MONITOREOS Y MUESTREO PLANIFICADOS Y ESTIPULADOS EN EL CONTRATO</div>
+<table class="lista">
+    <tr>
+        <th style="width:8%">Ítem</th>
+        <th style="width:48%">Descripción de la actividad</th>
+        <th style="width:16%">Fecha planificada</th>
+        <th style="width:14%">Puntos planificados</th>
+        <th style="width:14%">Puntos ejecutados</th>
+    </tr>
+    <tr th:each="m : ${monitoreos}">
+        <td th:text="${m.noItemDetalleOrdenOT}">-</td>
+        <td th:text="${m.descripcionActividadDetalleOrdenOT}">-</td>
+        <td th:text="${m.fechaPlanificadaDetalleOrdenOT != null
+                       ? #dates.format(m.fechaPlanificadaDetalleOrdenOT, 'dd/MM/yyyy') : ''}">-</td>
+        <td th:text="${m.puntosPlanificadosDetalleOrdenOT}">-</td>
+        <td th:text="${m.puntosEjecutadosDetalleOrdenOT}">-</td>
+    </tr>
+</table>
+<div th:if="${#lists.isEmpty(monitoreos)}" class="vacio">No se registraron monitoreos.</div>
+
+<div class="seccion">DESVIACIONES O MODIFICACIONES DEL PLAN</div>
+<table class="lista">
+    <tr>
+        <th style="width:8%">Ítem</th>
+        <th style="width:72%">Descripción</th>
+        <th style="width:20%">Puntos modificados</th>
+    </tr>
+    <tr th:each="d : ${desvios}">
+        <td th:text="${d.noItemDesviosOrdenOT}">-</td>
+        <td th:text="${d.descripcionDesviosOrdenOT}">-</td>
+        <td th:text="${d.puntosModificadosDesviosOrdenOT}">-</td>
+    </tr>
+</table>
+<div th:if="${#lists.isEmpty(desvios)}" class="vacio">No se registraron desviaciones.</div>
+
+<div class="firma">
+    <div class="lineafirma">
+        <div th:text="${orden.fkResponsableEmision != null
+                        ? 'Ing. ' + orden.fkResponsableEmision.nombre + ' ' + orden.fkResponsableEmision.apellido
+                        : 'Ing.'}">Ing.</div>
+        <div>Coordinación Técnica</div>
+        <div><strong>LABORATORIOS GESTALAB CÍA. LTDA.</strong></div>
+    </div>
+</div>
+
+<div class="pie">Orden de Ejecución del Trabajo</div>
+
+</body>
+</html>

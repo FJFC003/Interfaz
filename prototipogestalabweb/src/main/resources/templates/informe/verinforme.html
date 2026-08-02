@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+
+<head>
+    <title>Informe de Resultados - GestaLab</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-file-medical-alt"></i> Informe de Resultados
+            <small class="text-muted" th:text="'OT-' + ${orden.idOT}"></small>
+        </h1>
+        <div>
+            <a href="/informe/coordinacion" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <a th:href="@{/informe/pdf/{id}(id=${orden.idOT})}"
+               class="btn btn-sm btn-danger shadow-sm">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-secondary small">
+        <i class="fas fa-lock"></i>
+        Vista de consulta. El contenido técnico lo emite el Laboratorio y no se modifica desde aquí.
+    </div>
+
+    <!-- ============ DATOS DEL CLIENTE ============ -->
+    <div class="card shadow mb-4"
+         th:with="cot=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null
+                        ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion : null},
+                  cli=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null
+                        and orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion != null
+                        ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion.fkCliente : null}">
+        <div class="card-header py-3" style="background-color:#548235; color:#fff;">
+            <h6 class="m-0 font-weight-bold">DATOS DEL CLIENTE</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm mb-0">
+                <tr>
+                    <th style="width:20%; background-color:#dce6f1;">Organización</th>
+                    <td th:text="${cli != null ? cli.nombreRazonSocialClienteC : '-'}">-</td>
+                    <th style="width:20%; background-color:#dce6f1;">Contacto</th>
+                    <td th:text="${orden.nombrePersonaContactoOT != null ? orden.nombrePersonaContactoOT
+                                   : (cli != null ? cli.nombrePersonaContactoClienteC : '-')}">-</td>
+                </tr>
+                <tr>
+                    <th style="background-color:#dce6f1;">Dirección</th>
+                    <td th:text="${cli != null ? cli.direccionClienteC : '-'}">-</td>
+                    <th style="background-color:#dce6f1;">Teléfono</th>
+                    <td th:text="${cli != null ? cli.telefonoClienteC : '-'}">-</td>
+                </tr>
+                <tr>
+                    <th style="background-color:#dce6f1;">Correo</th>
+                    <td th:text="${cli != null ? cli.correoClienteC : '-'}">-</td>
+                    <th style="background-color:#dce6f1;">Código de proforma</th>
+                    <td th:text="${cot != null ? 'COT-' + cot.idCotizacionC : '-'}">-</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============ INFORMACION DEL MONITOREO ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#548235; color:#fff;">
+            <h6 class="m-0 font-weight-bold">INFORMACIÓN DEL MONITOREO</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm mb-0">
+                <tr>
+                    <th style="width:20%; background-color:#dce6f1;">Código de informe</th>
+                    <td th:text="${informe.codigoInforme}">-</td>
+                    <th style="width:20%; background-color:#dce6f1;">Fecha de emisión</th>
+                    <td th:text="${informe.fechaEmisionInforme != null
+                                   ? #dates.format(informe.fechaEmisionInforme, 'dd/MM/yyyy') : '-'}">-</td>
+                </tr>
+                <tr>
+                    <th style="background-color:#dce6f1;">Responsable de monitoreo</th>
+                    <td th:text="${orden.fkTecnicoAsignado != null
+                                   ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : '-'}">-</td>
+                    <th style="background-color:#dce6f1;">Responsable de análisis</th>
+                    <td th:text="${informe.nombreResponsable}">-</td>
+                </tr>
+                <tr>
+                    <th style="background-color:#dce6f1;">Recibido en Coordinación</th>
+                    <td th:text="${informe.fechaEnvioCoordinacion != null
+                                   ? #dates.format(informe.fechaEnvioCoordinacion, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                    <th style="background-color:#dce6f1;">Plan de muestreo</th>
+                    <td th:text="${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.codigoPlan : '-'}">-</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============ CONDICIONES AMBIENTALES ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#548235; color:#fff;">
+            <h6 class="m-0 font-weight-bold">CONDICIONES AMBIENTALES</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm mb-0">
+                <thead style="background-color:#dce6f1;">
+                    <tr class="text-center">
+                        <th>Nro. Alícuota</th>
+                        <th>Temperatura (°C)</th>
+                        <th>Humedad (%)</th>
+                        <th>Precipitación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${condiciones}">
+                        <td th:text="${c.noAlicuota}">-</td>
+                        <td th:text="${c.temperatura}">-</td>
+                        <td th:text="${c.humedad}">-</td>
+                        <td th:text="${c.precipitacion}">-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${#lists.isEmpty(condiciones)}" class="text-muted small mb-0 mt-2">
+                No se registraron condiciones ambientales.
+            </p>
+        </div>
+    </div>
+
+    <!-- ============ EQUIPOS UTILIZADOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#548235; color:#fff;">
+            <h6 class="m-0 font-weight-bold">EQUIPOS UTILIZADOS EN LA MEDICIÓN</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm mb-0">
+                <thead style="background-color:#dce6f1;">
+                    <tr class="text-center">
+                        <th>Nombre equipo</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Serie</th>
+                        <th>Código Interno</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${equipos}">
+                        <td th:text="${e.nombre}">-</td>
+                        <td th:text="${e.marca}">-</td>
+                        <td th:text="${e.modelo}">-</td>
+                        <td th:text="${e.serie}">-</td>
+                        <td th:text="${e.codigoInterno}">-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${#lists.isEmpty(equipos)}" class="text-muted small mb-0 mt-2">
+                No se registraron equipos.
+            </p>
+        </div>
+    </div>
+
+    <!-- ============ RESULTADOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#548235; color:#fff;">
+            <h6 class="m-0 font-weight-bold">RESULTADOS</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0">
+                    <thead style="background-color:#dce6f1;">
+                        <tr class="text-center align-middle">
+                            <th>Parámetros</th>
+                            <th>Método de Referencia/ Método Interno</th>
+                            <th>Unidad</th>
+                            <th>Resultado</th>
+                            <th><sup>2</sup>± U (k=2)</th>
+                            <th><sup>3</sup>LMP</th>
+                            <th>Conformidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${resultados}">
+                            <td th:text="${r.parametros}">-</td>
+                            <td th:text="${r.metodoReferencial}">-</td>
+                            <td th:text="${r.unidad}">-</td>
+                            <td th:text="${r.resultado}">-</td>
+                            <td th:text="${r.incertidumbre}">-</td>
+                            <td th:text="${r.LMP}">-</td>
+                            <td>
+                                <span th:if="${r.conformidad == 'Cumple'}" class="badge badge-success">Cumple</span>
+                                <span th:if="${r.conformidad == 'No Cumple'}" class="badge badge-danger">No Cumple</span>
+                                <span th:if="${r.conformidad != 'Cumple' and r.conformidad != 'No Cumple'}"
+                                      th:text="${r.conformidad}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${#lists.isEmpty(resultados)}" class="text-muted small mb-0 mt-2">
+                No se registraron resultados.
+            </p>
+        </div>
+    </div>
+
+    <!-- ============ OBSERVACIONES ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#548235; color:#fff;">
+            <h6 class="m-0 font-weight-bold">OBSERVACIONES Y DESVIACIONES</h6>
+        </div>
+        <div class="card-body">
+            <p th:text="${informe.notasAdvertencia != null and !#strings.isEmpty(informe.notasAdvertencia)
+                          ? informe.notasAdvertencia : 'NA'}">NA</p>
+            <p class="mb-0">
+                <strong>Conformidad general:</strong>
+                <span th:if="${informe.conformidadGeneral == 'Cumple'}" class="badge badge-success">Cumple</span>
+                <span th:if="${informe.conformidadGeneral == 'No Cumple'}" class="badge badge-danger">No Cumple</span>
+            </p>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

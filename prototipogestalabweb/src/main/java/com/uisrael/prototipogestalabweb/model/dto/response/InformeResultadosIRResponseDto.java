@@ -15,5 +15,7 @@ public class InformeResultadosIRResponseDto {
 	private String conformidadGeneral;
 	private DatosLaboratorioIRResponseDto fkDatosLaboratorio;
 	private OrdenTrabajoOTResponseDto fkOrdenTrabajo;
+	private String estadoInforme;
+	private Date fechaEnvioCoordinacion;
 
 }

@@ -129,6 +129,8 @@ public class InformeResultadosIRController {
 			model.addAttribute("orden", orden);
 			model.addAttribute("equiposCatalogo", obtenerEquiposActivos());
 			model.addAttribute("informeGuardado", yaExiste);
+			model.addAttribute("informeEnviado", yaExiste
+					&& "ENVIADO_COORDINACION".equals(guardado.getInforme().getEstadoInforme()));
 			return "informe/informeresultado";
 
 		} catch (Exception e) {
@@ -323,6 +325,72 @@ public class InformeResultadosIRController {
 					.getBytes(StandardCharsets.UTF_8);
 			return ResponseEntity.internalServerError()
 					.contentType(MediaType.TEXT_PLAIN).body(mensaje);
+		}
+	}
+
+	// ================= FLUJO HACIA LA COORDINACION TECNICA =================
+
+	/**
+	 * El Tecnico de Laboratorio da por terminado el informe y lo envia a la
+	 * Coordinacion Tecnica. Desde ese momento la coordinadora puede verlo.
+	 */
+	@PostMapping("/enviar/{idOT}")
+	public String enviarACoordinacion(@PathVariable int idOT, Model model) {
+		try {
+			InformeCompletoIRResponseDto guardado = informeService.buscarCompletoPorOrden(idOT);
+			if (guardado == null || guardado.getInforme() == null) {
+				model.addAttribute("mensajeError",
+						"Primero debe guardar el informe antes de enviarlo a Coordinacion.");
+				return "error";
+			}
+
+			informeService.enviarACoordinacion(guardado.getInforme().getIdInforme());
+			return "redirect:/informe/resultados/" + idOT + "?enviado=true";
+
+		} catch (WebClientResponseException ex) {
+			model.addAttribute("mensajeError", ex.getResponseBodyAsString());
+			return "error";
+		} catch (Exception ex) {
+			model.addAttribute("mensajeError", ex.getMessage());
+			return "error";
+		}
+	}
+
+	/** Bandeja de la Coordinacion Tecnica: informes recibidos, solo lectura. */
+	@GetMapping("/coordinacion")
+	public String bandejaCoordinacion(Model model) {
+		try {
+			model.addAttribute("informes", informeService.listarEnviados());
+			return "informe/bandejacoordinacion";
+		} catch (Exception e) {
+			model.addAttribute("mensajeError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * Vista de solo lectura del informe. No tiene formulario ni boton de guardar:
+	 * la Coordinacion Tecnica consulta y descarga, no edita.
+	 */
+	@GetMapping("/ver/{idOT}")
+	public String verInforme(@PathVariable int idOT, Model model) {
+		try {
+			InformeCompletoIRResponseDto guardado = informeService.buscarCompletoPorOrden(idOT);
+			if (guardado == null || guardado.getInforme() == null) {
+				model.addAttribute("mensajeError", "Esa orden todavia no tiene informe emitido.");
+				return "error";
+			}
+
+			model.addAttribute("orden", ordenService.buscarPorId(idOT));
+			model.addAttribute("informe", guardado.getInforme());
+			model.addAttribute("resultados", guardado.getListaResultados());
+			model.addAttribute("condiciones", guardado.getListaCondiciones());
+			model.addAttribute("equipos", guardado.getListaEquipos());
+			return "informe/verinforme";
+
+		} catch (Exception e) {
+			model.addAttribute("mensajeError", e.getMessage());
+			return "error";
 		}
 	}
 

@@ -98,6 +98,11 @@ layout:decorate="~{/plantilla/plantilla}">
                                              ? 'Ya tiene informe emitido' : 'Llenar resultados'">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                <a th:if="${#lists.contains(ordenesConInforme, trabajo.idOT)}"
+                                   th:href="@{/informe/pdf/{id}(id=${trabajo.idOT})}"
+                                   class="btn btn-sm btn-danger" title="Descargar PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
                             </td>
 
                         </tr>
@@ -145,4 +150,734 @@ layout:decorate="~{/plantilla/plantilla}">
 </th:block>
 
 </body>
-</html>
+</html>```
+
+---
+## Archivo 18 — `ordentrabajo/detalleorden.html`
+
+**Ruta:** `prototipogestalabweb/src/main/resources/templates/ordentrabajo/detalleorden.html`
+
+El botón **Descargar PDF** junto a Guardar y cerrar.
+
+````html
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/plantilla/plantilla}">
+<head><title>Orden de Trabajo - GestaLab</title></head>
+<body>
+<div layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-list"></i> F-PP-07-04: Orden de Ejecución del Trabajo
+            <small class="text-muted" th:text="'OT-' + ${orden.idOT}"></small>
+
+            <!-- Estado del flujo hacia el laboratorio -->
+            <span th:if="${orden.estadoOT == null or orden.estadoOT == 'EN_EJECUCION'}"
+                  class="badge badge-secondary align-middle">En ejecución</span>
+            <span th:if="${orden.estadoOT == 'ENVIADA_LABORATORIO'}"
+                  class="badge badge-info align-middle">Enviada al Laboratorio</span>
+            <span th:if="${orden.estadoOT == 'INFORME_EMITIDO'}"
+                  class="badge badge-success align-middle">Informe emitido</span>
+        </h1>
+        <div>
+            <a href="/ordentrabajo/listar" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <a href="/ordentrabajo/listar?success=true" class="btn btn-sm btn-success shadow-sm">
+                <i class="fas fa-save"></i> Guardar y cerrar
+            </a>
+            <a th:href="@{/ordentrabajo/pdf/{id}(id=${orden.idOT})}"
+               class="btn btn-sm btn-danger shadow-sm">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        Cambios guardados correctamente.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show">
+        Registro eliminado.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.enviada}" class="alert alert-info alert-dismissible fade show">
+        <i class="fas fa-paper-plane"></i> La orden fue enviada al Técnico de Laboratorio.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.devuelta}" class="alert alert-warning alert-dismissible fade show">
+        La orden regresó a Coordinación Técnica.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.duplicada}" class="alert alert-warning alert-dismissible fade show">
+        <i class="fas fa-info-circle"></i>
+        Este plan de muestreo ya tenía una orden emitida. Se abrió la existente en lugar de crear una nueva.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <!-- ============ CABECERA ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">DATOS DE LA ORDEN</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered mb-0"
+                   th:with="cot=${orden.fkPlanMuestreo != null and orden.fkPlanMuestreo.fkDetalleCotizacion != null ? orden.fkPlanMuestreo.fkDetalleCotizacion.fkCotizacion : null}">
+                <tr>
+                    <th style="width:20%">Cotización aprobada:</th>
+                    <td th:text="${cot != null ? cot.idCotizacionC : '-'}"></td>
+                    <th style="width:20%">Responsable:</th>
+                    <td th:text="${orden.fkResponsableEmision != null ? orden.fkResponsableEmision.nombre + ' ' + orden.fkResponsableEmision.apellido : '-'}"></td>
+                </tr>
+                <tr>
+                    <th>Fecha de emisión:</th>
+                    <td th:text="${orden.fechaEmisionOT != null ? #dates.format(orden.fechaEmisionOT, 'dd/MM/yyyy') : '-'}"></td>
+                    <th>Persona de contacto (cliente):</th>
+                    <td th:text="${orden.nombrePersonaContactoOT}"></td>
+                </tr>
+                <tr>
+                    <th>Plan de muestreo:</th>
+                    <td th:text="${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.codigoPlan : '-'}"></td>
+                    <th>Técnico que ejecutó:</th>
+                    <td th:text="${orden.fkTecnicoAsignado != null ? orden.fkTecnicoAsignado.nombre + ' ' + orden.fkTecnicoAsignado.apellido : '-'}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============ MONITOREOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">MONITOREOS Y MUESTREO PLANIFICADOS Y ESTIPULADOS EN EL CONTRATO</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width:6%">Ítem No.</th>
+                        <th>Descripción de la actividad</th>
+                        <th style="width:12%">Fecha planificada</th>
+                        <th style="width:12%">No. puntos planificados</th>
+                        <th style="width:14%">No. puntos ejecutados</th>
+                        <th style="width:8%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${monitoreos}">
+                        <td th:text="${m.noItemDetalleOrdenOT}"></td>
+                        <td th:text="${m.descripcionActividadDetalleOrdenOT}"></td>
+                        <td th:text="${m.fechaPlanificadaDetalleOrdenOT != null ? #dates.format(m.fechaPlanificadaDetalleOrdenOT, 'dd/MM/yyyy') : '-'}"></td>
+                        <td th:text="${m.puntosPlanificadosDetalleOrdenOT}"></td>
+                        <td>
+                            <!-- Los puntos ejecutados los escribe la Coordinacion Tecnica -->
+                            <form th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}" method="POST" class="form-inline">
+                                <input type="hidden" name="idDetalleOrdenOT" th:value="${m.idDetalleOrdenOT}">
+                                <input type="hidden" name="noItemDetalleOrdenOT" th:value="${m.noItemDetalleOrdenOT}">
+                                <input type="hidden" name="descripcionActividadDetalleOrdenOT" th:value="${m.descripcionActividadDetalleOrdenOT}">
+                                <input type="hidden" name="fechaPlanificadaDetalleOrdenOT"
+                                       th:value="${m.fechaPlanificadaDetalleOrdenOT != null ? #dates.format(m.fechaPlanificadaDetalleOrdenOT, 'yyyy-MM-dd') : ''}">
+                                <input type="hidden" name="puntosPlanificadosDetalleOrdenOT" th:value="${m.puntosPlanificadosDetalleOrdenOT}">
+                                <input type="number" class="form-control form-control-sm mr-1" style="width:70px" min="0"
+                                       name="puntosEjecutadosDetalleOrdenOT" th:value="${m.puntosEjecutadosDetalleOrdenOT}">
+                                <button type="submit" class="btn btn-sm btn-outline-primary" title="Guardar">
+                                    <i class="fas fa-save"></i></button>
+                            </form>
+                        </td>
+                        <td>
+                            <a th:href="@{/ordentrabajo/monitoreo/eliminar/{id}/{o}(id=${m.idDetalleOrdenOT},o=${orden.idOT})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(monitoreos)}">
+                        <td colspan="6" class="text-center text-muted">Sin registros</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}"
+                  th:object="${nuevoMonitoreo}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItemDetalleOrdenOT}"
+                               placeholder="No." min="1" required>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{descripcionActividadDetalleOrdenOT}"
+                               placeholder="Descripción de la actividad" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="date" class="form-control form-control-sm" th:field="*{fechaPlanificadaDetalleOrdenOT}" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{puntosPlanificadosDetalleOrdenOT}"
+                               placeholder="Puntos planificados" min="1" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Agregar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ DESVIOS ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#c5d86d;">
+            <h6 class="m-0 font-weight-bold">DESVÍOS / SOLICITUDES IN SITU</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width:8%">Ítem No.</th>
+                        <th>Descripción del desvío o solicitudes</th>
+                        <th style="width:18%">No. de puntos aumentados o disminuidos</th>
+                        <th style="width:8%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${desvios}">
+                        <td th:text="${d.noItemDesviosOrdenOT}"></td>
+                        <td th:text="${d.descripcionDesviosOrdenOT}"></td>
+                        <td th:text="${d.puntosModificadosDesviosOrdenOT}"></td>
+                        <td>
+                            <a th:href="@{/ordentrabajo/desvio/eliminar/{id}/{o}(id=${d.idDesviosOrdenOT},o=${orden.idOT})}"
+                               class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                               <i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(desvios)}">
+                        <td colspan="4" class="text-center text-muted">Sin desvíos registrados</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form th:action="@{/ordentrabajo/desvio/guardar/{o}(o=${orden.idOT})}"
+                  th:object="${nuevoDesvio}" method="POST" class="border-top pt-3">
+                <div class="form-row">
+                    <div class="col-md-1 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{noItemDesviosOrdenOT}"
+                               placeholder="No." min="1" required>
+                    </div>
+                    <div class="col-md-7 mb-2">
+                        <input type="text" class="form-control form-control-sm" th:field="*{descripcionDesviosOrdenOT}"
+                               placeholder="Descripción del desvío o solicitud" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="number" class="form-control form-control-sm" th:field="*{puntosModificadosDesviosOrdenOT}"
+                               placeholder="Puntos +/-">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-sm btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Agregar</button>
+                    </div>
+                </div>
+                <small class="text-muted">Los puntos pueden ir en negativo si disminuyeron.</small>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ CIERRE Y ENVIO AL LABORATORIO ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">CIERRE Y ENVÍO AL LABORATORIO</h6>
+        </div>
+        <div class="card-body">
+
+            <!-- Estado: en ejecucion -> se puede enviar -->
+            <div th:if="${orden.estadoOT == null or orden.estadoOT == 'EN_EJECUCION'}">
+                <p class="mb-3">
+                    Al enviar la orden, el Técnico de Laboratorio la verá en su bandeja y podrá
+                    emitir el informe de resultados. Antes de enviarla, verifica que los puntos
+                    ejecutados y los desvíos estén completos.
+                </p>
+                <form th:action="@{/ordentrabajo/enviar-laboratorio/{o}(o=${orden.idOT})}" method="POST">
+                    <button type="submit" class="btn btn-primary"
+                            onclick="return confirm('¿Enviar esta orden al Técnico de Laboratorio?')">
+                        <i class="fas fa-paper-plane"></i> Enviar al Laboratorio
+                    </button>
+                </form>
+            </div>
+
+            <!-- Estado: enviada -> se puede devolver -->
+            <div th:if="${orden.estadoOT == 'ENVIADA_LABORATORIO'}">
+                <p class="mb-3">
+                    <i class="fas fa-check-circle text-info"></i>
+                    Orden enviada al Laboratorio<span
+                        th:if="${orden.fechaEnvioLaboratorio != null}"
+                        th:text="' el ' + ${#dates.format(orden.fechaEnvioLaboratorio, 'dd/MM/yyyy HH:mm')}"></span>.
+                </p>
+                <form th:action="@{/ordentrabajo/devolver/{o}(o=${orden.idOT})}" method="POST">
+                    <button type="submit" class="btn btn-outline-warning"
+                            onclick="return confirm('¿Devolver la orden a Coordinación Técnica?')">
+                        <i class="fas fa-undo"></i> Devolver a Coordinación
+                    </button>
+                </form>
+            </div>
+
+            <!-- Estado: informe emitido -> no hay accion -->
+            <div th:if="${orden.estadoOT == 'INFORME_EMITIDO'}" class="alert alert-success mb-0">
+                Esta orden ya tiene su informe de resultados emitido.
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-muted small mb-4">
+        F-PP-07-04 · Versión 00 · Orden generada por el sistema GestaLab
+    </div>
+
+</div>
+</body>
+</html>```
+
+---
+## Archivo 19 — `plantilla/plantilla.html`
+
+**Ruta:** `prototipogestalabweb/src/main/resources/templates/plantilla/plantilla.html`
+
+Un ítem nuevo, **Informes Recibidos**, visible para Coordinador Técnico y Gerente General.
+
+```html
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description"
+	content="GestaLab - Sistema de Gestión de Laboratorio">
+<meta name="author" content="">
+
+<title>GestaLab - [[${pageTitle}]]</title>
+
+<!-- Custom fonts for this template -->
+<link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
+	type="text/css">
+<link
+	href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+	rel="stylesheet">
+
+<!-- Custom styles for this template -->
+<link href="/css/sb-admin-2.min.css" rel="stylesheet">
+
+<!-- Custom styles for DataTables -->
+<link href="/vendor/datatables/dataTables.bootstrap4.min.css"
+	rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+	<!-- Page Wrapper -->
+	<div id="wrapper">
+
+		<!-- Sidebar -->
+<ul
+    th:class="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}
+               ? 'navbar-nav bg-gradient-success sidebar sidebar-dark accordion'
+               : 'navbar-nav bg-gradient-primary sidebar sidebar-dark accordion'"
+    id="accordionSidebar">
+
+			<!-- Sidebar - Brand -->
+<a
+    class="sidebar-brand d-flex align-items-center justify-content-center"
+    href="/">
+    <div class="sidebar-brand-icon rotate-n-15">
+        <i th:class="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}
+                      ? 'fas fa-file-invoice-dollar'
+                      : 'fas fa-flask'"></i>
+    </div>
+    <div class="sidebar-brand-text mx-3"
+         th:text="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}
+                   ? 'Módulo Comercial'
+                   : 'GestaLab'">GestaLab</div>
+</a>
+
+			<!-- Divider -->
+			<hr class="sidebar-divider my-0">
+
+			<!-- Nav Item - Home -->
+			<li class="nav-item"><a class="nav-link" href="/"> <i
+					class="fas fa-fw fa-home"></i> <span>Home</span></a></li>
+
+			<!-- Divider -->
+			<hr class="sidebar-divider">
+
+			<!-- Heading -->
+			<div class="sidebar-heading">Gestión</div>
+
+			<!-- Nav Item - Empleados (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/empleado/listar">
+        <i class="fas fa-fw fa-users"></i> <span>Empleados</span>
+    </a>
+</li>
+
+<!-- Nav Item - Áreas (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/area/listar">
+        <i class="fas fa-fw fa-building"></i> <span>Áreas</span>
+    </a>
+</li>
+
+<!-- Nav Item - Cargos (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/cargo/listar">
+        <i class="fas fa-fw fa-briefcase"></i> <span>Cargos</span>
+    </a>
+</li>
+
+<!-- Nav Item - Roles (solo Gerente General) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
+    <a class="nav-link" href="/rol/listar">
+        <i class="fas fa-fw fa-user-shield"></i> <span>Roles</span>
+    </a>
+</li>
+
+<!-- Nav Item - Cotizaciones (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/cotizacion/listar">
+        <i class="fas fa-fw fa-file-invoice-dollar"></i> <span>Cotizaciones</span>
+    </a>
+</li>
+
+<!-- Nav Item - Clientes (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/cliente/listar">
+        <i class="fas fa-fw fa-address-book"></i> <span>Clientes</span>
+    </a>
+</li>
+
+<!-- Nav Item - Catálogo de Ensayos (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/parametro/listar">
+        <i class="fas fa-fw fa-flask"></i> <span>Ensayos</span>
+    </a>
+</li>
+
+<!-- Nav Item - Parámetros (antes "Normas") (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/norma/listar">
+        <i class="fas fa-fw fa-book"></i> <span>Parámetros</span>
+    </a>
+</li>
+
+<!-- Nav Item - Términos y Condiciones (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/termino/listar">
+        <i class="fas fa-fw fa-file-contract"></i> <span>Términos y Condiciones</span>
+    </a>
+</li>
+
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/condicionparametro/listar">
+        <i class="fas fa-fw fa-list-ol"></i> <span>Condiciones</span>
+    </a>
+</li>
+
+<!-- Nav Item - LMP (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/lmp/listar">
+        <i class="fas fa-fw fa-ruler"></i> <span>LMP</span>
+    </a>
+</li>
+
+<!-- Nav Item - Descripción de Servicio (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/descripcionservicio/listar">
+        <i class="fas fa-fw fa-align-left"></i> <span>Descripción de Servicio</span>
+    </a>
+</li>
+
+<!-- Nav Item - Plazo de Entrega (solo Coordinador Comercial) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Comercial')}">
+    <a class="nav-link" href="/plazoentrega/listar">
+        <i class="fas fa-fw fa-clock"></i> <span>Plazo de Entrega</span>
+    </a>
+</li>
+
+<!-- ============ MODULO TECNICO ============ -->
+
+<!-- Nav Item - Planes de Muestreo (Coordinador Tecnico y Tecnico de Campo) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
+    <a class="nav-link" href="/plan/listar">
+        <i class="fas fa-fw fa-flask"></i> <span>Planes de Muestreo</span>
+    </a>
+</li>
+
+<!-- Nav Item - Bandeja del Tecnico de Campo -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de campo') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de campo'))}">
+    <a class="nav-link" href="/campo/mis-trabajos">
+        <i class="fas fa-fw fa-hard-hat"></i> <span>Mis Trabajos de Campo</span>
+    </a>
+</li>
+
+<!-- Nav Item - Cotizaciones Aprobadas (solo Coordinador Tecnico) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
+    <a class="nav-link" href="/plan/pendientes">
+        <i class="fas fa-fw fa-check-circle"></i> <span>Cotizaciones Aprobadas</span>
+    </a>
+</li>
+
+<!-- Nav Item - Ordenes de Trabajo (solo Coordinador Tecnico) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
+    <a class="nav-link" href="/ordentrabajo/listar">
+        <i class="fas fa-fw fa-clipboard-list"></i> <span>Órdenes de Trabajo</span>
+    </a>
+</li>
+
+<!-- Nav Item - Informes Recibidos (Coordinacion Tecnica) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General'))}">
+    <a class="nav-link" href="/informe/coordinacion">
+        <i class="fas fa-fw fa-inbox"></i> <span>Informes Recibidos</span>
+    </a>
+</li>
+
+<!-- Nav Item - Equipos de Laboratorio (catalogo) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Laboratorista') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Analista') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General'))}">
+    <a class="nav-link" href="/equipolaboratorio/listar">
+        <i class="fas fa-fw fa-microscope"></i> <span>Equipos de Laboratorio</span>
+    </a>
+</li>
+
+<!-- Nav Item - Bandeja de Laboratorio (Tecnico de laboratorio) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Laboratorista') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Analista'))}">
+    <a class="nav-link" href="/informe/bandeja">
+        <i class="fas fa-fw fa-vials"></i> <span>Bandeja de Laboratorio</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider d-none d-md-block">
+
+<!-- Nav Item - Cerrar Sesion (visible para todos los roles, no depende de JavaScript) -->
+<li class="nav-item">
+    <a class="nav-link" href="/logout">
+        <i class="fas fa-fw fa-sign-out-alt"></i> <span>Cerrar Sesión</span>
+    </a>
+</li>
+
+			<!-- Sidebar Toggler (Sidebar) -->
+			<div class="text-center d-none d-md-inline">
+				<button class="rounded-circle border-0" id="sidebarToggle"></button>
+			</div>
+
+		</ul>
+		<!-- End of Sidebar -->
+
+		<!-- Content Wrapper -->
+		<div id="content-wrapper" class="d-flex flex-column">
+
+			<!-- Main Content -->
+			<div id="content">
+
+				<!-- Topbar -->
+				<nav
+					class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+					<!-- Sidebar Toggle (Topbar) -->
+					<button id="sidebarToggleTop"
+						class="btn btn-link d-md-none rounded-circle mr-3">
+						<i class="fa fa-bars"></i>
+					</button>
+
+					
+
+					<!-- Topbar Navbar -->
+					<ul class="navbar-nav ml-auto">
+
+						<!-- Nav Item - User Information -->
+						<li class="nav-item dropdown no-arrow"><a
+							class="nav-link dropdown-toggle" href="#" id="userDropdown"
+							role="button" data-toggle="dropdown" aria-haspopup="true"
+							aria-expanded="false"> <span
+								class="mr-2 d-none d-lg-inline text-gray-600 small"
+								th:text="${session.usuarioActual != null ? session.usuarioActual.nombre : 'Usuario'}">Usuario</span>
+								<img class="img-profile rounded-circle"
+								src="/img/undraw_profile.svg">
+						</a>
+							<div
+								class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+								aria-labelledby="userDropdown">
+								<a class="dropdown-item" href="/logout"> <i
+									class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+									Cerrar Sesión
+								</a>
+							</div></li>
+
+					</ul>
+
+				</nav>
+				<!-- End of Topbar -->
+
+				<!-- Begin Page Content -->
+				<div class="container-fluid">
+
+					<!-- Alert Messages -->
+					<div th:if="${param.success}"
+						class="alert alert-success alert-dismissible fade show"
+						role="alert">
+						<i class="fas fa-check-circle"></i> Operación realizada
+						exitosamente
+						<button type="button" class="close" data-dismiss="alert"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<div th:if="${param.error}"
+						class="alert alert-danger alert-dismissible fade show"
+						role="alert">
+						<i class="fas fa-exclamation-circle"></i> Error al procesar la
+						solicitud
+						<button type="button" class="close" data-dismiss="alert"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<div th:if="${error}"
+						class="alert alert-danger alert-dismissible fade show"
+						role="alert">
+						<i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+						<button type="button" class="close" data-dismiss="alert"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<!-- Content -->
+					<div layout:fragment="content"></div>
+
+				</div>
+				<!-- /.container-fluid -->
+
+			</div>
+			<!-- End of Main Content -->
+
+			<!-- Footer -->
+			<footer class="sticky-footer bg-white">
+				<div class="container my-auto">
+					<div class="copyright text-center my-auto">
+						<span>GestaLab &copy; 2026 - Sistema de Gestión de
+							Laboratorio</span>
+					</div>
+				</div>
+			</footer>
+			<!-- End of Footer -->
+
+		</div>
+		<!-- End of Content Wrapper -->
+
+	</div>
+	<!-- End of Page Wrapper -->
+
+	<!-- Scroll to Top Button-->
+	<a class="scroll-to-top rounded" href="#page-top"> <i
+		class="fas fa-angle-up"></i>
+	</a>
+
+	<!-- Bootstrap core JavaScript-->
+	<script src="/vendor/jquery/jquery.min.js"></script>
+	<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Core plugin JavaScript-->
+	<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+	<!-- Custom scripts for all pages-->
+	<script src="/js/sb-admin-2.min.js"></script>
+
+	<!-- Page level plugins -->
+	<script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+	<script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+	<!-- JS propio de cada página (si una página ya inicializa su propia
+	     DataTable con opciones personalizadas, debe ejecutarse ANTES que
+	     el script genérico de abajo) -->
+	<th:block layout:fragment="scripts"></th:block>
+
+	<!-- Page level custom scripts -->
+	<script th:fragment="table-script">
+		$(document)
+				.ready(
+						function() {
+							if (!$.fn.DataTable.isDataTable('#dataTable')) {
+								$('#dataTable')
+										.DataTable(
+												{
+													language : {
+														url : '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+													}
+												});
+							}
+						});
+
+		function filterTable() {
+			const searchInput = document.getElementById('searchInput').value
+					.toLowerCase();
+			const table = document.getElementById('dataTable');
+			const rows = table.getElementsByTagName('tbody')[0]
+					.getElementsByTagName('tr');
+
+			let visibleCount = 0;
+			for (let i = 0; i < rows.length; i++) {
+				const text = rows[i].textContent.toLowerCase();
+				if (text.includes(searchInput)) {
+					rows[i].style.display = '';
+					visibleCount++;
+				} else {
+					rows[i].style.display = 'none';
+				}
+			}
+
+			if (visibleCount === 0 && searchInput.length > 0) {
+				alert('No se encontraron resultados');
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			const searchInput = document.getElementById('searchInput');
+			if (searchInput) {
+				searchInput.addEventListener('keypress', function(e) {
+					if (e.key === 'Enter') {
+						filterTable();
+					}
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>```
+
+---
+# Verificación
+
+1. Aplica los 7 del backend, Clean, arranca. En el log debe salir el `alter table` con `estado_informe` y `fecha_envio_coordinacion`.
+2. Aplica los 12 del cliente, Clean, arranca.
+3. **PDF de la OT:** entra a `/ordentrabajo/detalle/6` y pulsa Descargar PDF. Debe bajar `Orden-Trabajo-OT-6.pdf`.
+4. **PDF del informe:** entra a la bandeja del laboratorio. En las órdenes marcadas "Completado" debe aparecer el botón rojo. Pruébalo desde ahí.
+5. Como técnico, abre un informe guardado y baja del todo: debe estar la tarjeta azul **Envío a Coordinación Técnica**. Envíalo.
+6. Cierra sesión y entra como Coordinadora Técnica. En el menú debe aparecer **Informes Recibidos**, con ese informe listado.
+7. Pulsa el ojo: se abre la vista de consulta, sin campos editables. Pulsa el PDF: debe descargar.
+8. Prueba a escribir `/informe/resultados/6` estando como coordinadora. Verás el formulario porque todavía no hay control de acceso por ruta — es el pendiente que te vengo señalando y que ahora sí conviene cerrar.
+
+Si algún PDF falla, el navegador te mostrará el mensaje de error en texto plano. Pásamelo tal cual.
+
+---
+
+# El pendiente que ya toca cerrar
+
+Hasta ahora el control de roles ha sido cosmético: el menú oculta opciones, pero cualquier usuario logueado puede escribir la URL. Con la separación de responsabilidades que acabas de introducir, eso deja de ser un detalle: **la coordinadora no debe poder editar, y hoy técnicamente puede** si escribe la ruta del formulario.
+
+La solución es un `HandlerInterceptor` que valide el rol de la sesión contra la ruta pedida. Son dos archivos: el interceptor y una clase de configuración que lo registre. Dime y lo armamos — es lo que convierte "el menú no lo muestra" en "el sistema no lo permite", y es exactamente el tipo de cosa que un tribunal pregunta.

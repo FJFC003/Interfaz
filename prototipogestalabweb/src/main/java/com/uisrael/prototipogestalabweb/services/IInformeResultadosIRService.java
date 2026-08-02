@@ -12,8 +12,12 @@ public interface IInformeResultadosIRService {
 	InformeResultadosIRResponseDto buscarPorId(int idInforme);
 	InformeResultadosIRResponseDto buscarPorOrden(int idOT);
 	InformeCompletoIRResponseDto buscarCompletoPorOrden(int idOT);
+
+	InformeResultadosIRResponseDto enviarACoordinacion(int idInforme);
+	List<InformeResultadosIRResponseDto> listarEnviados();
 	void eliminar(int idInforme);
 
 	InformeResultadosIRResponseDto guardarCompleto(InformeCompletoIRRequestDto dto);
+
 
 }
