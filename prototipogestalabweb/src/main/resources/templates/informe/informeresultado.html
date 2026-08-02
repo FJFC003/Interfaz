@@ -4,7 +4,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/plantilla/plantilla}">
 
 <head>
-    <title>F-PO-02-07 Informe de Resultados - GestaLab</title>
+    <title>Informe de Resultados - GestaLab</title>
 </head>
 
 <body>
@@ -12,13 +12,30 @@ layout:decorate="~{/plantilla/plantilla}">
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-file-medical-alt"></i>
-            F-PO-02-07: Informe de Resultados del Monitoreo de Agua
+            <i class="fas fa-file-medical-alt"></i> Informe de Resultados
             <small class="text-muted" th:text="'OT-' + ${orden.idOT}"></small>
         </h1>
-        <a href="/informe/bandeja" class="btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left"></i> Volver a la bandeja
-        </a>
+        <div>
+            <a href="/informe/bandeja" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left"></i> Volver a la bandeja
+            </a>
+            <a th:if="${informeGuardado}"
+               th:href="@{/informe/pdf/{id}(id=${orden.idOT})}"
+               class="btn btn-sm btn-danger shadow-sm">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i> El informe se guardó correctamente.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <div th:if="${informeGuardado}" class="alert alert-secondary small">
+        <i class="fas fa-lock-open"></i>
+        Este informe ya está guardado. Los datos que ve son los almacenados; si los modifica y
+        vuelve a guardar, se actualizarán.
     </div>
 
     <div class="alert alert-info small">
@@ -587,10 +604,6 @@ layout:decorate="~{/plantilla/plantilla}">
             </div>
         </div>
 
-        <div class="text-muted small mb-4">
-            F-PO-02-07 · Versión 00, del 01 de octubre de 2025 · Laboratorios GestaLab Cía. Ltda.
-        </div>
-
         <!-- ============ UN SOLO BOTON DE GUARDAR ============ -->
         <div class="form-group mb-5">
             <button type="submit" class="btn btn-primary btn-lg">
@@ -598,6 +611,11 @@ layout:decorate="~{/plantilla/plantilla}">
             </button>
             <a href="/informe/bandeja" class="btn btn-secondary btn-lg">
                 <i class="fas fa-times"></i> Cancelar
+            </a>
+            <a th:if="${informeGuardado}"
+               th:href="@{/informe/pdf/{id}(id=${orden.idOT})}"
+               class="btn btn-danger btn-lg">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
             </a>
         </div>
 
@@ -641,4 +659,24 @@ layout:decorate="~{/plantilla/plantilla}">
 </th:block>
 
 </body>
-</html>
+</html>```
+
+---
+# Verificación
+
+1. Aplica el backend, Clean, arranca. Prueba `http://localhost:8080/api/gestalab/informe/completo/6`: si esa orden no tiene informe debe responder 204 sin cuerpo; si lo tiene, el JSON con las tres listas.
+2. Aplica el cliente, Clean, arranca.
+3. Abre un informe, llénalo y guarda. Debe quedarse en la misma pantalla con el aviso verde.
+4. **Sal a la bandeja y vuelve a entrar.** Todo lo que escribiste debe seguir ahí.
+5. Cambia un resultado y guarda otra vez. Revisa en la base que `resultados_ir` **no** duplicó filas: deben ser las mismas con el valor actualizado.
+6. Pulsa **Descargar PDF**. Debe bajar `Informe-IR-6.pdf` con tres páginas.
+
+Si el PDF falla, el endpoint devuelve el mensaje de error como texto plano en el navegador en lugar de una descarga rota. Casi siempre será un problema de XHTML en la plantilla, y el mensaje te dirá la línea.
+
+---
+
+# Dos cosas que quedan pendientes
+
+**Filas borradas.** Si abres un informe guardado y vacías una fila que antes tenía datos, esa fila **no se elimina** de la base: el guardado solo inserta y actualiza. Para resolverlo bien, `guardarInformeCompleto()` debería borrar las filas del informe antes de reinsertar. Es un cambio de una decena de líneas en el caso de uso del backend; dime si lo quieres ahora.
+
+**El estado INFORME_EMITIDO.** Sigue sin asignarse. Ahora tiene más sentido cerrarlo, porque ya existe el momento exacto en que ocurre: cuando se guarda el informe con éxito. Sería un `PUT /ordentrabajo/informe-emitido/{idOT}` llamado justo después de `guardarCompleto()`.

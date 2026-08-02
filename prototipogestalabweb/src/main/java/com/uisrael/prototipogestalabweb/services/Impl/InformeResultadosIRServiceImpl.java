@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.uisrael.prototipogestalabweb.model.dto.integrador.InformeCompletoIRRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.integrador.InformeCompletoIRResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.InformeResultadosIRResponseDto;
 import com.uisrael.prototipogestalabweb.services.IInformeResultadosIRService;
 
@@ -41,6 +42,12 @@ public class InformeResultadosIRServiceImpl implements IInformeResultadosIRServi
 	public void eliminar(int idInforme) {
 		webClient.delete().uri("/gestalab/informe/{id}", idInforme)
 				.retrieve().toBodilessEntity().block();
+	}
+
+	@Override
+	public InformeCompletoIRResponseDto buscarCompletoPorOrden(int idOT) {
+		return webClient.get().uri("/gestalab/informe/completo/{id}", idOT)
+				.retrieve().bodyToMono(InformeCompletoIRResponseDto.class).block();
 	}
 
 	@Override
