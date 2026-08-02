@@ -37,6 +37,11 @@ public class LoginController {
 
 			String rol = usuario.getRol() == null ? "" : usuario.getRol().trim();
 
+			// Gerente General -> administracion de empleados
+			if (rol.equalsIgnoreCase("Gerente General")) {
+				return "redirect:/empleado/listar";
+			}
+
 			// Coordinacion Comercial -> cotizaciones
 			if (rol.equalsIgnoreCase("Coordinador Comercial")) {
 				return "redirect:/cotizacion/listar";
@@ -47,14 +52,20 @@ public class LoginController {
 				return "redirect:/plan/listar";
 			}
 
+			// Tecnico de Laboratorio -> bandeja de informes de resultados
+			if (rol.equalsIgnoreCase("Tecnico de laboratorio") || rol.equalsIgnoreCase("Técnico de laboratorio")
+					|| rol.equalsIgnoreCase("Laboratorista") || rol.equalsIgnoreCase("Analista")) {
+				return "redirect:/informe/bandeja";
+			}
+
 			// Tecnico de Campo -> su bandeja de trabajos asignados
 			if (rol.equalsIgnoreCase("Tecnico") || rol.equalsIgnoreCase("Técnico")
 					|| rol.equalsIgnoreCase("Tecnico de campo") || rol.equalsIgnoreCase("Técnico de campo")) {
 				return "redirect:/campo/mis-trabajos";
 			}
 
-			// Gerente General y cualquier otro rol
-			return "redirect:/empleado/listar";
+			// Cualquier otro rol -> pantalla de inicio neutra
+			return "redirect:/";
 
 		} catch (WebClientResponseException ex) {
 			model.addAttribute("error", "Correo o contraseña incorrectos, o el usuario no tiene un rol asignado.");

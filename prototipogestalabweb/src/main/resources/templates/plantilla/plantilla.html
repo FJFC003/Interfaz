@@ -190,6 +190,13 @@
     </a>
 </li>
 
+<!-- Nav Item - Bandeja de Laboratorio (Tecnico de laboratorio) -->
+<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de laboratorio') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Laboratorista') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Analista'))}">
+    <a class="nav-link" href="/informe/bandeja">
+        <i class="fas fa-fw fa-vials"></i> <span>Bandeja de Laboratorio</span>
+    </a>
+</li>
+
 <!-- Divider -->
 <hr class="sidebar-divider d-none d-md-block">
 
