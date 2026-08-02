@@ -10,10 +10,23 @@ layout:decorate="~{/plantilla/plantilla}">
         <h1 class="h3 mb-0 text-gray-800">
             <i class="fas fa-clipboard-list"></i> F-PP-07-04: Orden de Ejecución del Trabajo
             <small class="text-muted" th:text="'OT-' + ${orden.idOT}"></small>
+
+            <!-- Estado del flujo hacia el laboratorio -->
+            <span th:if="${orden.estadoOT == null or orden.estadoOT == 'EN_EJECUCION'}"
+                  class="badge badge-secondary align-middle">En ejecución</span>
+            <span th:if="${orden.estadoOT == 'ENVIADA_LABORATORIO'}"
+                  class="badge badge-info align-middle">Enviada al Laboratorio</span>
+            <span th:if="${orden.estadoOT == 'INFORME_EMITIDO'}"
+                  class="badge badge-success align-middle">Informe emitido</span>
         </h1>
-        <a href="/ordentrabajo/listar" class="btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
+        <div>
+            <a href="/ordentrabajo/listar" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <a href="/ordentrabajo/listar?success=true" class="btn btn-sm btn-success shadow-sm">
+                <i class="fas fa-save"></i> Guardar y cerrar
+            </a>
+        </div>
     </div>
 
     <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
@@ -22,6 +35,19 @@ layout:decorate="~{/plantilla/plantilla}">
     </div>
     <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show">
         Registro eliminado.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.enviada}" class="alert alert-info alert-dismissible fade show">
+        <i class="fas fa-paper-plane"></i> La orden fue enviada al Técnico de Laboratorio.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.devuelta}" class="alert alert-warning alert-dismissible fade show">
+        La orden regresó a Coordinación Técnica.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.duplicada}" class="alert alert-warning alert-dismissible fade show">
+        <i class="fas fa-info-circle"></i>
+        Este plan de muestreo ya tenía una orden emitida. Se abrió la existente en lugar de crear una nueva.
         <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
 
@@ -186,6 +212,52 @@ layout:decorate="~{/plantilla/plantilla}">
                 </div>
                 <small class="text-muted">Los puntos pueden ir en negativo si disminuyeron.</small>
             </form>
+        </div>
+    </div>
+
+    <!-- ============ CIERRE Y ENVIO AL LABORATORIO ============ -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color:#9dc3e6;">
+            <h6 class="m-0 font-weight-bold">CIERRE Y ENVÍO AL LABORATORIO</h6>
+        </div>
+        <div class="card-body">
+
+            <!-- Estado: en ejecucion -> se puede enviar -->
+            <div th:if="${orden.estadoOT == null or orden.estadoOT == 'EN_EJECUCION'}">
+                <p class="mb-3">
+                    Al enviar la orden, el Técnico de Laboratorio la verá en su bandeja y podrá
+                    emitir el informe de resultados. Antes de enviarla, verifica que los puntos
+                    ejecutados y los desvíos estén completos.
+                </p>
+                <form th:action="@{/ordentrabajo/enviar-laboratorio/{o}(o=${orden.idOT})}" method="POST">
+                    <button type="submit" class="btn btn-primary"
+                            onclick="return confirm('¿Enviar esta orden al Técnico de Laboratorio?')">
+                        <i class="fas fa-paper-plane"></i> Enviar al Laboratorio
+                    </button>
+                </form>
+            </div>
+
+            <!-- Estado: enviada -> se puede devolver -->
+            <div th:if="${orden.estadoOT == 'ENVIADA_LABORATORIO'}">
+                <p class="mb-3">
+                    <i class="fas fa-check-circle text-info"></i>
+                    Orden enviada al Laboratorio<span
+                        th:if="${orden.fechaEnvioLaboratorio != null}"
+                        th:text="' el ' + ${#dates.format(orden.fechaEnvioLaboratorio, 'dd/MM/yyyy HH:mm')}"></span>.
+                </p>
+                <form th:action="@{/ordentrabajo/devolver/{o}(o=${orden.idOT})}" method="POST">
+                    <button type="submit" class="btn btn-outline-warning"
+                            onclick="return confirm('¿Devolver la orden a Coordinación Técnica?')">
+                        <i class="fas fa-undo"></i> Devolver a Coordinación
+                    </button>
+                </form>
+            </div>
+
+            <!-- Estado: informe emitido -> no hay accion -->
+            <div th:if="${orden.estadoOT == 'INFORME_EMITIDO'}" class="alert alert-success mb-0">
+                Esta orden ya tiene su informe de resultados emitido.
+            </div>
+
         </div>
     </div>
 

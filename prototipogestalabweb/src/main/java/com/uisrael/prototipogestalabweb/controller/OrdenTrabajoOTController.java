@@ -138,6 +138,13 @@ public class OrdenTrabajoOTController {
 	@PostMapping("/guardar")
 	public String guardarOrden(@ModelAttribute OrdenTrabajoOTRequestDto orden, Model model) {
 		try {
+			// Guarda contra el doble envio: si el plan ya tiene una orden emitida,
+			// no se crea otra; se abre la que ya existe.
+			List<OrdenTrabajoOTResponseDto> yaEmitidas = ordenService.listarPorPlan(orden.getFkPlanMuestreo());
+			if (yaEmitidas != null && !yaEmitidas.isEmpty()) {
+				return "redirect:/ordentrabajo/detalle/" + yaEmitidas.get(0).getIdOT() + "?duplicada=true";
+			}
+
 			OrdenTrabajoOTResponseDto creada = ordenService.guardar(orden);
 			generarLineasDesdeElPlan(creada.getIdOT(), orden.getFkPlanMuestreo());
 			return "redirect:/ordentrabajo/detalle/" + creada.getIdOT() + "?success=true";
@@ -233,6 +240,36 @@ public class OrdenTrabajoOTController {
 			return "ordentrabajo/detalleorden";
 		} catch (Exception e) {
 			model.addAttribute("mensajeError", e.getMessage());
+			return "error";
+		}
+	}
+
+	// ================= ENVIO AL LABORATORIO =================
+
+	@PostMapping("/enviar-laboratorio/{idOT}")
+	public String enviarALaboratorio(@PathVariable int idOT, Model model) {
+		try {
+			ordenService.enviarALaboratorio(idOT);
+			return "redirect:/ordentrabajo/detalle/" + idOT + "?enviada=true";
+		} catch (WebClientResponseException ex) {
+			model.addAttribute("mensajeError", ex.getResponseBodyAsString());
+			return "error";
+		} catch (Exception ex) {
+			model.addAttribute("mensajeError", ex.getMessage());
+			return "error";
+		}
+	}
+
+	@PostMapping("/devolver/{idOT}")
+	public String devolverACoordinacion(@PathVariable int idOT, Model model) {
+		try {
+			ordenService.devolverACoordinacion(idOT);
+			return "redirect:/ordentrabajo/detalle/" + idOT + "?devuelta=true";
+		} catch (WebClientResponseException ex) {
+			model.addAttribute("mensajeError", ex.getResponseBodyAsString());
+			return "error";
+		} catch (Exception ex) {
+			model.addAttribute("mensajeError", ex.getMessage());
 			return "error";
 		}
 	}

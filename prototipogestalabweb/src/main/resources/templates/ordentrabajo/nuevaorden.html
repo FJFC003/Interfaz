@@ -16,7 +16,8 @@ layout:decorate="~{/plantilla/plantilla}">
         Revise y confirme.
     </div>
 
-    <form th:action="@{/ordentrabajo/guardar}" th:object="${orden}" method="POST">
+    <form th:action="@{/ordentrabajo/guardar}" th:object="${orden}" method="POST"
+          id="formOrden" onsubmit="return bloquearDobleEnvio()">
         <input type="hidden" th:field="*{fkPlanMuestreo}">
 
         <!-- ============ CABECERA ============ -->
@@ -133,7 +134,7 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
 
         <div class="form-group mb-5">
-            <button type="submit" class="btn btn-primary btn-lg">
+            <button type="submit" class="btn btn-primary btn-lg" id="btnEmitir">
                 <i class="fas fa-save"></i> Emitir Orden de Trabajo
             </button>
             <a href="/ordentrabajo/pendientes" class="btn btn-secondary">
@@ -144,5 +145,28 @@ layout:decorate="~{/plantilla/plantilla}">
     </form>
 
 </div>
+
+<!-- ============ SCRIPTS ============ -->
+<th:block layout:fragment="scripts">
+    <script>
+        // Emitir una orden dispara varias llamadas al backend, asi que la respuesta
+        // tarda un par de segundos. Sin este bloqueo, un segundo clic genera una
+        // orden duplicada.
+        var ordenEnviada = false;
+
+        function bloquearDobleEnvio() {
+            if (ordenEnviada) {
+                return false;
+            }
+            ordenEnviada = true;
+
+            var boton = document.getElementById('btnEmitir');
+            boton.disabled = true;
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Emitiendo orden...';
+            return true;
+        }
+    </script>
+</th:block>
+
 </body>
 </html>
