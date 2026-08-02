@@ -20,19 +20,19 @@ public class DetalleOrdenTrabajoOTServiceImpl implements IDetalleOrdenTrabajoOTS
 
 	@Override
 	public DetalleOrdenTrabajoOTResponseDto guardar(DetalleOrdenTrabajoOTRequestDto dto) {
-		return webClient.post().uri("/gestalab/detalle-orden-trabajo")
+		return webClient.post().uri("/gestalab/detalleOrdenTrabajo")
 				.bodyValue(dto).retrieve().bodyToMono(DetalleOrdenTrabajoOTResponseDto.class).block();
 	}
 
 	@Override
 	public void eliminar(int idDetalleOrdenOT) {
-		webClient.delete().uri("/gestalab/detalle-orden-trabajo/{id}", idDetalleOrdenOT)
+		webClient.delete().uri("/gestalab/detalleOrdenTrabajo/{id}", idDetalleOrdenOT)
 				.retrieve().toBodilessEntity().block();
 	}
 
 	@Override
 	public List<DetalleOrdenTrabajoOTResponseDto> listarPorOrden(int idOT) {
-		return webClient.get().uri("/gestalab/detalle-orden-trabajo/orden/{idOT}", idOT)
+		return webClient.get().uri("/gestalab/detalleOrdenTrabajo/orden/{idOT}", idOT)
 				.retrieve().bodyToFlux(DetalleOrdenTrabajoOTResponseDto.class).collectList().block();
 	}
 

@@ -20,19 +20,19 @@ public class DesviosOrdenOTServiceImpl implements IDesviosOrdenOTService {
 
 	@Override
 	public DesviosOrdenOTResponseDto guardar(DesviosOrdenOTRequestDto dto) {
-		return webClient.post().uri("/gestalab/desvios-orden-trabajo")
+		return webClient.post().uri("/gestalab/desviosdeorden")
 				.bodyValue(dto).retrieve().bodyToMono(DesviosOrdenOTResponseDto.class).block();
 	}
 
 	@Override
 	public void eliminar(int idDesviosOrdenOT) {
-		webClient.delete().uri("/gestalab/desvios-orden-trabajo/{id}", idDesviosOrdenOT)
+		webClient.delete().uri("/gestalab/desviosdeorden/{id}", idDesviosOrdenOT)
 				.retrieve().toBodilessEntity().block();
 	}
 
 	@Override
 	public List<DesviosOrdenOTResponseDto> listarPorOrden(int idOT) {
-		return webClient.get().uri("/gestalab/desvios-orden-trabajo/orden/{idOT}", idOT)
+		return webClient.get().uri("/gestalab/desviosdeorden/orden/{idOT}", idOT)
 				.retrieve().bodyToFlux(DesviosOrdenOTResponseDto.class).collectList().block();
 	}
 
