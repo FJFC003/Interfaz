@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -323,8 +324,11 @@ public class InformeResultadosIRController {
 
 			HttpHeaders cabeceras = new HttpHeaders();
 			cabeceras.setContentType(MediaType.APPLICATION_PDF);
-			cabeceras.set(HttpHeaders.CONTENT_DISPOSITION,
-					"attachment; filename="" + nombreArchivo + """);
+			// Se usa ContentDisposition en lugar de armar la cabecera a mano: el
+			// nombre del archivo se entrecomilla solo y no hacen falta comillas
+			// escapadas dentro del texto Java.
+			cabeceras.setContentDisposition(
+					ContentDisposition.attachment().filename(nombreArchivo).build());
 
 			return new ResponseEntity<>(salida.toByteArray(), cabeceras, HttpStatus.OK);
 
