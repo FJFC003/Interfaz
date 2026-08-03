@@ -50,9 +50,8 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info" title="Ver plan">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a th:href="@{/plan/campo/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-success" title="Trabajo de campo">
-                                        <i class="fas fa-hard-hat"></i>
-                                    </a>
+                                    <!-- El boton de Trabajo de Campo es exclusivo del Tecnico de Campo
+                                         y se accede desde "Mis Trabajos de Campo". Se retira de esta vista. -->
                                     <a th:href="@{/plan/pdf/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-danger" title="Descargar PDF" target="_blank">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>

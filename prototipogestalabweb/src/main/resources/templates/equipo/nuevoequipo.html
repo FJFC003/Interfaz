@@ -14,6 +14,12 @@ layout:decorate="~{/plantilla/plantilla}">
             <i class="fas fa-plus"></i> Nuevo Equipo de Laboratorio
         </h1>
 
+        <div th:if="${mensajeDuplicado}" class="alert alert-warning alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${mensajeDuplicado}">Nombre duplicado</span>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card shadow mb-4">

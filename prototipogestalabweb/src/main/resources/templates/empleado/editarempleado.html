@@ -56,7 +56,11 @@ layout:decorate="~{/plantilla/plantilla}">
                             <div class="form-group row">
                                 <div class="col-sm-4 mb-3">
                                     <label for="fechaIngreso" class="form-control-label">Fecha de Ingreso</label>
-                                    <input type="date" class="form-control" id="fechaIngreso" th:field="*{fechaIngreso}" required>
+                                    <input type="date" class="form-control bg-light" id="fechaIngreso"
+                                           th:field="*{fechaIngreso}" readonly required>
+                                    <small class="form-text text-muted">
+                                        La asigna el sistema con la fecha de hoy.
+                                    </small>
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="fechaSalida" class="form-control-label">Fecha de Salida</label>
@@ -105,10 +109,15 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <input type="text" class="form-control" readonly
                                            th:value="${usuarioActual != null ? usuarioActual.correo : 'Sin usuario asignado'}">
                                 </div>
-                                <div class="col-sm-6 mb-3">
+                                <!-- La recuperacion de contrasenia es exclusiva del Gerente General. -->
+                                <div class="col-sm-6 mb-3"
+                                     th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
                                     <label for="usuarioContrasenia" class="form-control-label">Nueva Contraseña</label>
                                     <input type="password" class="form-control" id="usuarioContrasenia" name="usuarioContrasenia"
                                            placeholder="Dejar en blanco para mantener la actual">
+                                    <small class="form-text text-muted">
+                                        Solo el Gerente General puede restablecer contraseñas.
+                                    </small>
                                 </div>
                             </div>
 

@@ -83,6 +83,8 @@ public class CotizacionController {
 	public String mostrarFormularioNuevo(Model model, HttpSession session) {
 		cargarListasDeApoyo(model);
 		CotizacionCRequestDto cotizacion = new CotizacionCRequestDto();
+		// La fecha de elaboracion es siempre el dia en que se genera la cotizacion.
+		cotizacion.setFechaElaboracionCotizacionC(new Date());
 
 		Object usuarioObj = session.getAttribute("usuarioActual");
 		if (usuarioObj instanceof LoginResponseDto usuarioActual) {
@@ -118,9 +120,9 @@ public class CotizacionController {
 			@RequestParam(required = false) List<Double> detallePrecioUnitario,
 			@RequestParam(required = false) List<String> detalleCondicion) {
 
-		if (cotizacion.getFechaElaboracionCotizacionC() == null) {
-			cotizacion.setFechaElaboracionCotizacionC(new Date());
-		}
+		// Se fija en el servidor, no se toma del formulario: el campo de la vista
+		// es de solo lectura y el dato no debe depender de lo que llegue.
+		cotizacion.setFechaElaboracionCotizacionC(new Date());
 
 		if (cotizacion.getFkCliente() == 0 && clienteNuevoNombre != null && !clienteNuevoNombre.isBlank()) {
 			ClienteCRequestDto nuevoCliente = new ClienteCRequestDto();

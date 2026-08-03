@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import jakarta.servlet.http.HttpSession;
+
 import com.uisrael.prototipogestalabweb.model.dto.request.EEPPLRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.InformacionAdicionalPLRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.request.InformacionMatrizPLRequestDto;
@@ -24,6 +26,8 @@ import com.uisrael.prototipogestalabweb.model.dto.request.VerificacionPLRequestD
 import com.uisrael.prototipogestalabweb.model.dto.response.CotizacionCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.DetalleCResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EEPPLResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.PlanMuestreoPLResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICotizacionCService;
 import com.uisrael.prototipogestalabweb.services.IDetalleCService;
@@ -104,18 +108,25 @@ public class PlanMuestreoPLController {
 
 
 	@GetMapping("/nuevo/{idCotizacion}")
-	public String mostrarFormularioNuevo(@PathVariable int idCotizacion, Model model) {
+	public String mostrarFormularioNuevo(@PathVariable int idCotizacion, HttpSession session, Model model) {
 		try {
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(idCotizacion);
 			List<DetalleCResponseDto> detalles = detalleService.listarPorCotizacion(idCotizacion);
 
 			PlanMuestreoPLRequestDto form = new PlanMuestreoPLRequestDto();
+			// Fecha de elaboracion: siempre el dia en curso.
 			form.setFechaElaboracion(new Date());
+
+			// Responsable: el empleado que tiene la sesion abierta. No se elige.
+			EmpleadoResponseDto responsable = empleadoDeLaSesion(session);
+			if (responsable != null) {
+				form.setFkResponsable(responsable.getIdEmpleado());
+			}
 
 			model.addAttribute("plan", form);
 			model.addAttribute("cotizacion", cotizacion);
 			model.addAttribute("detalles", detalles);
-			model.addAttribute("empleados", empleadoService.listarEmpleados());
+			model.addAttribute("responsable", responsable);
 			return "plan/nuevoplan";
 		} catch (Exception e) {
 			model.addAttribute("mensajeError", e.getMessage());
@@ -123,9 +134,38 @@ public class PlanMuestreoPLController {
 		}
 	}
 
+	/**
+	 * Empleado ligado al usuario de la sesion. Se usa para asignar el responsable
+	 * del plan sin dejar que se elija a otra persona de una lista.
+	 */
+	private EmpleadoResponseDto empleadoDeLaSesion(HttpSession session) {
+		Object attr = session != null ? session.getAttribute("usuarioActual") : null;
+		if (!(attr instanceof LoginResponseDto usuario)) {
+			return null;
+		}
+		for (EmpleadoResponseDto emp : empleadoService.listarEmpleados()) {
+			if (emp.getFkUsuario() != null && emp.getFkUsuario().getIdUsuario() == usuario.getIdUsuario()) {
+				return emp;
+			}
+		}
+		return null;
+	}
+
 	@PostMapping("/guardar")
-	public String guardarPlan(@ModelAttribute PlanMuestreoPLRequestDto plan, Model model) {
+	public String guardarPlan(@ModelAttribute PlanMuestreoPLRequestDto plan,
+			HttpSession session, Model model) {
 		try {
+			// Los tres datos que el sistema controla se fijan aqui, no se toman
+			// del formulario: fecha de hoy, responsable de la sesion y la
+			// identificacion, que la genera el backend cuando llega en blanco.
+			plan.setFechaElaboracion(new Date());
+			plan.setCodigoPlan(null);
+
+			EmpleadoResponseDto responsable = empleadoDeLaSesion(session);
+			if (responsable != null) {
+				plan.setFkResponsable(responsable.getIdEmpleado());
+			}
+
 			PlanMuestreoPLResponseDto creado = planService.guardar(plan);
 			prellenarDesdeCotizacion(creado.getIdPlan(), plan.getFkDetalleCotizacion());
 			return "redirect:/plan/detalle/" + creado.getIdPlan() + "?success=true";
@@ -279,8 +319,8 @@ public class PlanMuestreoPLController {
 
 	/**
 	 * Marca el plan como ENVIADO. Recien entonces aparece en la bandeja del
-	 * Tecnico de Campo. Antes se valida que tenga al menos un tecnico asignado
-	 * en Recursos y cronograma: sin eso, nadie lo recibiria.
+	 * Técnico de Campo. Antes se valida que tenga al menos un técnico asignado
+	 * en Recursos y cronograma: sin eso, nadie lo recibiría.
 	 */
 	@GetMapping("/enviar/{idPlan}")
 	public String enviarATecnico(@PathVariable int idPlan) {
@@ -295,7 +335,7 @@ public class PlanMuestreoPLController {
 		}
 	}
 
-	/** Devuelve el plan a elaboracion: deja de verlo el Tecnico de Campo. */
+	/** Devuelve el plan a elaboracion: deja de verlo el Técnico de Campo. */
 	@GetMapping("/devolver/{idPlan}")
 	public String devolverAElaboracion(@PathVariable int idPlan) {
 		try {
@@ -441,7 +481,7 @@ public class PlanMuestreoPLController {
 	}
 
 	// Devuelve al usuario a la pantalla desde la que guardo:
-	// "campo" para el Tecnico de Campo, detalle para la Coordinadora Tecnica.
+	// "campo" para el Técnico de Campo, detalle para la Coordinadora Técnica.
 	private String redirigir(int idPlan, String volverA) {
 		if ("campo".equalsIgnoreCase(volverA)) {
 			return "redirect:/plan/campo/" + idPlan + "?success=true";

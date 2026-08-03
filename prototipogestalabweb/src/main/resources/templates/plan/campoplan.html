@@ -32,7 +32,14 @@ layout:decorate="~{/plantilla/plantilla}">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
 
-    <div class="alert alert-info small">
+    <!-- Una vez enviado a Coordinacion Tecnica el plan queda cerrado para el Tecnico. -->
+    <div th:if="${plan.estadoPlan == 'COMPLETADO'}" class="alert alert-secondary">
+        <i class="fas fa-lock"></i>
+        Este plan ya fue enviado a Coordinación Técnica, por lo que quedó <strong>cerrado</strong>.
+        Puede consultarlo e imprimirlo, pero ya no se puede modificar.
+    </div>
+
+    <div th:unless="${plan.estadoPlan == 'COMPLETADO'}" class="alert alert-info small">
         <i class="fas fa-info-circle"></i>
         Complete aquí lo que se observa <strong>en el sitio</strong>. Los datos en gris vienen del plan
         y no se modifican.
@@ -100,7 +107,8 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
         <div class="card-body">
             <div th:each="m : ${matrices}" class="border rounded p-3 mb-3">
-                <form th:action="@{/plan/matriz/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                <form th:action="@{/plan/matriz/guardar/{p}(p=${plan.idPlan})}" method="POST"
+                      th:if="${plan.estadoPlan != 'COMPLETADO'}">
                     <input type="hidden" name="idInfoMatriz" th:value="${m.idInfoMatriz}">
                     <input type="hidden" name="noItem" th:value="${m.noItem}">
                     <input type="hidden" name="tipoMatriz" th:value="${m.tipoMatriz}">
@@ -147,7 +155,8 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
         <div class="card-body">
             <div th:each="p : ${parametros}" class="border rounded p-3 mb-3">
-                <form th:action="@{/plan/parametro/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                <form th:action="@{/plan/parametro/guardar/{p}(p=${plan.idPlan})}" method="POST"
+                      th:if="${plan.estadoPlan != 'COMPLETADO'}">
                     <input type="hidden" name="idParametroPL" th:value="${p.idParametroPL}">
                     <input type="hidden" name="noParametroPL" th:value="${p.noParametroPL}">
                     <input type="hidden" name="Parametros" th:value="${p.parametros}">
@@ -190,7 +199,8 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
         <div class="card-body">
             <div th:each="t : ${tiposToma}" class="border rounded p-3 mb-3">
-                <form th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                <form th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}" method="POST"
+                      th:if="${plan.estadoPlan != 'COMPLETADO'}">
                     <input type="hidden" name="idTipoFre" th:value="${t.idTipoFre}">
                     <input type="hidden" name="noItem" th:value="${t.noItem}">
                     <input type="hidden" name="frecuencia" th:value="${t.frecuencia}">
@@ -222,7 +232,8 @@ layout:decorate="~{/plantilla/plantilla}">
             </div>
 
             <!-- El Tecnico de Campo crea estas filas completas -->
-            <form th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}" method="POST" class="border-top pt-3">
+            <form th:action="@{/plan/tipotoma/guardar/{p}(p=${plan.idPlan})}" method="POST" class="border-top pt-3"
+                  th:if="${plan.estadoPlan != 'COMPLETADO'}">
                 <input type="hidden" name="volverA" value="campo">
                 <h6 class="small font-weight-bold">Registrar tipo de toma</h6>
                 <div class="form-row align-items-end">
@@ -260,7 +271,8 @@ layout:decorate="~{/plantilla/plantilla}">
                 Responda las preguntas que definió la Coordinadora Técnica.
             </p>
             <div th:each="i : ${infoAdicional}" class="border rounded p-3 mb-3">
-                <form th:action="@{/plan/infoadicional/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                <form th:action="@{/plan/infoadicional/guardar/{p}(p=${plan.idPlan})}" method="POST"
+                      th:if="${plan.estadoPlan != 'COMPLETADO'}">
                     <input type="hidden" name="idInformacion" th:value="${i.idInformacion}">
                     <input type="hidden" name="preguntas" th:value="${i.preguntas}">
                     <input type="hidden" name="volverA" value="campo">
@@ -295,7 +307,8 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
         <div class="card-body">
             <div th:each="pr : ${procedimientos}" class="border rounded p-3 mb-3">
-                <form th:action="@{/plan/procedimiento/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                <form th:action="@{/plan/procedimiento/guardar/{p}(p=${plan.idPlan})}" method="POST"
+                      th:if="${plan.estadoPlan != 'COMPLETADO'}">
                     <input type="hidden" name="idProcedimiento" th:value="${pr.idProcedimiento}">
                     <input type="hidden" name="noItem" th:value="${pr.noItem}">
                     <input type="hidden" name="Tipo" th:value="${pr.tipo}">
@@ -334,7 +347,8 @@ layout:decorate="~{/plantilla/plantilla}">
         <div class="card-body">
             <p class="small text-muted">Marque la casilla si la información declarada corresponde con lo observado en sitio.</p>
             <div th:each="v : ${verificaciones}" class="border rounded p-3 mb-3">
-                <form th:action="@{/plan/verificacion/guardar/{p}(p=${plan.idPlan})}" method="POST">
+                <form th:action="@{/plan/verificacion/guardar/{p}(p=${plan.idPlan})}" method="POST"
+                      th:if="${plan.estadoPlan != 'COMPLETADO'}">
                     <input type="hidden" name="idVerificacion" th:value="${v.idVerificacion}">
                     <input type="hidden" name="noItem" th:value="${v.noItem}">
                     <input type="hidden" name="volverA" value="campo">

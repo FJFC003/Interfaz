@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.AreaRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.AreaResponseDto;
@@ -26,7 +27,7 @@ public class AreaController {
 	}
 	
 	// Display list of employees
-    @GetMapping("/listar")
+	@GetMapping("/listar")
     public String listarAreas(Model model) {
             List<AreaResponseDto> areaBD = areaService.listarAreas();
             model.addAttribute("areas", areaBD);
@@ -43,10 +44,16 @@ public class AreaController {
 
     // Save new employee
     @PostMapping("/guardar")
-    public String guardarArea(@ModelAttribute AreaRequestDto area) {
-        
-       areaService.guardarAreas(area);
-       return "redirect:/area/listar?success=true";
+    public String guardarArea(@ModelAttribute AreaRequestDto area, Model model) {
+        try {
+            areaService.guardarAreas(area);
+            return "redirect:/area/listar?success=true";
+        } catch (WebClientResponseException.Conflict ex) {
+            // El backend responde 409 cuando el nombre ya existe.
+            model.addAttribute("area", area);
+            model.addAttribute("mensajeDuplicado", ex.getResponseBodyAsString());
+            return "area/nuevoarea";
+        }
     }
     
     @GetMapping("/editar/{id}")
@@ -69,14 +76,20 @@ public class AreaController {
     }
 
     @PostMapping("/actualizar/{id}")
-    public String actualizarArea(
-            @PathVariable int id,
-            @ModelAttribute AreaRequestDto area) {
+    public String actualizarArea(@PathVariable int id,
+            @ModelAttribute AreaRequestDto area, Model model) {
         area.setIdArea(id);
-    	try {
+        try {
             areaService.guardarAreas(area);
             return "redirect:/area/listar?success=true";
+        } catch (WebClientResponseException.Conflict ex) {
+            model.addAttribute("area", area);
+            model.addAttribute("esEdicion", true);
+            model.addAttribute("mensajeDuplicado", ex.getResponseBodyAsString());
+            return "area/editararea";
         } catch (Exception e) {
+            model.addAttribute("area", area);
+            model.addAttribute("esEdicion", true);
             return "area/editararea";
         }
     }

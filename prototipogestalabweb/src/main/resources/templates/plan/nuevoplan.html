@@ -54,13 +54,20 @@ layout:decorate="~{/plantilla/plantilla}">
 
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
-                                    <label for="codigoPlan" class="form-control-label">Identificación del plan de muestreo *</label>
-                                    <input type="text" class="form-control" id="codigoPlan" th:field="*{codigoPlan}"
-                                           placeholder="Ej: PM-26-235801" required>
+                                    <label class="form-control-label">Identificación del plan de muestreo</label>
+                                    <input type="text" class="form-control bg-light" disabled
+                                           value="La genera el sistema al guardar">
+                                    <small class="form-text text-muted">
+                                        Se asigna automáticamente y no se repite (formato PM-AAAA-0000).
+                                    </small>
                                 </div>
                                 <div class="col-sm-6 mb-3">
                                     <label for="fechaElaboracion" class="form-control-label">Fecha de elaboración *</label>
-                                    <input type="date" class="form-control" id="fechaElaboracion" th:field="*{fechaElaboracion}" required>
+                                    <input type="date" class="form-control bg-light" id="fechaElaboracion"
+                                           th:field="*{fechaElaboracion}" readonly required>
+                                    <small class="form-text text-muted">
+                                        La asigna el sistema con la fecha de hoy.
+                                    </small>
                                 </div>
                             </div>
 
@@ -74,13 +81,17 @@ layout:decorate="~{/plantilla/plantilla}">
 
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
-                                    <label for="fkResponsable" class="form-control-label">Responsable del plan de muestreo *</label>
-                                    <select class="form-control" id="fkResponsable" th:field="*{fkResponsable}" required>
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="emp : ${empleados}"
-                                                th:value="${emp.idEmpleado}"
-                                                th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
-                                    </select>
+                                    <label class="form-control-label">Responsable del plan de muestreo</label>
+                                    <!-- El responsable es siempre quien tiene la sesion abierta.
+                                         El valor viaja en un campo oculto; el visible es informativo. -->
+                                    <input type="hidden" th:field="*{fkResponsable}">
+                                    <input type="text" class="form-control bg-light" readonly
+                                           th:value="${responsable != null
+                                                   ? responsable.nombre + ' ' + responsable.apellido
+                                                   : 'No se encontró el empleado de la sesión'}">
+                                    <small th:if="${responsable == null}" class="text-danger d-block mt-1">
+                                        Su usuario no está vinculado a un empleado. Avise al Gerente General.
+                                    </small>
                                 </div>
                                 <div class="col-sm-6 mb-3">
                                     <label for="fkDetalleCotizacion" class="form-control-label">Línea de cotización (servicio) *</label>

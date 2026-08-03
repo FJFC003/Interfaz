@@ -122,6 +122,13 @@ public class InformeResultadosIRController {
 			InformeCompletoIRResponseDto guardado = buscarInformeGuardado(idOT);
 			boolean yaExiste = guardado != null && guardado.getInforme() != null;
 
+			// Una vez enviado a Coordinacion Tecnica el informe queda cerrado para
+			// el laboratorio: se le muestra la vista de consulta, que no tiene
+			// formulario ni ruta de guardado.
+			if (yaExiste && "ENVIADO_COORDINACION".equals(guardado.getInforme().getEstadoInforme())) {
+				return "redirect:/informe/ver/" + idOT + "?cerrado=true";
+			}
+
 			InformeCompletoIRRequestDto form = yaExiste
 					? reconstruirDesdeGuardado(guardado, idOT)
 					: crearFormularioNuevo(orden, idOT);
@@ -317,7 +324,7 @@ public class InformeResultadosIRController {
 			HttpHeaders cabeceras = new HttpHeaders();
 			cabeceras.setContentType(MediaType.APPLICATION_PDF);
 			cabeceras.set(HttpHeaders.CONTENT_DISPOSITION,
-					"attachment; filename=\"" + nombreArchivo + "\"");
+					"attachment; filename="" + nombreArchivo + """);
 
 			return new ResponseEntity<>(salida.toByteArray(), cabeceras, HttpStatus.OK);
 
@@ -332,8 +339,8 @@ public class InformeResultadosIRController {
 	// ================= FLUJO HACIA LA COORDINACION TECNICA =================
 
 	/**
-	 * El Tecnico de Laboratorio da por terminado el informe y lo envia a la
-	 * Coordinacion Tecnica. Desde ese momento la coordinadora puede verlo.
+	 * El Técnico de Laboratorio da por terminado el informe y lo envía a la
+	 * Coordinación Técnica. Desde ese momento la coordinadora puede verlo.
 	 */
 	@PostMapping("/enviar/{idOT}")
 	public String enviarACoordinacion(@PathVariable int idOT, Model model) {
@@ -341,7 +348,7 @@ public class InformeResultadosIRController {
 			InformeCompletoIRResponseDto guardado = informeService.buscarCompletoPorOrden(idOT);
 			if (guardado == null || guardado.getInforme() == null) {
 				model.addAttribute("mensajeError",
-						"Primero debe guardar el informe antes de enviarlo a Coordinacion.");
+						"Primero debe guardar el informe antes de enviarlo a Coordinación.");
 				return "error";
 			}
 
@@ -357,7 +364,7 @@ public class InformeResultadosIRController {
 		}
 	}
 
-	/** Bandeja de la Coordinacion Tecnica: informes recibidos, solo lectura. */
+	/** Bandeja de la Coordinación Técnica: informes recibidos, solo lectura. */
 	@GetMapping("/coordinacion")
 	public String bandejaCoordinacion(Model model) {
 		try {
@@ -370,15 +377,15 @@ public class InformeResultadosIRController {
 	}
 
 	/**
-	 * Vista de solo lectura del informe. No tiene formulario ni boton de guardar:
-	 * la Coordinacion Tecnica consulta y descarga, no edita.
+	 * Vista de solo lectura del informe. No tiene formulario ni botón de guardar:
+	 * la Coordinación Técnica consulta y descarga, no edita.
 	 */
 	@GetMapping("/ver/{idOT}")
 	public String verInforme(@PathVariable int idOT, Model model) {
 		try {
 			InformeCompletoIRResponseDto guardado = informeService.buscarCompletoPorOrden(idOT);
 			if (guardado == null || guardado.getInforme() == null) {
-				model.addAttribute("mensajeError", "Esa orden todavia no tiene informe emitido.");
+				model.addAttribute("mensajeError", "Esa orden todavía no tiene informe emitido.");
 				return "error";
 			}
 

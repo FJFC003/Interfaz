@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.EquipoLaboratorioRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EquipoLaboratorioResponseDto;
@@ -39,9 +40,16 @@ public class EquipoLaboratorioController {
 	}
 
 	@PostMapping("/guardar")
-	public String guardar(@ModelAttribute EquipoLaboratorioRequestDto item) {
-		service.guardarEquipo(item);
-		return "redirect:/equipolaboratorio/listar?success=true";
+	public String guardar(@ModelAttribute EquipoLaboratorioRequestDto item, Model model) {
+		try {
+			service.guardarEquipo(item);
+			return "redirect:/equipolaboratorio/listar?success=true";
+		} catch (WebClientResponseException.Conflict ex) {
+			// El backend responde 409 cuando el codigo interno ya existe.
+			model.addAttribute("item", item);
+			model.addAttribute("mensajeDuplicado", ex.getResponseBodyAsString());
+			return "equipo/nuevoequipo";
+		}
 	}
 
 	@GetMapping("/editar/{id}")
@@ -68,12 +76,19 @@ public class EquipoLaboratorioController {
 	}
 
 	@PostMapping("/actualizar/{id}")
-	public String actualizar(@PathVariable int id, @ModelAttribute EquipoLaboratorioRequestDto item) {
+	public String actualizar(@PathVariable int id, @ModelAttribute EquipoLaboratorioRequestDto item, Model model) {
 		item.setIdEquipoLab(id);
 		try {
 			service.guardarEquipo(item);
 			return "redirect:/equipolaboratorio/listar?success=true";
+		} catch (WebClientResponseException.Conflict ex) {
+			model.addAttribute("item", item);
+			model.addAttribute("esEdicion", true);
+			model.addAttribute("mensajeDuplicado", ex.getResponseBodyAsString());
+			return "equipo/editarequipo";
 		} catch (Exception e) {
+			model.addAttribute("item", item);
+			model.addAttribute("esEdicion", true);
 			return "equipo/editarequipo";
 		}
 	}
@@ -88,5 +103,6 @@ public class EquipoLaboratorioController {
 			return "redirect:/equipolaboratorio/listar?error=true";
 		}
 	}
+
 
 }

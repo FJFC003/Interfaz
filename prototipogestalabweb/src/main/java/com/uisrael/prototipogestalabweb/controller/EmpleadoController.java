@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
+
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.uisrael.prototipogestalabweb.model.dto.request.EmpleadoRequestDto;
@@ -67,11 +71,14 @@ public class EmpleadoController {
     // Show create employee form
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
+            // La fecha de ingreso la fija el sistema: se muestra pero no se elige.
+            EmpleadoRequestDto empleadoNuevo = new EmpleadoRequestDto();
+            empleadoNuevo.setFechaIngreso(new Date());
+            model.addAttribute("empleado", empleadoNuevo);
+
             List<AreaResponseDto> areas = areaService.listarAreas();
             List<CargoResponseDto> cargos = cargoService.listarCargos();
             List<RolResponseDto> roles = rolService.listarRoles();
-            
-            model.addAttribute("empleado", new EmpleadoRequestDto());
             model.addAttribute("areas", areas);
             model.addAttribute("cargos", cargos);
             model.addAttribute("roles", roles);
@@ -95,6 +102,9 @@ public class EmpleadoController {
     				Model model) {
 
     	try {
+    		// La fecha de ingreso siempre es la del dia en que se registra.
+    		empleado.setFechaIngreso(new Date());
+
     		// 1. Create the user account
     		UsuarioRequestDto nuevoUsuario = new UsuarioRequestDto();
     		nuevoUsuario.setNombre(usuarioNombre);
@@ -178,9 +188,16 @@ public class EmpleadoController {
     		@PathVariable int id,
     		@ModelAttribute EmpleadoRequestDto empleado,
     		@ModelAttribute("usuarioContrasenia") String usuarioContrasenia,
+    		HttpSession session,
     		Model model) {
     	empleado.setIdEmpleado(id);
     	try {
+    		// La recuperacion de contrasenia es exclusiva del Gerente General.
+    		// Aunque alguien manipule el formulario, aqui se descarta el valor.
+    		if (!esGerenteGeneral(session)) {
+    			usuarioContrasenia = null;
+    		}
+
     		// If a new password was typed during edit, update the linked Usuario too
     		if (usuarioContrasenia != null && !usuarioContrasenia.isBlank() && empleado.getFkUsuario() > 0) {
     			UsuarioResponseDto usuarioActual = usuarioService.listarUsuarios().stream()
@@ -242,4 +259,16 @@ public class EmpleadoController {
     	return empleado.getIdEmpleado() > 0 ? "empleado/editarempleado" : "empleado/nuevoempleado";
     }
     
+
+    /**
+     * Indica si quien tiene la sesion abierta es Gerente General. Se usa para
+     * habilitar el cambio de contrasenia, que es exclusivo de ese rol.
+     */
+    private boolean esGerenteGeneral(HttpSession session) {
+        Object attr = session != null ? session.getAttribute("usuarioActual") : null;
+        if (!(attr instanceof LoginResponseDto usuario) || usuario.getRol() == null) {
+            return false;
+        }
+        return "Gerente General".equalsIgnoreCase(usuario.getRol().trim());
+    }
 }
