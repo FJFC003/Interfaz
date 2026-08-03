@@ -603,9 +603,12 @@ layout:decorate="~{/plantilla/plantilla}">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="border-bottom mb-2" style="height:70px;"></div>
+                        <!-- Sin guiones bajos dentro de la expresion: Thymeleaf interpreta
+                             __texto__ como una preinstruccion y trata de evaluar lo que hay
+                             entre los guiones. La linea de firma la dibuja el borde de arriba. -->
                         <p class="mb-0" th:text="${orden.fkResponsableEmision != null
                                 ? 'Ing. ' + orden.fkResponsableEmision.nombre + ' ' + orden.fkResponsableEmision.apellido
-                                : 'Ing. ______________________'}"></p>
+                                : 'Ing.'}"></p>
                         <p class="mb-0 small text-muted">Coordinación Técnica</p>
                         <p class="mb-0 font-weight-bold">LABORATORIOS GESTALAB CÍA. LTDA.</p>
                     </div>
