@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import com.uisrael.prototipogestalabweb.model.dto.request.LoginRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
 import com.uisrael.prototipogestalabweb.services.ILoginService;
+import com.uisrael.prototipogestalabweb.services.IRecuperacionAccesoService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -17,10 +18,13 @@ import jakarta.servlet.http.HttpSession;
 public class LoginController {
 	
 	private final ILoginService loginService;
+	private final IRecuperacionAccesoService recuperacionService;
 
-	public LoginController(ILoginService loginService) {
+	public LoginController(ILoginService loginService,
+			IRecuperacionAccesoService recuperacionService) {
 		super();
 		this.loginService = loginService;
+		this.recuperacionService = recuperacionService;
 	}
 	
 	@GetMapping("/login")
@@ -39,6 +43,12 @@ public class LoginController {
 
 			// Gerente General -> administracion de empleados
 			if (rol.equalsIgnoreCase("Gerente General")) {
+
+				// Si todavia no tiene pregunta de seguridad, se le pide configurarla.
+				// Sin esto, olvidar la contrasena la dejaria fuera del sistema.
+				if (!tienePreguntaConfigurada(usuario.getIdUsuario())) {
+					return "redirect:/seguridad/pregunta?primeraVez=true";
+				}
 				return "redirect:/empleado/listar";
 			}
 
@@ -78,10 +88,22 @@ public class LoginController {
 		}
 	}
 
+	/**
+	 * Si la consulta falla por cualquier motivo se asume que si esta configurada,
+	 * para no bloquear el acceso por un problema de red.
+	 */
+	private boolean tienePreguntaConfigurada(int idUsuario) {
+		try {
+			return recuperacionService.tieneConfigurada(idUsuario);
+		} catch (Exception ex) {
+			return true;
+		}
+	}
+
 	@GetMapping("/logout")
-	public String logout(HttpSession session) {
+	public String cerrarSesion(HttpSession session) {
 		session.invalidate();
 		return "redirect:/login";
 	}
-
+	
 }

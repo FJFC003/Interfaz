@@ -14,6 +14,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				.excludePathPatterns(
 						"/login",
 						"/logout",
+						// La recuperacion de acceso es publica por definicion:
+						// quien la usa es precisamente quien no puede iniciar sesion.
+						"/recuperar",
+						"/recuperar/**",
 						"/css/**",
 						"/js/**",
 						"/vendor/**",

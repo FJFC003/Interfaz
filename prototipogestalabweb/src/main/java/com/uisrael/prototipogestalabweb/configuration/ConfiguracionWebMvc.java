@@ -11,9 +11,11 @@ public class ConfiguracionWebMvc implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new SeguridadInterceptor())
 				// Solo las rutas de los modulos protegidos llegan al interceptor.
-				.addPathPatterns("/empleado/**", "/area/**", "/cargo/**", "/rol/**")
+				.addPathPatterns("/empleado/**", "/area/**", "/cargo/**", "/rol/**",
+						"/seguridad/**")
 				// El login y los recursos estaticos quedan fuera para no bloquear el arranque.
-				.excludePathPatterns("/login", "/logout", "/css/**", "/js/**", "/img/**", "/vendor/**");
+				.excludePathPatterns("/login", "/logout", "/recuperar", "/recuperar/**",
+						"/css/**", "/js/**", "/img/**", "/vendor/**");
 	}
 
 }

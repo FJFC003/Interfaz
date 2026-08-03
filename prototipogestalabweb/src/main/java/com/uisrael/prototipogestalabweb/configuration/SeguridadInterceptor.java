@@ -20,12 +20,12 @@ import jakarta.servlet.http.HttpSession;
  */
 public class SeguridadInterceptor implements HandlerInterceptor {
 
-	/** Prefijo de ruta -> roles que pueden entrar. */
 	private static final Map<String, List<String>> RUTAS_PROTEGIDAS = Map.of(
-			"/empleado", List.of("Gerente General"),
-			"/area",     List.of("Gerente General"),
-			"/cargo",    List.of("Gerente General"),
-			"/rol",      List.of("Gerente General"));
+			"/empleado",  List.of("Gerente General"),
+			"/area",      List.of("Gerente General"),
+			"/cargo",     List.of("Gerente General"),
+			"/rol",       List.of("Gerente General"),
+			"/seguridad", List.of("Gerente General"));
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

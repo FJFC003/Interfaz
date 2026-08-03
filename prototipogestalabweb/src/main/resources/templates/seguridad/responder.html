@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pregunta de Seguridad - GestaLab</title>
+
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-6 col-lg-7 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-5">
+
+                        <div class="text-center mb-4">
+                            <i class="fas fa-user-shield fa-3x text-primary mb-2"></i>
+                            <h1 class="h4 text-gray-900">Verificación de Identidad</h1>
+                        </div>
+
+                        <div th:if="${error}" class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                        </div>
+
+                        <div class="card bg-light border-left-primary mb-4">
+                            <div class="card-body py-3">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Su pregunta de seguridad
+                                </div>
+                                <div class="h6 mb-0 text-gray-800" th:text="${pregunta}">Pregunta</div>
+                            </div>
+                        </div>
+
+                        <form th:action="@{/recuperar/responder}" th:object="${datos}" method="POST">
+
+                            <div class="form-group">
+                                <label for="respuesta">Respuesta</label>
+                                <input type="text" class="form-control" id="respuesta"
+                                       th:field="*{respuesta}" required autofocus autocomplete="off">
+                                <small class="form-text text-muted">
+                                    No importan las mayúsculas ni las tildes.
+                                </small>
+                            </div>
+
+                            <hr>
+
+                            <div class="form-group">
+                                <label for="nuevaContrasenia">Nueva contraseña</label>
+                                <input type="password" class="form-control" id="nuevaContrasenia"
+                                       th:field="*{nuevaContrasenia}" required minlength="8">
+                                <small class="form-text text-muted">Mínimo 8 caracteres.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmacionContrasenia">Repita la nueva contraseña</label>
+                                <input type="password" class="form-control" id="confirmacionContrasenia"
+                                       th:field="*{confirmacionContrasenia}" required minlength="8">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-save"></i> Guardar nueva contraseña
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        <div class="text-center">
+                            <a class="small" th:href="@{/login}">Cancelar y volver al inicio de sesión</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
