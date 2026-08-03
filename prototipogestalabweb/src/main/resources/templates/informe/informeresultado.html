@@ -24,6 +24,11 @@ layout:decorate="~{/plantilla/plantilla}">
                class="btn btn-sm btn-danger shadow-sm">
                 <i class="fas fa-file-pdf"></i> Descargar PDF
             </a>
+            <span th:unless="${informeGuardado}"
+                  class="btn btn-sm btn-outline-secondary disabled"
+                  title="Guarde el informe para poder descargarlo">
+                <i class="fas fa-file-pdf"></i> PDF (guarde primero)
+            </span>
         </div>
     </div>
 
@@ -622,6 +627,10 @@ layout:decorate="~{/plantilla/plantilla}">
                class="btn btn-danger btn-lg">
                 <i class="fas fa-file-pdf"></i> Descargar PDF
             </a>
+            <span th:unless="${informeGuardado}"
+                  class="btn btn-outline-secondary btn-lg disabled">
+                <i class="fas fa-file-pdf"></i> PDF (guarde primero)
+            </span>
         </div>
 
     </form>
