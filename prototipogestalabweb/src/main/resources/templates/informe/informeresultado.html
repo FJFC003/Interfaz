@@ -397,12 +397,12 @@ layout:decorate="~{/plantilla/plantilla}">
                                         <option value="">-- Elegir del catálogo --</option>
                                         <option th:each="eq : ${equiposCatalogo}"
                                                 th:value="${eq.idEquipoLab}"
-                                                th:text="${eq.nombre} + ' — ' + ${eq.codigoInterno}"
-                                                th:attr="data-nombre=${eq.nombre},
-                                                         data-marca=${eq.marca},
-                                                         data-modelo=${eq.modelo},
-                                                         data-serie=${eq.serie},
-                                                         data-codigo=${eq.codigoInterno}"></option>
+                                                th:text="${eq.nombre} + ' (' + ${eq.codigoInterno} + ')'"
+                                                th:data-nombre="${eq.nombre}"
+                                                th:data-marca="${eq.marca}"
+                                                th:data-modelo="${eq.modelo}"
+                                                th:data-serie="${eq.serie}"
+                                                th:data-codigo="${eq.codigoInterno}"></option>
                                     </select>
 
                                     <input type="text" class="form-control form-control-sm"
@@ -502,7 +502,7 @@ layout:decorate="~{/plantilla/plantilla}">
 
                                 <td>
                                     <input type="text" class="form-control form-control-sm"
-                                           th:field="*{listaResultados[__${stat.index}__].LMP}"
+                                           th:field="*{listaResultados[__${stat.index}__].lmp}"
                                            placeholder="Límite">
                                 </td>
 

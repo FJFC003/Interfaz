@@ -42,6 +42,7 @@ import com.uisrael.prototipogestalabweb.services.IOrdenTrabajoOTService;
 import com.uisrael.prototipogestalabweb.services.IParametroAnalizarPLService;
 
 
+
 @Controller
 @RequestMapping("/informe")
 public class InformeResultadosIRController {
@@ -204,7 +205,7 @@ public class InformeResultadosIRController {
 			fila.setUnidad(r.getUnidad());
 			fila.setResultado(r.getResultado());
 			fila.setIncertidumbre(r.getIncertidumbre());
-			fila.setLMP(r.getLMP());
+			fila.setLmp(r.getLMP());
 			fila.setConformidad(r.getConformidad());
 			resultados.add(fila);
 		}

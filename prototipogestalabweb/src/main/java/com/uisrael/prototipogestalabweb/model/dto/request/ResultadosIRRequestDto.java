@@ -12,7 +12,10 @@ public class ResultadosIRRequestDto {
 	private String unidad;
 	private String resultado;
 	private String incertidumbre;
-	private String LMP;
+	// Se llama 'lmp' en minusculas a proposito: con el nombre 'LMP' el enlace
+	// de Spring (th:field) tiene que resolver un getter getLMP(), un caso borde
+	// de la especificacion JavaBeans que da problemas al renderizar el formulario.
+	private String lmp;
 	private String conformidad;
 	private int fkInforme;
 
