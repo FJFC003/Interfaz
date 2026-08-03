@@ -395,14 +395,17 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <select class="form-control form-control-sm mb-1 border-primary"
                                             onchange="cargarEquipoDelCatalogo(this)">
                                         <option value="">-- Elegir del catálogo --</option>
-                                        <option th:each="eq : ${equiposCatalogo}"
-                                                th:value="${eq.idEquipoLab}"
-                                                th:text="${eq.nombre} + ' (' + ${eq.codigoInterno} + ')'"
-                                                th:data-nombre="${eq.nombre}"
-                                                th:data-marca="${eq.marca}"
-                                                th:data-modelo="${eq.modelo}"
-                                                th:data-serie="${eq.serie}"
-                                                th:data-codigo="${eq.codigoInterno}"></option>
+                                        <!-- La variable se llama "equipo" y no "eq": eq es un operador
+                                             reservado de Thymeleaf (equivale a ==) y no puede usarse
+                                             como variable de iteracion. -->
+                                        <option th:each="equipo : ${equiposCatalogo}"
+                                                th:value="${equipo.idEquipoLab}"
+                                                th:text="${equipo.nombre} + ' (' + ${equipo.codigoInterno} + ')'"
+                                                th:data-nombre="${equipo.nombre}"
+                                                th:data-marca="${equipo.marca}"
+                                                th:data-modelo="${equipo.modelo}"
+                                                th:data-serie="${equipo.serie}"
+                                                th:data-codigo="${equipo.codigoInterno}"></option>
                                     </select>
 
                                     <input type="text" class="form-control form-control-sm"
