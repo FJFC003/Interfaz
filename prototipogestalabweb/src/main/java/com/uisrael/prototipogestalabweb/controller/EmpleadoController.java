@@ -105,6 +105,13 @@ public class EmpleadoController {
     		// La fecha de ingreso siempre es la del dia en que se registra.
     		empleado.setFechaIngreso(new Date());
 
+    		// La cedula se comprueba ANTES de crear la cuenta de usuario, el rol y
+    		// la firma. Si se dejara para el final, esos tres registros quedarian
+    		// creados y huerfanos cada vez que el backend rechaza el empleado.
+    		if (cedulaYaRegistrada(empleado.getCi(), 0)) {
+    			return mostrarCedulaDuplicada(model, empleado);
+    		}
+
     		// 1. Create the user account
     		UsuarioRequestDto nuevoUsuario = new UsuarioRequestDto();
     		nuevoUsuario.setNombre(usuarioNombre);
@@ -216,9 +223,15 @@ public class EmpleadoController {
     			}
     		}
 
+    		if (cedulaYaRegistrada(empleado.getCi(), id)) {
+    			return mostrarCedulaDuplicada(model, empleado);
+    		}
+
     		empleadoService.guardarEmpleados(empleado);
     		return "redirect:/empleado/listar?success=true";
 
+    	} catch (WebClientResponseException.Conflict ex) {
+    		return mostrarCedulaDuplicada(model, empleado);
     	} catch (Exception e) {
     		return mostrarErrorEdicion(model, empleado, e);
     	}
@@ -255,8 +268,37 @@ public class EmpleadoController {
     	model.addAttribute("areas", areas);
     	model.addAttribute("cargos", cargos);
     	model.addAttribute("roles", roles);
-    	model.addAttribute("error", "Ya existe un empleado registrado con esa cédula.");
+    	model.addAttribute("mensajeAviso", "Ya existe un empleado registrado con ese número de cédula");
+    	model.addAttribute("esEdicion", empleado.getIdEmpleado() > 0);
     	return empleado.getIdEmpleado() > 0 ? "empleado/editarempleado" : "empleado/nuevoempleado";
+    }
+
+    /**
+     * Repinta el formulario con el aviso de cedula repetida, conservando lo que
+     * el usuario ya habia escrito.
+     */
+    private String mostrarCedulaDuplicada(Model model, EmpleadoRequestDto empleado) {
+    	model.addAttribute("empleado", empleado);
+    	model.addAttribute("areas", areaService.listarAreas());
+    	model.addAttribute("cargos", cargoService.listarCargos());
+    	model.addAttribute("roles", rolService.listarRoles());
+    	model.addAttribute("mensajeAviso", "Ya existe un empleado registrado con ese número de cédula");
+    	model.addAttribute("esEdicion", empleado.getIdEmpleado() > 0);
+    	return empleado.getIdEmpleado() > 0 ? "empleado/editarempleado" : "empleado/nuevoempleado";
+    }
+
+    /**
+     * Comprueba si la cedula ya pertenece a otro empleado. Se compara sin
+     * espacios sobrantes, igual que en el backend.
+     */
+    private boolean cedulaYaRegistrada(String cedula, int idPropio) {
+    	if (cedula == null || cedula.isBlank()) {
+    		return false;
+    	}
+    	String limpia = cedula.trim();
+    	return empleadoService.listarEmpleados().stream()
+    			.filter(e -> e.getIdEmpleado() != idPropio)
+    			.anyMatch(e -> e.getCi() != null && e.getCi().trim().equalsIgnoreCase(limpia));
     }
     
 

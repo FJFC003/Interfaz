@@ -45,9 +45,16 @@ public class RolController {
 	        rolService.guardarRoles(rol);
 	        return "redirect:/rol/listar?success=true";
 	    } catch (WebClientResponseException.Conflict ex) {
-	        // El backend responde 409 cuando el nombre ya existe.
+	        // 409: el nombre ya existe o la descripcion llego vacia.
 	        model.addAttribute("rol", rol);
-	        model.addAttribute("mensajeDuplicado", ex.getResponseBodyAsString());
+	        model.addAttribute("mensajeAviso", ex.getResponseBodyAsString());
+	        return "rol/nuevorol";
+	    } catch (WebClientResponseException.BadRequest ex) {
+	        // 400: lo lanza la validacion automatica del DTO del backend.
+	        // Sin este catch la excepcion sube y sale la pantalla de error.
+	        model.addAttribute("rol", rol);
+	        model.addAttribute("mensajeAviso",
+	                "Revise los campos obligatorios: el nombre y la descripción no pueden quedar vacíos.");
 	        return "rol/nuevorol";
 	    }
 	}
@@ -81,7 +88,13 @@ public class RolController {
 	    } catch (WebClientResponseException.Conflict ex) {
 	        model.addAttribute("rol", rol);
 	        model.addAttribute("esEdicion", true);
-	        model.addAttribute("mensajeDuplicado", ex.getResponseBodyAsString());
+	        model.addAttribute("mensajeAviso", ex.getResponseBodyAsString());
+	        return "rol/editarrol";
+	    } catch (WebClientResponseException.BadRequest ex) {
+	        model.addAttribute("rol", rol);
+	        model.addAttribute("esEdicion", true);
+	        model.addAttribute("mensajeAviso",
+	                "Revise los campos obligatorios: el nombre y la descripción no pueden quedar vacíos.");
 	        return "rol/editarrol";
 	    } catch (Exception e) {
 	        model.addAttribute("rol", rol);
