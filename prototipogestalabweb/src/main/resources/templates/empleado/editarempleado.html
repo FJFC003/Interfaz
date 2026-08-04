@@ -118,7 +118,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <input type="text" class="form-control" readonly
                                            th:value="${usuarioActual != null ? usuarioActual.correo : 'Sin usuario asignado'}">
                                 </div>
-                                <!-- La recuperacion de contrasenia es exclusiva del Gerente General. -->
                                 <div class="col-sm-6 mb-3"
                                      th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
                                     <label for="usuarioContrasenia" class="form-control-label">Nueva Contraseña</label>
@@ -162,13 +161,7 @@ layout:decorate="~{/plantilla/plantilla}">
         <script>
             document.addEventListener('DOMContentLoaded', function () {
 
-                /*
-                 * Compara dos valores de un input type="date". Vienen siempre como
-                 * aaaa-mm-dd, asi que compararlos como texto equivale a compararlos
-                 * cronologicamente. Se usa localeCompare y no el operador menor-que
-                 * para no meter el caracter de apertura de etiqueta dentro del
-                 * script, que es lo que confunde al parseador de plantillas.
-                 */
+                
                 function esAnterior(valorA, valorB) {
                     if (!valorA) { return false; }
                     if (!valorB) { return false; }
@@ -201,11 +194,7 @@ layout:decorate="~{/plantilla/plantilla}">
                     campoHasta.addEventListener('change', revisar);
                     campoHasta.addEventListener('input', revisar);
 
-                    /*
-                     * Al cargar la pagina es cuando de verdad hace falta: aqui la
-                     * fecha de ingreso ya viene con el valor guardado y es de solo
-                     * lectura, asi que el evento change no se dispara nunca.
-                     */
+                    
                     aplicarMinimo();
                 }
 
