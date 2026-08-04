@@ -9,6 +9,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		// Primero las cabeceras de no-cache: se aplican a las vistas, nunca a los
+		// recursos estaticos (si no, el navegador volveria a descargar jQuery,
+		// DataTables y FontAwesome en cada pagina).
+		registry.addInterceptor(new CabecerasNoCacheInterceptor())
+				.addPathPatterns("/**")
+				.excludePathPatterns(
+						"/css/**",
+						"/js/**",
+						"/vendor/**",
+						"/img/**",
+						"/scss/**"
+				);
+
 		registry.addInterceptor(new SesionInterceptor())
 				.addPathPatterns("/**")
 				.excludePathPatterns(
