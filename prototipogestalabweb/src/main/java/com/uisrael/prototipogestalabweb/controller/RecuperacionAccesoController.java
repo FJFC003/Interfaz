@@ -4,20 +4,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.uisrael.prototipogestalabweb.model.dto.request.PreguntaSeguridadRequestDto;
-import com.uisrael.prototipogestalabweb.model.dto.request.RestablecerAccesoRequestDto;
-import com.uisrael.prototipogestalabweb.model.dto.response.PreguntaSeguridadResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.RestablecerConTokenRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.SolicitarRecuperacionRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.SolicitudRecuperacionResponseDto;
 import com.uisrael.prototipogestalabweb.services.IRecuperacionAccesoService;
 
-import jakarta.servlet.http.HttpSession;
-
 /**
- * Flujo publico de recuperacion de acceso. No requiere sesion iniciada, por eso
- * la ruta /recuperar esta excluida en WebMvcConfig.
+ * Flujo publico de recuperacion de acceso por correo. No requiere sesion
+ * iniciada, por eso /recuperar esta excluido en WebMvcConfig.
  *
  * En ningun paso se muestra la contrasena anterior: no existe en la base de
  * datos, solo su hash BCrypt. Lo que se hace es fijar una nueva.
@@ -26,9 +25,6 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/recuperar")
 public class RecuperacionAccesoController {
 
-	private static final String SESION_CORREO = "recuperacionCorreo";
-	private static final String SESION_PREGUNTA = "recuperacionPregunta";
-
 	private final IRecuperacionAccesoService recuperacionService;
 
 	public RecuperacionAccesoController(IRecuperacionAccesoService recuperacionService) {
@@ -36,32 +32,37 @@ public class RecuperacionAccesoController {
 		this.recuperacionService = recuperacionService;
 	}
 
-	/** Paso 1: pedir el correo. */
+	/** Paso 1: pedir el correo laboral. */
 	@GetMapping
 	public String mostrarSolicitud(Model model) {
-		model.addAttribute("solicitud", new PreguntaSeguridadRequestDto());
+		model.addAttribute("solicitud", new SolicitarRecuperacionRequestDto());
 		return "seguridad/recuperar";
 	}
 
 	@PostMapping
-	public String buscarPregunta(@ModelAttribute PreguntaSeguridadRequestDto solicitud,
-			HttpSession session, Model model) {
+	public String enviarEnlace(@ModelAttribute SolicitarRecuperacionRequestDto solicitud,
+			Model model) {
 		try {
-			PreguntaSeguridadResponseDto respuesta = recuperacionService.obtenerPregunta(solicitud);
+			SolicitudRecuperacionResponseDto respuesta = recuperacionService.solicitar(solicitud);
 
-			session.setAttribute(SESION_CORREO, respuesta.getCorreo());
-			session.setAttribute(SESION_PREGUNTA, respuesta.getPregunta());
-			return "redirect:/recuperar/responder";
+			model.addAttribute("enviado", true);
+			model.addAttribute("correoEnmascarado", respuesta.getCorreoEnmascarado());
+			model.addAttribute("minutosValidez", respuesta.getMinutosValidez());
 
 		} catch (WebClientResponseException.Unauthorized ex) {
 			model.addAttribute("error",
-					"No existe una cuenta de Gerente General activa con ese correo.");
+					"No se pudo iniciar la recuperación con ese correo. "
+					+ "Verifique que sea el correo laboral de la Gerente General.");
 		} catch (WebClientResponseException.Conflict ex) {
-			model.addAttribute("error",
-					"Esa cuenta todavia no tiene configurada una pregunta de seguridad. "
-					+ "Contacte al administrador del sistema.");
+			model.addAttribute("error", ex.getResponseBodyAsString());
 		} catch (WebClientResponseException.BadRequest ex) {
-			model.addAttribute("error", "Debe escribir un correo.");
+			model.addAttribute("error", "Debe escribir su correo laboral.");
+		} catch (WebClientResponseException.InternalServerError ex) {
+			// Tipicamente: el servidor de correo no respondio o las credenciales
+			// de envio no estan configuradas.
+			model.addAttribute("error",
+					"No se pudo enviar el correo. Revise la conexión a internet "
+					+ "e inténtelo de nuevo.");
 		} catch (Exception ex) {
 			model.addAttribute("error", "No se pudo conectar con el servidor. Intente nuevamente.");
 		}
@@ -70,72 +71,63 @@ public class RecuperacionAccesoController {
 		return "seguridad/recuperar";
 	}
 
-	/** Paso 2: mostrar la pregunta y pedir respuesta + contrasena nueva. */
-	@GetMapping("/responder")
-	public String mostrarRespuesta(HttpSession session, Model model) {
-		String correo = (String) session.getAttribute(SESION_CORREO);
-		String pregunta = (String) session.getAttribute(SESION_PREGUNTA);
+	/** Paso 2: el enlace del correo aterriza aqui. */
+	@GetMapping("/token/{token}")
+	public String mostrarNuevaContrasenia(@PathVariable String token, Model model) {
+		try {
+			recuperacionService.validarToken(token);
 
-		if (correo == null || pregunta == null) {
-			return "redirect:/recuperar";
+			RestablecerConTokenRequestDto datos = new RestablecerConTokenRequestDto();
+			datos.setToken(token);
+			model.addAttribute("datos", datos);
+			return "seguridad/nuevacontrasenia";
+
+		} catch (WebClientResponseException.Conflict ex) {
+			model.addAttribute("error", ex.getResponseBodyAsString());
+		} catch (WebClientResponseException.Unauthorized ex) {
+			model.addAttribute("error", "El enlace no es válido. Solicite uno nuevo.");
+		} catch (Exception ex) {
+			model.addAttribute("error", "No se pudo comprobar el enlace. Intente nuevamente.");
 		}
 
-		RestablecerAccesoRequestDto datos = new RestablecerAccesoRequestDto();
-		datos.setCorreo(correo);
-
-		model.addAttribute("datos", datos);
-		model.addAttribute("pregunta", pregunta);
-		return "seguridad/responder";
+		model.addAttribute("solicitud", new SolicitarRecuperacionRequestDto());
+		return "seguridad/recuperar";
 	}
 
-	@PostMapping("/responder")
-	public String procesarRespuesta(@ModelAttribute RestablecerAccesoRequestDto datos,
-			HttpSession session, Model model) {
-
-		String correo = (String) session.getAttribute(SESION_CORREO);
-		String pregunta = (String) session.getAttribute(SESION_PREGUNTA);
-
-		if (correo == null || pregunta == null) {
-			return "redirect:/recuperar";
-		}
-
-		// El correo siempre sale de la sesion, nunca del formulario.
-		datos.setCorreo(correo);
-		model.addAttribute("pregunta", pregunta);
+	@PostMapping("/token")
+	public String guardarNuevaContrasenia(@ModelAttribute RestablecerConTokenRequestDto datos,
+			Model model) {
 
 		String nueva = datos.getNuevaContrasenia() == null ? "" : datos.getNuevaContrasenia();
 		String confirmacion = datos.getConfirmacionContrasenia() == null
 				? "" : datos.getConfirmacionContrasenia();
 
 		if (!nueva.equals(confirmacion)) {
-			model.addAttribute("error", "Las dos contrasenas no coinciden.");
+			model.addAttribute("error", "Las dos contraseñas no coinciden.");
 			model.addAttribute("datos", datos);
-			return "seguridad/responder";
+			return "seguridad/nuevacontrasenia";
 		}
 
 		if (nueva.trim().length() < 8) {
-			model.addAttribute("error", "La nueva contrasena debe tener al menos 8 caracteres.");
+			model.addAttribute("error", "La nueva contraseña debe tener al menos 8 caracteres.");
 			model.addAttribute("datos", datos);
-			return "seguridad/responder";
+			return "seguridad/nuevacontrasenia";
 		}
 
 		try {
 			recuperacionService.restablecer(datos);
-
-			session.removeAttribute(SESION_CORREO);
-			session.removeAttribute(SESION_PREGUNTA);
 			return "redirect:/login?restablecida=true";
 
-		} catch (WebClientResponseException.Unauthorized ex) {
-			model.addAttribute("error", "La respuesta no coincide con la registrada.");
 		} catch (WebClientResponseException.Conflict ex) {
 			model.addAttribute("error", ex.getResponseBodyAsString());
+		} catch (WebClientResponseException.Unauthorized ex) {
+			model.addAttribute("error", "El enlace no es válido. Solicite uno nuevo.");
 		} catch (Exception ex) {
-			model.addAttribute("error", "No se pudo conectar con el servidor. Intente nuevamente.");
+			model.addAttribute("error", "No se pudo guardar la contraseña. Intente nuevamente.");
 		}
 
 		model.addAttribute("datos", datos);
-		return "seguridad/responder";
+		return "seguridad/nuevacontrasenia";
 	}
 
 }

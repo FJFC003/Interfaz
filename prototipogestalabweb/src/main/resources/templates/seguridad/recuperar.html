@@ -20,39 +20,63 @@
                     <div class="card-body p-5">
 
                         <div class="text-center mb-4">
-                            <i class="fas fa-key fa-3x text-primary mb-2"></i>
+                            <i class="fas fa-envelope-open-text fa-3x text-primary mb-2"></i>
                             <h1 class="h4 text-gray-900">Recuperar Acceso</h1>
-                            <p class="text-gray-600">
-                                Escriba el correo de la cuenta de Gerente General.
-                            </p>
                         </div>
 
-                        <div class="alert alert-info small" role="alert">
-                            <i class="fas fa-info-circle"></i>
-                            El sistema no puede mostrarle su contraseña anterior porque no la
-                            almacena: solo guarda una versión cifrada que no se puede revertir.
-                            Lo que hará aquí es establecer una contraseña nueva.
-                        </div>
-
-                        <div th:if="${error}" class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
-                        </div>
-
-                        <form th:action="@{/recuperar}" th:object="${solicitud}" method="POST" class="user">
-                            <div class="form-group">
-                                <label for="correo">Correo Electrónico</label>
-                                <input type="email" class="form-control form-control-user" id="correo"
-                                       th:field="*{correo}" placeholder="correo@ejemplo.com" required autofocus>
+                        <div th:if="${enviado}">
+                            <div class="alert alert-success" role="alert">
+                                <i class="fas fa-check-circle"></i>
+                                Enviamos un enlace a <strong th:text="${correoEnmascarado}">c***@correo.com</strong>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-user btn-block">
-                                <i class="fas fa-arrow-right"></i> Continuar
-                            </button>
-                        </form>
+                            <p class="text-gray-700 small">
+                                Abra su correo y pulse el enlace para crear una contraseña nueva.
+                                El enlace caduca en <span th:text="${minutosValidez}">30</span> minutos
+                                y sirve una sola vez.
+                            </p>
+                            <p class="text-muted small">
+                                Si no lo ve en unos minutos, revise la carpeta de correo no deseado.
+                            </p>
+                            <hr>
+                            <div class="text-center">
+                                <a class="btn btn-primary btn-block" th:href="@{/login}">Volver al inicio de sesión</a>
+                            </div>
+                        </div>
 
-                        <hr>
+                        <div th:unless="${enviado}">
 
-                        <div class="text-center">
-                            <a class="small" th:href="@{/login}">Volver al inicio de sesión</a>
+                            <p class="text-gray-600 text-center">
+                                Escriba su correo laboral. Enviaremos un enlace a su correo personal.
+                            </p>
+
+                            <div class="alert alert-info small" role="alert">
+                                <i class="fas fa-info-circle"></i>
+                                El sistema no puede mostrarle su contraseña anterior porque no la
+                                almacena: solo guarda una versión cifrada que no se puede revertir.
+                                Lo que hará es establecer una contraseña nueva.
+                            </div>
+
+                            <div th:if="${error}" class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                            </div>
+
+                            <form th:action="@{/recuperar}" th:object="${solicitud}" method="POST" class="user">
+                                <div class="form-group">
+                                    <label for="correo">Correo Laboral</label>
+                                    <input type="email" class="form-control form-control-user" id="correo"
+                                           th:field="*{correo}" placeholder="ejemplo@gestalab.ec" required autofocus>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-user btn-block">
+                                    <i class="fas fa-paper-plane"></i> Enviar enlace
+                                </button>
+                            </form>
+
+                            <hr>
+
+                            <div class="text-center">
+                                <a class="small" th:href="@{/login}">Volver al inicio de sesión</a>
+                            </div>
+
                         </div>
 
                     </div>

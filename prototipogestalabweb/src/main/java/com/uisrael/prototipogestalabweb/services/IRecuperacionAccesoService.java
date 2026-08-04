@@ -1,18 +1,16 @@
 package com.uisrael.prototipogestalabweb.services;
 
-import com.uisrael.prototipogestalabweb.model.dto.request.ConfigurarPreguntaRequestDto;
-import com.uisrael.prototipogestalabweb.model.dto.request.PreguntaSeguridadRequestDto;
-import com.uisrael.prototipogestalabweb.model.dto.request.RestablecerAccesoRequestDto;
-import com.uisrael.prototipogestalabweb.model.dto.response.PreguntaSeguridadResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.RestablecerConTokenRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.request.SolicitarRecuperacionRequestDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.SolicitudRecuperacionResponseDto;
 
 public interface IRecuperacionAccesoService {
 	
-	PreguntaSeguridadResponseDto obtenerPregunta(PreguntaSeguridadRequestDto peticion);
+	SolicitudRecuperacionResponseDto solicitar(SolicitarRecuperacionRequestDto peticion);
 
-	void restablecer(RestablecerAccesoRequestDto peticion);
+	void validarToken(String token);
 
-	void configurar(int idUsuario, ConfigurarPreguntaRequestDto peticion);
+	void restablecer(RestablecerConTokenRequestDto peticion);
 
-	boolean tieneConfigurada(int idUsuario);
 
 }

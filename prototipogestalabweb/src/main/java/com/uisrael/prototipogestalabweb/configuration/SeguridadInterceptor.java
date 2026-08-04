@@ -24,8 +24,7 @@ public class SeguridadInterceptor implements HandlerInterceptor {
 			"/empleado",  List.of("Gerente General"),
 			"/area",      List.of("Gerente General"),
 			"/cargo",     List.of("Gerente General"),
-			"/rol",       List.of("Gerente General"),
-			"/seguridad", List.of("Gerente General"));
+			"/rol",       List.of("Gerente General"));
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
