@@ -71,7 +71,10 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <div class="col-sm-4 mb-3">
                                     <label for="fechaSalida" class="form-control-label">Fecha de Salida</label>
                                     <input type="date" class="form-control" id="fechaSalida" th:field="*{fechaSalida}">
-                                    <small class="form-text text-muted">Dejar en blanco si el empleado sigue activo.</small>
+                                    <small class="form-text text-muted">
+                                        Dejar en blanco si el empleado sigue activo.
+                                        No puede ser anterior a la fecha de ingreso.
+                                    </small>
                                 </div>
                                 <div class="col-sm-4 mb-3">
                                     <label for="estadoEmpleado" class="form-control-label">Estado</label>
@@ -154,6 +157,65 @@ layout:decorate="~{/plantilla/plantilla}">
         </div>
 
     </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                /*
+                 * Compara dos valores de un input type="date". Vienen siempre como
+                 * aaaa-mm-dd, asi que compararlos como texto equivale a compararlos
+                 * cronologicamente. Se usa localeCompare y no el operador menor-que
+                 * para no meter el caracter de apertura de etiqueta dentro del
+                 * script, que es lo que confunde al parseador de plantillas.
+                 */
+                function esAnterior(valorA, valorB) {
+                    if (!valorA) { return false; }
+                    if (!valorB) { return false; }
+                    return Math.sign(valorA.localeCompare(valorB)) === -1;
+                }
+
+                function atarFechas(campoDesde, campoHasta, mensaje) {
+                    if (!campoDesde) { return; }
+                    if (!campoHasta) { return; }
+
+                    function revisar() {
+                        if (esAnterior(campoHasta.value, campoDesde.value)) {
+                            campoHasta.setCustomValidity(mensaje);
+                        } else {
+                            campoHasta.setCustomValidity('');
+                        }
+                    }
+
+                    function aplicarMinimo() {
+                        if (campoDesde.value) {
+                            campoHasta.min = campoDesde.value;
+                        } else {
+                            campoHasta.removeAttribute('min');
+                        }
+                        revisar();
+                    }
+
+                    campoDesde.addEventListener('change', aplicarMinimo);
+                    campoDesde.addEventListener('input', aplicarMinimo);
+                    campoHasta.addEventListener('change', revisar);
+                    campoHasta.addEventListener('input', revisar);
+
+                    /*
+                     * Al cargar la pagina es cuando de verdad hace falta: aqui la
+                     * fecha de ingreso ya viene con el valor guardado y es de solo
+                     * lectura, asi que el evento change no se dispara nunca.
+                     */
+                    aplicarMinimo();
+                }
+
+                atarFechas(
+                    document.getElementById('fechaIngreso'),
+                    document.getElementById('fechaSalida'),
+                    'La fecha de salida no puede ser anterior a la fecha de ingreso.');
+            });
+        </script>
+    </th:block>
 
 </body>
 
