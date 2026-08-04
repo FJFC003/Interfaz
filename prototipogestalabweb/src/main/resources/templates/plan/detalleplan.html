@@ -571,25 +571,6 @@ layout:decorate="~{/plantilla/plantilla}">
                     </tr>
                 </tbody>
             </table>
-
-            <form th:if="${puedeEditar}" th:action="@{/plan/infoadicional/guardar/{p}(p=${plan.idPlan})}"
-                  th:object="${nuevaInfoAdicional}" method="POST" class="border-top pt-3">
-                <div class="form-row">
-                    <div class="col-md-5 mb-2">
-                        <select class="form-control form-control-sm" th:field="*{preguntas}" required>
-                            <option value="">-- Seleccione la pregunta --</option>
-                            <option value="Se verificó que no existen más descargas de las declaradas / detallar">Se verificó que no existen más descargas de las declaradas / detallar</option>
-                            <option value="Las descargas se realizan en: alcantarillado, efluente, detallar">Las descargas se realizan en: alcantarillado, efluente, detallar</option>
-                            <option value="Describir los procesos de tratamientos de las muestras colectadas">Describir los procesos de tratamientos de las muestras colectadas</option>
-                            <option value="Descripción tipo de transporte de muestras colectadas">Descripción tipo de transporte de muestras colectadas</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button type="submit" class="btn btn-sm btn-primary btn-block">
-                            <i class="fas fa-plus"></i> Agregar pregunta</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
