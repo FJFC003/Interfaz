@@ -17,7 +17,7 @@ public class RecursosCronoPLRequestDto {
 	private int fkTecnico;
 	private String recurso;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	@DateTimeFormat(pattern = "HH:mm")
 	private Date horaDefinida;
 
 	private int fkPlanMuestreo;
