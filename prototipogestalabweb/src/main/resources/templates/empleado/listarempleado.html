@@ -52,9 +52,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <th>Área</th>
                                 <th>Cargo</th>
                                 <th>Usuario</th>
-                                
-                                <th>Firma</th>
-                                <th>Estado Firma</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -69,14 +66,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${empleado.fkArea != null ? empleado.fkArea.nombre : '-'}"></td>
                                 <td th:text="${empleado.fkCargo != null ? empleado.fkCargo.nombre : '-'}"></td>
                                 <td th:text="${empleado.fkUsuario != null ? empleado.fkUsuario.nombre : '-'}"></td>
-                               
-                                <td th:text="${empleado.fkFirmaElectronica != null ? empleado.fkFirmaElectronica.formatoFirma : '-'}"></td>
-                                <td>
-                                    <span th:if="${empleado.fkFirmaElectronica != null and empleado.fkFirmaElectronica.fechaExpiracion != null and #dates.createNow().before(empleado.fkFirmaElectronica.fechaExpiracion)}"
-                                          class="badge badge-success">Activa</span>
-                                    <span th:unless="${empleado.fkFirmaElectronica != null and empleado.fkFirmaElectronica.fechaExpiracion != null and #dates.createNow().before(empleado.fkFirmaElectronica.fechaExpiracion)}"
-                                          class="badge badge-danger">Inactiva</span>
-                                </td>
                                 <td>
                                     <span th:if="${empleado.estadoEmpleado}" class="badge badge-success">Activo</span>
                                     <span th:unless="${empleado.estadoEmpleado}" class="badge badge-danger">Inactivo</span>
@@ -104,7 +93,7 @@ layout:decorate="~{/plantilla/plantilla}">
     </div>
 
     <th:block th:fragment="scripts" layout:fragment="scripts">
-        <script th:fragment="table-script" th:inline="javascript">
+        <script th:fragment="table-script">
             $(document).ready(function() {
                 $('#dataTable').DataTable({
                     language: {
@@ -112,7 +101,7 @@ layout:decorate="~{/plantilla/plantilla}">
                     },
                     columnDefs: [{
                     	orderable: false,
-                        targets: 12
+                        targets: 9
                     }]
                 });
             });

@@ -138,26 +138,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                 </div>
                             </div>
 
-                            <hr>
-<h6 class="font-weight-bold text-primary mb-3">Firma Electrónica</h6>
-
-<div class="form-group row">
-    <div class="col-sm-4 mb-3">
-        <label for="firmaFormato" class="form-control-label">Formato de Firma</label>
-        <input type="text" class="form-control" id="firmaFormato" name="firmaFormato"
-               placeholder="Ej: PNG, PKCS7, Token USB...">
-    </div>
-    <div class="col-sm-4 mb-3">
-        <label for="firmaFechaSubida" class="form-control-label">Fecha de Creación</label>
-        <input type="date" class="form-control" id="firmaFechaSubida" name="firmaFechaSubida">
-    </div>
-    <div class="col-sm-4 mb-3">
-        <label for="firmaFechaExpiracion" class="form-control-label">Fecha de Expiración</label>
-        <input type="date" class="form-control" id="firmaFechaExpiracion" name="firmaFechaExpiracion">
-        <small class="form-text text-muted">No puede ser anterior a la de creación.</small>
-    </div>
-</div>
-
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> Guardar
@@ -235,11 +215,6 @@ layout:decorate="~{/plantilla/plantilla}">
                     document.getElementById('fechaIngreso'),
                     document.getElementById('fechaSalida'),
                     'La fecha de salida no puede ser anterior a la fecha de ingreso.');
-
-                atarFechas(
-                    document.getElementById('firmaFechaSubida'),
-                    document.getElementById('firmaFechaExpiracion'),
-                    'La fecha de expiración no puede ser anterior a la fecha de creación de la firma.');
             });
         </script>
     </th:block>

@@ -30,7 +30,6 @@ layout:decorate="~{/plantilla/plantilla}">
                         <form th:action="@{/empleado/actualizar/{idEmpleado}(idEmpleado=${empleado.idEmpleado})}" th:object="${empleado}" method="POST">
                             
                             <input type="hidden" th:field="*{fkUsuario}">
-							<input type="hidden" th:field="*{fkFirmaElectronica}">
                             
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3">
@@ -118,6 +117,7 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <input type="text" class="form-control" readonly
                                            th:value="${usuarioActual != null ? usuarioActual.correo : 'Sin usuario asignado'}">
                                 </div>
+                                <!-- La recuperacion de contrasenia es exclusiva del Gerente General. -->
                                 <div class="col-sm-6 mb-3"
                                      th:if="${session.usuarioActual != null and #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Gerente General')}">
                                     <label for="usuarioContrasenia" class="form-control-label">Nueva Contraseña</label>
@@ -126,17 +126,6 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <small class="form-text text-muted">
                                         Solo el Gerente General puede restablecer contraseñas.
                                     </small>
-                                </div>
-                            </div>
-
-                            <hr>
-                            <h6 class="font-weight-bold text-primary mb-3">Firma Electrónica</h6>
-
-                            <div class="form-group row">
-                                <div class="col-sm-6 mb-3">
-                                    <label class="form-control-label">Firma Actual</label>
-                                    <input type="text" class="form-control" readonly
-                                           th:value="${firmaActual != null ? firmaActual.formatoFirma : 'Sin firma asignada'}">
                                 </div>
                             </div>
 
@@ -161,7 +150,6 @@ layout:decorate="~{/plantilla/plantilla}">
         <script>
             document.addEventListener('DOMContentLoaded', function () {
 
-                
                 function esAnterior(valorA, valorB) {
                     if (!valorA) { return false; }
                     if (!valorB) { return false; }
@@ -194,7 +182,6 @@ layout:decorate="~{/plantilla/plantilla}">
                     campoHasta.addEventListener('change', revisar);
                     campoHasta.addEventListener('input', revisar);
 
-                    
                     aplicarMinimo();
                 }
 
