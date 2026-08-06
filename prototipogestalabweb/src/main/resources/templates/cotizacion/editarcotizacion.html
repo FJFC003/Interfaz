@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" 
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/plantilla/plantilla}">
 
 <head>
@@ -10,163 +10,304 @@ layout:decorate="~{/plantilla/plantilla}">
 <body>
     <div layout:fragment="content">
 
-        <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-file-invoice-dollar"></i> Editar Cotización</h1>
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Editar Cotización #<span th:text="${cotizacion.idCotizacionC}"></span>
+            </h1>
+            <div>
+                <a th:href="@{/cotizacion/detalle/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-info shadow-sm">
+                    <i class="fas fa-eye"></i> Ver Cotización
+                </a>
+                <a href="/cotizacion/listar" class="btn btn-sm btn-secondary shadow-sm">
+                    <i class="fas fa-arrow-left"></i> Volver al Listado
+                </a>
+            </div>
+        </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-9">
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <form th:action="@{/cotizacion/actualizar/{id}(id=${cotizacion.idCotizacionC})}" th:object="${cotizacion}" method="POST">
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Los cambios se guardaron correctamente.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> No se pudo guardar. Revise los datos e inténtelo de nuevo.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+        </div>
 
-                            <h6 class="font-weight-bold text-primary mb-3">Datos Generales</h6>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Datos de la Cotización</h6>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/cotizacion/actualizar/{id}(id=${cotizacion.idCotizacionC})}" th:object="${cotizacion}" method="POST">
 
-                            <div class="form-group row">
-                                <div class="col-sm-4 mb-3">
-                                    <label for="fechaElaboracionCotizacionC" class="form-control-label">Fecha de Elaboración</label>
-                                    <input type="date" class="form-control" id="fechaElaboracionCotizacionC" th:field="*{fechaElaboracionCotizacionC}">
-                                </div>
-                                
-                                <div class="col-sm-4 mb-3">
-    <label for="estadoCotizacionC" class="form-control-label">Estado</label>
-    <div class="custom-control custom-checkbox mt-2">
-        <input type="checkbox" class="custom-control-input" id="estadoCotizacionC" th:field="*{estadoCotizacionC}">
-        <label class="custom-control-label" for="estadoCotizacionC">Activa</label>
-    </div>
-</div>
-                                
-                                <div class="col-sm-4 mb-3">
-                                    <label for="vigenciaDiasCotizacionC" class="form-control-label">Vigencia</label>
-                                    <input type="text" class="form-control" id="vigenciaDiasCotizacionC" th:field="*{vigenciaDiasCotizacionC}" placeholder="Ej: 30 días">
-                                </div>
-                                <div class="col-sm-4 mb-3">
-                                    <label for="fkEmpleado" class="form-control-label">Elaborado Por (Empleado)</label>
-                                    <select class="form-control" id="fkEmpleado" th:field="*{fkEmpleado}">
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="empleado : ${empleados}"
-                                                th:value="${empleado.idEmpleado}"
-                                                th:text="${empleado.nombre} + ' ' + ${empleado.apellido}"></option>
-                                    </select>
-                                    <small th:if="${#lists.isEmpty(empleados)}" class="text-danger d-block mt-1">
-                                        No hay empleados registrados todavía —
-                                        <a href="/empleado/nuevo" target="_blank">créalos aquí</a> y recarga esta página.
-                                    </small>
-                                </div>
-                            </div>
+                    <input type="hidden" th:field="*{idCotizacionC}">
+                    <input type="hidden" th:field="*{fkCliente}">
+                    <input type="hidden" th:field="*{fkEmpleado}">
+                    <input type="hidden" th:field="*{estadoCotizacionC}">
+                    <input type="hidden" th:field="*{elaboradoPorCotizacionC}">
 
-                            <hr>
-                            <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
-                            <div class="form-group row">
-                                <div class="col-sm-6 mb-3">
-                                    <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
-                                    <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="norma : ${normas}"
-                                                th:value="${norma.idCatalogoNormServi}"
-                                                th:text="${norma.nombreCatalogoNormServiEntity}"></option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <label for="fkLmp" class="form-control-label">LMP</label>
-                                    <select class="form-control" id="fkLmp" th:field="*{fkLmp}">
-                                        <option value="0">-- Seleccione --</option>
-                                        <option th:each="lmp : ${lmps}"
-                                                th:value="${lmp.idLmpC}"
-                                                th:text="${lmp.codigoLmpC} + ' - ' + ${lmp.valorLmpC}"></option>
-                                    </select>
-                                </div>
-                            </div>
+                    <h6 class="font-weight-bold text-primary mb-3">Datos Generales</h6>
 
-                            <hr>
-<h6 class="font-weight-bold text-primary mb-3">Cliente</h6>
+                    <div class="form-group row">
+                        <div class="col-sm-4 mb-3">
+                            <label for="fechaElaboracionCotizacionC" class="form-control-label">Fecha de Elaboración</label>
+                            <input type="date" class="form-control" id="fechaElaboracionCotizacionC"
+                                   th:field="*{fechaElaboracionCotizacionC}" readonly>
+                            <small class="text-muted">Se fija el día en que se creó la cotización.</small>
+                        </div>
 
-<div class="form-group row">
-    <div class="col-sm-12 mb-3">
-        <label for="fkCliente" class="form-control-label">Cliente</label>
-        <select class="form-control" id="fkCliente" th:field="*{fkCliente}">
-            <option value="0">-- Seleccione --</option>
-            <option th:each="cliente : ${clientes}"
-                    th:value="${cliente.idClienteC}"
-                    th:text="${cliente.nombreRazonSocialClienteC}"></option>
-        </select>
-    </div>
-</div>
+                        <div class="col-sm-4 mb-3">
+                            <label class="form-control-label">Estado</label>
+                            <input type="text" class="form-control" readonly
+                                   th:value="${cotizacion.estadoCotizacionC} ? 'Activa' : 'Inactiva'">
+                        </div>
 
-                            <hr>
-                            <h6 class="font-weight-bold text-primary mb-3">Costos Finales</h6>
-                            <small class="text-muted d-block mb-3">
-                                Estos valores se pueden dejar en 0 por ahora y actualizarse después de agregar las líneas de detalle.
-                            </small>
-
-                            <div class="form-group row">
-                                <div class="col-sm-4 mb-3">
-                                    <label for="subtotalAgua" class="form-control-label">Subtotal Agua</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalAgua" th:field="*{subtotalAgua}" oninput="calcularTotales()">
-                                </div>
-                                <div class="col-sm-4 mb-3">
-                                    <label for="subtotalRuido" class="form-control-label">Subtotal Ruido</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalRuido" th:field="*{subtotalRuido}" oninput="calcularTotales()">
-                                </div>
-                                <div class="col-sm-4 mb-3">
-                                    <label for="subtotalEmiciones" class="form-control-label">Subtotal Emisiones</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalEmiciones" th:field="*{subtotalEmiciones}" oninput="calcularTotales()">
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-4 mb-3">
-                                    <label for="subtotalCalidad" class="form-control-label">Subtotal Calidad del Aire</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalCalidad" th:field="*{subtotalCalidad}" oninput="calcularTotales()">
-                                </div>
-                                <div class="col-sm-4 mb-3">
-                                    <label for="subtotalSuelo" class="form-control-label">Subtotal Suelo</label>
-                                    <input type="number" step="0.01" class="form-control" id="subtotalSuelo" th:field="*{subtotalSuelo}" oninput="calcularTotales()">
-                                </div>
-                                <div class="col-sm-4 mb-3">
-                                    <label for="costoLogistica" class="form-control-label">Logística</label>
-                                    <input type="number" step="0.01" class="form-control" id="costoLogistica" th:field="*{costoLogistica}" oninput="calcularTotales()">
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-4 mb-3">
-                                    <label for="Iva" class="form-control-label">IVA (15%)</label>
-                                    <input type="number" step="0.01" class="form-control" id="Iva" th:field="*{Iva}" readonly>
-                                </div>
-                                <div class="col-sm-4 mb-3">
-                                    <label for="TotalCotizacionC" class="form-control-label">Total</label>
-                                    <input type="number" step="0.01" class="form-control" id="TotalCotizacionC" th:field="*{TotalCotizacionC}" readonly>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar y Continuar</button>
-                                <a href="/cotizacion/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
-                                <a th:href="@{/cotizacion/detalle/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-info">
-    <i class="fas fa-list"></i> Gestionar Líneas de Detalle
-</a>
-                            </div>
-
-                        </form>
+                        <div class="col-sm-4 mb-3">
+                            <label for="vigenciaDiasCotizacionC" class="form-control-label">Vigencia</label>
+                            <input type="text" class="form-control" id="vigenciaDiasCotizacionC"
+                                   th:field="*{vigenciaDiasCotizacionC}" placeholder="Ej: 30 días">
+                        </div>
                     </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label class="form-control-label">Elaborado Por (Empleado)</label>
+                            <input type="text" class="form-control" readonly
+                                   th:value="${nombreElaborador != null} ? ${nombreElaborador} : 'Sin asignar'">
+                            <small class="text-muted">Es el empleado que creó la cotización y no cambia al editarla.</small>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="form-control-label">Cliente</label>
+                            <input type="text" class="form-control" readonly
+                                   th:value="${nombreCliente != null} ? ${nombreCliente} : 'Sin cliente'">
+                            <small class="text-muted">El cliente se asigna al crear la cotización y no se modifica aquí.</small>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
+                            <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="norma : ${normas}"
+                                        th:value="${norma.idCatalogoNormServi}"
+                                        th:text="${norma.nombreCatalogoNormServiEntity}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="fkLmp" class="form-control-label">LMP</label>
+                            <select class="form-control" id="fkLmp" th:field="*{fkLmp}">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="lmp : ${lmps}"
+                                        th:value="${lmp.idLmpC}"
+                                        th:text="${lmp.codigoLmpC} + ' - ' + ${lmp.valorLmpC}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6 class="font-weight-bold text-primary mb-3">Costos Finales</h6>
+                    <small class="text-muted d-block mb-3">
+                        El IVA y el Total se calculan solos a partir de los subtotales.
+                    </small>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4 mb-3">
+                            <label for="subtotalAgua" class="form-control-label">Subtotal Agua</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotalAgua" th:field="*{subtotalAgua}" oninput="calcularTotales()">
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="subtotalRuido" class="form-control-label">Subtotal Ruido</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotalRuido" th:field="*{subtotalRuido}" oninput="calcularTotales()">
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="subtotalEmiciones" class="form-control-label">Subtotal Emisiones</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotalEmiciones" th:field="*{subtotalEmiciones}" oninput="calcularTotales()">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4 mb-3">
+                            <label for="subtotalCalidad" class="form-control-label">Subtotal Calidad del Aire</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotalCalidad" th:field="*{subtotalCalidad}" oninput="calcularTotales()">
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="subtotalSuelo" class="form-control-label">Subtotal Suelo</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotalSuelo" th:field="*{subtotalSuelo}" oninput="calcularTotales()">
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="costoLogistica" class="form-control-label">Logística</label>
+                            <input type="number" step="0.01" class="form-control" id="costoLogistica" th:field="*{costoLogistica}" oninput="calcularTotales()">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4 mb-3">
+                            <label for="Iva" class="form-control-label">IVA (15%)</label>
+                            <input type="number" step="0.01" class="form-control" id="Iva" th:field="*{Iva}" readonly>
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="TotalCotizacionC" class="form-control-label">Total</label>
+                            <input type="number" step="0.01" class="form-control" id="TotalCotizacionC" th:field="*{TotalCotizacionC}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                        <a href="/cotizacion/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Líneas de Detalle</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Cantidad Puntos</th>
+                                <th>Ensayo/Parámetro</th>
+                                <th>LMP</th>
+                                <th>Plazo de Entrega</th>
+                                <th>Descripción del Servicio</th>
+                                <th>P. Unitario</th>
+                                <th>P. Total</th>
+                                <th>Condición</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="linea, iter : ${detalles}">
+                                <td th:text="${iter.count}"></td>
+                                <td th:text="${linea.cantidadPuntosDetalleC}"></td>
+                                <td th:text="${linea.fkParametro != null ? linea.fkParametro.ensayoParametroC : '-'}"></td>
+                                <td th:text="${linea.fkLmp != null ? linea.fkLmp.valorLmpC : '-'}"></td>
+                                <td th:text="${linea.fkPlazoEntrega != null ? linea.fkPlazoEntrega.textoPlazoEntregaC : '-'}"></td>
+                                <td th:text="${linea.fkDescripcionServicio != null ? linea.fkDescripcionServicio.textoDescripcionServicioC : '-'}"></td>
+                                <td th:text="'$ ' + ${#numbers.formatDecimal(linea.precioUnitarioDetalleC, 1, 2)}"></td>
+                                <td th:text="'$ ' + ${#numbers.formatDecimal(linea.precioTotalDetalleC, 1, 2)}"></td>
+                                <td th:text="${linea.condicionDetalleC}"></td>
+                                <td>
+                                    <a th:href="@{/cotizacion/detalle/eliminar/{idDet}/{idCot}(idDet=${linea.idDetalleC},idCot=${cotizacion.idCotizacionC})}"
+                                       class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta línea?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+
+                <div th:if="${#lists.isEmpty(detalles)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aún no hay líneas en esta cotización — agregue la primera abajo.
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Agregar Línea de Detalle</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Agregar o eliminar una línea recarga la pantalla. Guarde primero los cambios de la cotización si tiene alguno pendiente.
+                </div>
+
+                <form th:action="@{/cotizacion/detalle/guardar/{id}(id=${cotizacion.idCotizacionC})}" method="POST">
+
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkParametro" class="form-control-label">Ensayo / Parámetro</label>
+                            <select class="form-control" id="detFkParametro" name="fkParametro">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="parametro : ${parametros}"
+                                        th:value="${parametro.idParametroC}"
+                                        th:text="${parametro.ensayoParametroC}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkLmp" class="form-control-label">LMP</label>
+                            <select class="form-control" id="detFkLmp" name="fkLmp">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="lmpLinea : ${lmps}"
+                                        th:value="${lmpLinea.idLmpC}"
+                                        th:text="${lmpLinea.codigoLmpC} + ' - ' + ${lmpLinea.valorLmpC}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkPlazoEntrega" class="form-control-label">Plazo de Entrega</label>
+                            <select class="form-control" id="detFkPlazoEntrega" name="fkPlazoEntrega">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="plazo : ${plazos}"
+                                        th:value="${plazo.idPlazoEntregaC}"
+                                        th:text="${plazo.textoPlazoEntregaC}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkDescripcionServicio" class="form-control-label">Descripción del Servicio</label>
+                            <select class="form-control" id="detFkDescripcionServicio" name="fkDescripcionServicio">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="descripcion : ${descripciones}"
+                                        th:value="${descripcion.idDescripcionServicioC}"
+                                        th:text="${descripcion.textoDescripcionServicioC}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4 mb-3">
+                            <label for="detCantidadPuntos" class="form-control-label">Cantidad de Puntos</label>
+                            <input type="number" class="form-control" id="detCantidadPuntos" name="cantidadPuntosDetalleC" value="0">
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="detPrecioUnitario" class="form-control-label">Precio Unitario (USD)</label>
+                            <input type="number" step="0.01" class="form-control" id="detPrecioUnitario" name="precioUnitarioDetalleC" value="0">
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="detCondicion" class="form-control-label">Condición</label>
+                            <select class="form-control" id="detCondicion" name="condicionDetalleC">
+                                <option value="">-- Seleccione --</option>
+                                <option value="1">1 - Acreditado</option>
+                                <option value="2">2 - Subcontratado</option>
+                                <option value="3">3 - Fuera de alcance</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar Línea</button>
+
+                </form>
             </div>
         </div>
 
     </div>
 
-	<th:block layout:fragment="scripts">
-        <script th:inline="javascript">
+    <th:block layout:fragment="scripts">
+        <script>
             function calcularTotales() {
-                const agua = parseFloat(document.getElementById('subtotalAgua').value) || 0;
-                const ruido = parseFloat(document.getElementById('subtotalRuido').value) || 0;
-                const emisiones = parseFloat(document.getElementById('subtotalEmiciones').value) || 0;
-                const calidad = parseFloat(document.getElementById('subtotalCalidad').value) || 0;
-                const suelo = parseFloat(document.getElementById('subtotalSuelo').value) || 0;
-                const logistica = parseFloat(document.getElementById('costoLogistica').value) || 0;
+                var agua = parseFloat(document.getElementById('subtotalAgua').value) || 0;
+                var ruido = parseFloat(document.getElementById('subtotalRuido').value) || 0;
+                var emisiones = parseFloat(document.getElementById('subtotalEmiciones').value) || 0;
+                var calidad = parseFloat(document.getElementById('subtotalCalidad').value) || 0;
+                var suelo = parseFloat(document.getElementById('subtotalSuelo').value) || 0;
+                var logistica = parseFloat(document.getElementById('costoLogistica').value) || 0;
 
-                const subtotal = agua + ruido + emisiones + calidad + suelo + logistica;
-                const iva = subtotal * 0.15;
-                const total = subtotal + iva;
+                var subtotal = agua + ruido + emisiones + calidad + suelo + logistica;
+                var iva = subtotal * 0.15;
+                var total = subtotal + iva;
 
                 document.getElementById('Iva').value = iva.toFixed(2);
                 document.getElementById('TotalCotizacionC').value = total.toFixed(2);

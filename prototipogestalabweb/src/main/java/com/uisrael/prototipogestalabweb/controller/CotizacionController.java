@@ -160,17 +160,19 @@ public class CotizacionController {
 			}
 		}
 
-		return "redirect:/cotizacion/detalle/" + guardada.getIdCotizacionC() + "?success=true";
+		// Tras crearla se abre la pantalla de edicion, que es donde ahora se
+		// gestionan las lineas de detalle.
+		return "redirect:/cotizacion/editar/" + guardada.getIdCotizacionC() + "?success=true";
 	}
 
 	@GetMapping("/editar/{id}")
 	public String mostrarFormularioEditar(@PathVariable int id, Model model) {
 		try {
-			
+
 			if (estaAprobada(id)) {
 				return "redirect:/cotizacion/listar?bloqueada=true";
 			}
-			
+
 			CotizacionCResponseDto actual = cotizacionService.buscarPorId(id);
 
 			CotizacionCRequestDto form = new CotizacionCRequestDto();
@@ -178,6 +180,9 @@ public class CotizacionController {
 			form.setFechaElaboracionCotizacionC(actual.getFechaElaboracionCotizacionC());
 			form.setVigenciaDiasCotizacionC(actual.getVigenciaDiasCotizacionC());
 			form.setElaboradoPorCotizacionC(actual.getElaboradoPorCotizacionC());
+			// Sin esta linea el estado llegaba siempre en false y editar la
+			// cotizacion la dejaba Inactiva sin que nadie lo pidiera.
+			form.setEstadoCotizacionC(actual.isEstadoCotizacionC());
 			form.setSubtotalAgua(actual.getSubtotalAgua());
 			form.setSubtotalRuido(actual.getSubtotalRuido());
 			form.setSubtotalEmiciones(actual.getSubtotalEmiciones());
@@ -188,9 +193,12 @@ public class CotizacionController {
 			form.setTotalCotizacionC(actual.getTotalCotizacionC());
 			if (actual.getFkCliente() != null) {
 				form.setFkCliente(actual.getFkCliente().getIdClienteC());
+				model.addAttribute("nombreCliente", actual.getFkCliente().getNombreRazonSocialClienteC());
 			}
 			if (actual.getFkEmpleado() != null) {
 				form.setFkEmpleado(actual.getFkEmpleado().getIdEmpleado());
+				model.addAttribute("nombreElaborador",
+						actual.getFkEmpleado().getNombre() + " " + actual.getFkEmpleado().getApellido());
 			}
 			if (actual.getFkNormaServicio() != null) {
 				form.setFkNormaServicio(actual.getFkNormaServicio().getIdCatalogoNormServi());
@@ -200,6 +208,8 @@ public class CotizacionController {
 			}
 
 			cargarListasDeApoyo(model);
+			// Las lineas de detalle se gestionan desde esta misma pantalla.
+			model.addAttribute("detalles", detalleService.listarPorCotizacion(id));
 			model.addAttribute("cotizacion", form);
 			model.addAttribute("esEdicion", true);
 			return "cotizacion/editarcotizacion";
@@ -213,15 +223,31 @@ public class CotizacionController {
 	public String actualizarCotizacion(@PathVariable int id, @ModelAttribute CotizacionCRequestDto cotizacion) {
 		cotizacion.setIdCotizacionC(id);
 		try {
-			
+
 			if (estaAprobada(id)) {
 				return "redirect:/cotizacion/listar?bloqueada=true";
 			}
-			
+
+			// Los datos que la pantalla ya no permite editar se vuelven a leer de
+			// la base y no del formulario: aunque alguien manipule el HTML del
+			// navegador, cliente, empleado, fecha y estado no cambian.
+			CotizacionCResponseDto original = cotizacionService.buscarPorId(id);
+			if (original != null) {
+				cotizacion.setFechaElaboracionCotizacionC(original.getFechaElaboracionCotizacionC());
+				cotizacion.setEstadoCotizacionC(original.isEstadoCotizacionC());
+				cotizacion.setElaboradoPorCotizacionC(original.getElaboradoPorCotizacionC());
+				if (original.getFkCliente() != null) {
+					cotizacion.setFkCliente(original.getFkCliente().getIdClienteC());
+				}
+				if (original.getFkEmpleado() != null) {
+					cotizacion.setFkEmpleado(original.getFkEmpleado().getIdEmpleado());
+				}
+			}
+
 			cotizacionService.guardarCotizacion(cotizacion);
-			return "redirect:/cotizacion/detalle/" + id + "?success=true";
+			return "redirect:/cotizacion/editar/" + id + "?success=true";
 		} catch (Exception e) {
-			return "cotizacion/editarcotizacion";
+			return "redirect:/cotizacion/editar/" + id + "?error=true";
 		}
 	}
 
@@ -241,20 +267,10 @@ public class CotizacionController {
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(id);
 			List<DetalleCResponseDto> detallesDeEstaCotizacion = detalleService.listarPorCotizacion(id);
 			List<CatalogoTerminoCondiCResponseDto> todosLosTerminos = terminoService.listarTerminos();
-			
+
 			model.addAttribute("todosLosTerminos", todosLosTerminos);
 			model.addAttribute("cotizacion", cotizacion);
 			model.addAttribute("detalles", detallesDeEstaCotizacion);
-			model.addAttribute("nuevoDetalle", new DetalleCRequestDto());
-
-			List<CatalogoParametroCResponseDto> parametros = parametroService.listarParametros();
-			List<LmpCResponseDto> lmps = lmpService.listarLmpCs();
-			List<DescripcionServicioCResponseDto> descripciones = descripcionServicioService.listarDescripcionServicioCs();
-			List<PlazoEntregaCResponseDto> plazos = plazoEntregaService.listarPlazoEntregaCs();
-			model.addAttribute("parametros", parametros);
-			model.addAttribute("lmps", lmps);
-			model.addAttribute("descripciones", descripciones);
-			model.addAttribute("plazos", plazos);
 
 			return "cotizacion/detallecotizacion";
 		} catch (Exception e) {
@@ -265,26 +281,26 @@ public class CotizacionController {
 	@PostMapping("/detalle/guardar/{idCotizacion}")
 	public String guardarDetalle(@PathVariable int idCotizacion, @ModelAttribute DetalleCRequestDto detalle) {
 		if (estaAprobada(idCotizacion)) {
-			return "redirect:/cotizacion/detalle/" + idCotizacion + "?bloqueada=true";
+			return "redirect:/cotizacion/editar/" + idCotizacion + "?bloqueada=true";
 		}
 		detalle.setFkCotizacion(idCotizacion);
 		detalle.setPrecioTotalDetalleC(detalle.getPrecioUnitarioDetalleC() * detalle.getCantidadPuntosDetalleC());
 		detalleService.guardarDetalle(detalle);
-		return "redirect:/cotizacion/detalle/" + idCotizacion + "?success=true";
+		return "redirect:/cotizacion/editar/" + idCotizacion + "?success=true";
 	}
 
 	@GetMapping("/detalle/eliminar/{idDetalle}/{idCotizacion}")
 	public String eliminarDetalle(@PathVariable int idDetalle, @PathVariable int idCotizacion) {
 		try {
-			
+
 			if (estaAprobada(idCotizacion)) {
-				return "redirect:/cotizacion/detalle/" + idCotizacion + "?bloqueada=true";
+				return "redirect:/cotizacion/editar/" + idCotizacion + "?bloqueada=true";
 			}
-			
+
 			detalleService.eliminarDetalle(idDetalle);
-			return "redirect:/cotizacion/detalle/" + idCotizacion + "?deleted=true";
+			return "redirect:/cotizacion/editar/" + idCotizacion + "?deleted=true";
 		} catch (Exception e) {
-			return "redirect:/cotizacion/detalle/" + idCotizacion + "?error=true";
+			return "redirect:/cotizacion/editar/" + idCotizacion + "?error=true";
 		}
 	}
 
@@ -307,7 +323,7 @@ public class CotizacionController {
 		model.addAttribute("plazos", plazos);
 
 	}
-	
+
 	private boolean estaAprobada(int idCotizacion) {
 		try {
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(idCotizacion);
@@ -316,6 +332,4 @@ public class CotizacionController {
 			return false;
 		}
 	}
-	
-	
 }
