@@ -29,25 +29,28 @@ layout:decorate="~{/plantilla/plantilla}">
             <i class="fas fa-check-circle"></i> Los cambios se guardaron correctamente.
             <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
         </div>
+        <div th:if="${param.deleted}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> La línea se eliminó correctamente.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+        </div>
         <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle"></i> No se pudo guardar. Revise los datos e inténtelo de nuevo.
             <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
         </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Datos de la Cotización</h6>
-            </div>
-            <div class="card-body">
-                <form th:action="@{/cotizacion/actualizar/{id}(id=${cotizacion.idCotizacionC})}" th:object="${cotizacion}" method="POST">
+        <form th:action="@{/cotizacion/actualizar/{id}(id=${cotizacion.idCotizacionC})}" th:object="${cotizacion}" method="POST">
 
-                    <input type="hidden" th:field="*{idCotizacionC}">
-                    <input type="hidden" th:field="*{fkCliente}">
-                    <input type="hidden" th:field="*{fkEmpleado}">
-                    <input type="hidden" th:field="*{estadoCotizacionC}">
-                    <input type="hidden" th:field="*{elaboradoPorCotizacionC}">
+            <input type="hidden" th:field="*{idCotizacionC}">
+            <input type="hidden" th:field="*{fkCliente}">
+            <input type="hidden" th:field="*{fkEmpleado}">
+            <input type="hidden" th:field="*{estadoCotizacionC}">
+            <input type="hidden" th:field="*{elaboradoPorCotizacionC}">
 
-                    <h6 class="font-weight-bold text-primary mb-3">Datos Generales</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">1. Datos Generales</h6>
+                </div>
+                <div class="card-body">
 
                     <div class="form-group row">
                         <div class="col-sm-4 mb-3">
@@ -70,7 +73,7 @@ layout:decorate="~{/plantilla/plantilla}">
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="form-group row mb-0">
                         <div class="col-sm-6 mb-3">
                             <label class="form-control-label">Elaborado Por (Empleado)</label>
                             <input type="text" class="form-control" readonly
@@ -85,9 +88,15 @@ layout:decorate="~{/plantilla/plantilla}">
                         </div>
                     </div>
 
-                    <hr>
-                    <h6 class="font-weight-bold text-primary mb-3">Norma Ambiental Aplicable</h6>
-                    <div class="form-group row">
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">2. Norma Ambiental Aplicable</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-group row mb-0">
                         <div class="col-sm-6 mb-3">
                             <label for="fkNormaServicio" class="form-control-label">Norma Ambiental *</label>
                             <select class="form-control" id="fkNormaServicio" th:field="*{fkNormaServicio}" required>
@@ -107,9 +116,119 @@ layout:decorate="~{/plantilla/plantilla}">
                             </select>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <hr>
-                    <h6 class="font-weight-bold text-primary mb-3">Costos Finales</h6>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">3. Líneas de Detalle</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Ítem</th>
+                                    <th>Cantidad Puntos</th>
+                                    <th>Ensayo/Parámetro</th>
+                                    <th>Plazo de Entrega</th>
+                                    <th>Descripción del Servicio</th>
+                                    <th>Condición</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="linea, iter : ${detalles}">
+                                    <td th:text="${iter.count}"></td>
+                                    <td th:text="${linea.cantidadPuntosDetalleC}"></td>
+                                    <td th:text="${linea.fkParametro != null ? linea.fkParametro.ensayoParametroC : '-'}"></td>
+                                    <td th:text="${linea.fkPlazoEntrega != null ? linea.fkPlazoEntrega.textoPlazoEntregaC : '-'}"></td>
+                                    <td th:text="${linea.fkDescripcionServicio != null ? linea.fkDescripcionServicio.textoDescripcionServicioC : '-'}"></td>
+                                    <td th:text="${linea.condicionDetalleC}"></td>
+                                    <td>
+                                        <a th:href="@{/cotizacion/detalle/eliminar/{idDet}/{idCot}(idDet=${linea.idDetalleC},idCot=${cotizacion.idCotizacionC})}"
+                                           class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta línea?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(detalles)}" class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> Aún no hay líneas en esta cotización — agregue la primera abajo.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">4. Agregar Línea de Detalle</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Agregar o eliminar una línea recarga la pantalla. Guarde primero los cambios de la cotización si tiene alguno pendiente.
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkParametro" class="form-control-label">Ensayo / Parámetro</label>
+                            <select class="form-control" id="detFkParametro" name="fkParametro" form="formLineaDetalle">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="parametro : ${parametros}"
+                                        th:value="${parametro.idParametroC}"
+                                        th:text="${parametro.ensayoParametroC}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkPlazoEntrega" class="form-control-label">Plazo de Entrega</label>
+                            <select class="form-control" id="detFkPlazoEntrega" name="fkPlazoEntrega" form="formLineaDetalle">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="plazo : ${plazos}"
+                                        th:value="${plazo.idPlazoEntregaC}"
+                                        th:text="${plazo.textoPlazoEntregaC}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="detFkDescripcionServicio" class="form-control-label">Descripción del Servicio</label>
+                            <select class="form-control" id="detFkDescripcionServicio" name="fkDescripcionServicio" form="formLineaDetalle">
+                                <option value="0">-- Seleccione --</option>
+                                <option th:each="descripcion : ${descripciones}"
+                                        th:value="${descripcion.idDescripcionServicioC}"
+                                        th:text="${descripcion.textoDescripcionServicioC}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <label for="detCantidadPuntos" class="form-control-label">Cantidad de Puntos</label>
+                            <input type="number" class="form-control" id="detCantidadPuntos" name="cantidadPuntosDetalleC" value="0" form="formLineaDetalle">
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <label for="detCondicion" class="form-control-label">Condición</label>
+                            <select class="form-control" id="detCondicion" name="condicionDetalleC" form="formLineaDetalle">
+                                <option value="">-- Seleccione --</option>
+                                <option value="1">1 - Acreditado</option>
+                                <option value="2">2 - Subcontratado</option>
+                                <option value="3">3 - Fuera de alcance</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" form="formLineaDetalle">
+                        <i class="fas fa-plus"></i> Agregar Línea
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">5. Costos Finales</h6>
+                </div>
+                <div class="card-body">
                     <small class="text-muted d-block mb-3">
                         El IVA y el Total se calculan solos a partir de los subtotales.
                     </small>
@@ -159,139 +278,15 @@ layout:decorate="~{/plantilla/plantilla}">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>
                         <a href="/cotizacion/listar" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
                     </div>
-
-                </form>
-            </div>
-        </div>
-
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Líneas de Detalle</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Ítem</th>
-                                <th>Cantidad Puntos</th>
-                                <th>Ensayo/Parámetro</th>
-                                <th>LMP</th>
-                                <th>Plazo de Entrega</th>
-                                <th>Descripción del Servicio</th>
-                                <th>P. Unitario</th>
-                                <th>P. Total</th>
-                                <th>Condición</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="linea, iter : ${detalles}">
-                                <td th:text="${iter.count}"></td>
-                                <td th:text="${linea.cantidadPuntosDetalleC}"></td>
-                                <td th:text="${linea.fkParametro != null ? linea.fkParametro.ensayoParametroC : '-'}"></td>
-                                <td th:text="${linea.fkLmp != null ? linea.fkLmp.valorLmpC : '-'}"></td>
-                                <td th:text="${linea.fkPlazoEntrega != null ? linea.fkPlazoEntrega.textoPlazoEntregaC : '-'}"></td>
-                                <td th:text="${linea.fkDescripcionServicio != null ? linea.fkDescripcionServicio.textoDescripcionServicioC : '-'}"></td>
-                                <td th:text="'$ ' + ${#numbers.formatDecimal(linea.precioUnitarioDetalleC, 1, 2)}"></td>
-                                <td th:text="'$ ' + ${#numbers.formatDecimal(linea.precioTotalDetalleC, 1, 2)}"></td>
-                                <td th:text="${linea.condicionDetalleC}"></td>
-                                <td>
-                                    <a th:href="@{/cotizacion/detalle/eliminar/{idDet}/{idCot}(idDet=${linea.idDetalleC},idCot=${cotizacion.idCotizacionC})}"
-                                       class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta línea?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div th:if="${#lists.isEmpty(detalles)}" class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> Aún no hay líneas en esta cotización — agregue la primera abajo.
                 </div>
             </div>
-        </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Agregar Línea de Detalle</h6>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Agregar o eliminar una línea recarga la pantalla. Guarde primero los cambios de la cotización si tiene alguno pendiente.
-                </div>
+        </form>
 
-                <form th:action="@{/cotizacion/detalle/guardar/{id}(id=${cotizacion.idCotizacionC})}" method="POST">
-
-                    <div class="form-group row">
-                        <div class="col-sm-6 mb-3">
-                            <label for="detFkParametro" class="form-control-label">Ensayo / Parámetro</label>
-                            <select class="form-control" id="detFkParametro" name="fkParametro">
-                                <option value="0">-- Seleccione --</option>
-                                <option th:each="parametro : ${parametros}"
-                                        th:value="${parametro.idParametroC}"
-                                        th:text="${parametro.ensayoParametroC}"></option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <label for="detFkLmp" class="form-control-label">LMP</label>
-                            <select class="form-control" id="detFkLmp" name="fkLmp">
-                                <option value="0">-- Seleccione --</option>
-                                <option th:each="lmpLinea : ${lmps}"
-                                        th:value="${lmpLinea.idLmpC}"
-                                        th:text="${lmpLinea.codigoLmpC} + ' - ' + ${lmpLinea.valorLmpC}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-sm-6 mb-3">
-                            <label for="detFkPlazoEntrega" class="form-control-label">Plazo de Entrega</label>
-                            <select class="form-control" id="detFkPlazoEntrega" name="fkPlazoEntrega">
-                                <option value="0">-- Seleccione --</option>
-                                <option th:each="plazo : ${plazos}"
-                                        th:value="${plazo.idPlazoEntregaC}"
-                                        th:text="${plazo.textoPlazoEntregaC}"></option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <label for="detFkDescripcionServicio" class="form-control-label">Descripción del Servicio</label>
-                            <select class="form-control" id="detFkDescripcionServicio" name="fkDescripcionServicio">
-                                <option value="0">-- Seleccione --</option>
-                                <option th:each="descripcion : ${descripciones}"
-                                        th:value="${descripcion.idDescripcionServicioC}"
-                                        th:text="${descripcion.textoDescripcionServicioC}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-sm-4 mb-3">
-                            <label for="detCantidadPuntos" class="form-control-label">Cantidad de Puntos</label>
-                            <input type="number" class="form-control" id="detCantidadPuntos" name="cantidadPuntosDetalleC" value="0">
-                        </div>
-                        <div class="col-sm-4 mb-3">
-                            <label for="detPrecioUnitario" class="form-control-label">Precio Unitario (USD)</label>
-                            <input type="number" step="0.01" class="form-control" id="detPrecioUnitario" name="precioUnitarioDetalleC" value="0">
-                        </div>
-                        <div class="col-sm-4 mb-3">
-                            <label for="detCondicion" class="form-control-label">Condición</label>
-                            <select class="form-control" id="detCondicion" name="condicionDetalleC">
-                                <option value="">-- Seleccione --</option>
-                                <option value="1">1 - Acreditado</option>
-                                <option value="2">2 - Subcontratado</option>
-                                <option value="3">3 - Fuera de alcance</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar Línea</button>
-
-                </form>
-            </div>
-        </div>
+        <form th:action="@{/cotizacion/detalle/guardar/{id}(id=${cotizacion.idCotizacionC})}" id="formLineaDetalle" method="POST">
+            <input type="hidden" name="fkLmp" value="0">
+            <input type="hidden" name="precioUnitarioDetalleC" value="0">
+        </form>
 
     </div>
 
