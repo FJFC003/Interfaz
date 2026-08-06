@@ -66,19 +66,24 @@ layout:decorate="~{/plantilla/plantilla}">
                                     <input type="date" class="form-control" id="fechaPago" th:field="*{fechaPago}" required>
                                 </div>
                                 <div class="col-sm-6 mb-3">
-                                    <label for="fkEmpleadoAprueba" class="form-control-label">Quien aprueba *</label>
-                                    <select class="form-control" id="fkEmpleadoAprueba" th:field="*{fkEmpleadoAprueba}" required>
-                                        <option value="">-- Seleccione --</option>
-                                        <option th:each="emp : ${empleados}"
-                                                th:value="${emp.idEmpleado}"
-                                                th:text="${emp.nombre} + ' ' + ${emp.apellido}"></option>
-                                    </select>
-                                    <small class="text-muted">Queda registrado para trazabilidad.</small>
+                                    <label class="form-control-label">Quien aprueba *</label>
+                                    <input type="text" class="form-control" readonly
+                                           th:value="${empleadoActual != null} ? ${empleadoActual.nombre} + ' ' + ${empleadoActual.apellido} : 'Sin identificar'">
+                                    <input type="hidden" th:if="${empleadoActual != null}"
+                                           name="fkEmpleadoAprueba" th:value="${empleadoActual.idEmpleado}">
+                                    <small th:if="${empleadoActual != null}" class="text-muted">
+                                        Es la persona con la sesión abierta. Queda registrado para trazabilidad.
+                                    </small>
+                                    <small th:if="${empleadoActual == null}" class="text-danger d-block">
+                                        La sesión actual no tiene una ficha de empleado asociada, así que no se puede
+                                        registrar quién aprueba. Inicie sesión con la cuenta de la Coordinadora Comercial.
+                                    </small>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <button type="submit" class="btn btn-success"
+                                        th:disabled="${empleadoActual == null}"
                                         onclick="return confirm('¿Confirma que el cliente ya pagó y desea aprobar esta cotización?')">
                                     <i class="fas fa-check"></i> Aprobar Cotización
                                 </button>

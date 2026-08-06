@@ -43,7 +43,6 @@ layout:decorate="~{/plantilla/plantilla}">
             <input type="hidden" th:field="*{idCotizacionC}">
             <input type="hidden" th:field="*{fkCliente}">
             <input type="hidden" th:field="*{fkEmpleado}">
-            <input type="hidden" th:field="*{estadoCotizacionC}">
             <input type="hidden" th:field="*{elaboradoPorCotizacionC}">
 
             <div class="card shadow mb-4">
@@ -62,8 +61,11 @@ layout:decorate="~{/plantilla/plantilla}">
 
                         <div class="col-sm-4 mb-3">
                             <label class="form-control-label">Estado</label>
-                            <input type="text" class="form-control" readonly
-                                   th:value="${cotizacion.estadoCotizacionC} ? 'Activa' : 'Inactiva'">
+                            <div class="custom-control custom-checkbox mt-2">
+                                <input type="checkbox" class="custom-control-input" id="estadoCotizacionC" th:field="*{estadoCotizacionC}">
+                                <label class="custom-control-label" for="estadoCotizacionC">Activa</label>
+                            </div>
+                            <small class="text-muted">Desmarcada queda como Inactiva. No es el estado de aprobación.</small>
                         </div>
 
                         <div class="col-sm-4 mb-3">
@@ -312,4 +314,4 @@ layout:decorate="~{/plantilla/plantilla}">
 
 </body>
 
-</html>
+</html>```

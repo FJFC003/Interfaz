@@ -230,11 +230,11 @@ public class CotizacionController {
 
 			// Los datos que la pantalla ya no permite editar se vuelven a leer de
 			// la base y no del formulario: aunque alguien manipule el HTML del
-			// navegador, cliente, empleado, fecha y estado no cambian.
+			// navegador, cliente, empleado y fecha no cambian. El estado activa /
+			// inactiva SI llega del formulario porque la pantalla lo deja editar.
 			CotizacionCResponseDto original = cotizacionService.buscarPorId(id);
 			if (original != null) {
 				cotizacion.setFechaElaboracionCotizacionC(original.getFechaElaboracionCotizacionC());
-				cotizacion.setEstadoCotizacionC(original.isEstadoCotizacionC());
 				cotizacion.setElaboradoPorCotizacionC(original.getElaboradoPorCotizacionC());
 				if (original.getFkCliente() != null) {
 					cotizacion.setFkCliente(original.getFkCliente().getIdClienteC());
