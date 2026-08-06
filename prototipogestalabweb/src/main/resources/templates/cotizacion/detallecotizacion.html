@@ -15,6 +15,12 @@ layout:decorate="~{/plantilla/plantilla}">
                 <i class="fas fa-file-invoice-dollar"></i>
                 Cotización #<span th:text="${cotizacion.idCotizacionC}"></span>
             </h1>
+            
+            <div th:if="${cotizacion.estadoAprobacion == 'APROBADA'}" class="alert alert-success">
+            <i class="fas fa-lock"></i>
+            Esta cotización está <strong>aprobada</strong>. Sus datos y sus líneas ya no se pueden modificar.
+        </div>
+        
             <div>
                 <a th:href="@{/cotizacion/pdf/{id}(id=${cotizacion.idCotizacionC})}" class="btn btn-sm btn-danger shadow-sm" target="_blank">
                     <i class="fas fa-file-pdf"></i> PDF (tabla combinada)
@@ -108,9 +114,14 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${det.condicionDetalleC}"></td>
                                 <td>
                                     <a th:href="@{/cotizacion/detalle/eliminar/{idDet}/{idCot}(idDet=${det.idDetalleC},idCot=${cotizacion.idCotizacionC})}"
+                                       th:if="${cotizacion.estadoAprobacion != 'APROBADA'}"
                                        class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
+                                    <span th:unless="${cotizacion.estadoAprobacion != 'APROBADA'}"
+                                          class="btn btn-sm btn-secondary disabled" title="Cotización aprobada">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -123,7 +134,7 @@ layout:decorate="~{/plantilla/plantilla}">
             </div>
         </div>
 
-        <div class="card shadow mb-4">
+        <div class="card shadow mb-4" th:if="${cotizacion.estadoAprobacion != 'APROBADA'}">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Agregar Línea de Detalle</h6>
             </div>

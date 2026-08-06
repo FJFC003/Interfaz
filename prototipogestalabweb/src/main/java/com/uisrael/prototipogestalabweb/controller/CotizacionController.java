@@ -166,6 +166,11 @@ public class CotizacionController {
 	@GetMapping("/editar/{id}")
 	public String mostrarFormularioEditar(@PathVariable int id, Model model) {
 		try {
+			
+			if (estaAprobada(id)) {
+				return "redirect:/cotizacion/listar?bloqueada=true";
+			}
+			
 			CotizacionCResponseDto actual = cotizacionService.buscarPorId(id);
 
 			CotizacionCRequestDto form = new CotizacionCRequestDto();
@@ -198,7 +203,8 @@ public class CotizacionController {
 			model.addAttribute("cotizacion", form);
 			model.addAttribute("esEdicion", true);
 			return "cotizacion/editarcotizacion";
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return "error";
 		}
 	}
@@ -207,6 +213,11 @@ public class CotizacionController {
 	public String actualizarCotizacion(@PathVariable int id, @ModelAttribute CotizacionCRequestDto cotizacion) {
 		cotizacion.setIdCotizacionC(id);
 		try {
+			
+			if (estaAprobada(id)) {
+				return "redirect:/cotizacion/listar?bloqueada=true";
+			}
+			
 			cotizacionService.guardarCotizacion(cotizacion);
 			return "redirect:/cotizacion/detalle/" + id + "?success=true";
 		} catch (Exception e) {
@@ -253,6 +264,9 @@ public class CotizacionController {
 
 	@PostMapping("/detalle/guardar/{idCotizacion}")
 	public String guardarDetalle(@PathVariable int idCotizacion, @ModelAttribute DetalleCRequestDto detalle) {
+		if (estaAprobada(idCotizacion)) {
+			return "redirect:/cotizacion/detalle/" + idCotizacion + "?bloqueada=true";
+		}
 		detalle.setFkCotizacion(idCotizacion);
 		detalle.setPrecioTotalDetalleC(detalle.getPrecioUnitarioDetalleC() * detalle.getCantidadPuntosDetalleC());
 		detalleService.guardarDetalle(detalle);
@@ -262,6 +276,11 @@ public class CotizacionController {
 	@GetMapping("/detalle/eliminar/{idDetalle}/{idCotizacion}")
 	public String eliminarDetalle(@PathVariable int idDetalle, @PathVariable int idCotizacion) {
 		try {
+			
+			if (estaAprobada(idCotizacion)) {
+				return "redirect:/cotizacion/detalle/" + idCotizacion + "?bloqueada=true";
+			}
+			
 			detalleService.eliminarDetalle(idDetalle);
 			return "redirect:/cotizacion/detalle/" + idCotizacion + "?deleted=true";
 		} catch (Exception e) {
@@ -288,4 +307,15 @@ public class CotizacionController {
 		model.addAttribute("plazos", plazos);
 
 	}
+	
+	private boolean estaAprobada(int idCotizacion) {
+		try {
+			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(idCotizacion);
+			return cotizacion != null && "APROBADA".equalsIgnoreCase(cotizacion.getEstadoAprobacion());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	
 }
