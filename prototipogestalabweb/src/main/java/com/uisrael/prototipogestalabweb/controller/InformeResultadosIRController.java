@@ -34,18 +34,22 @@ import com.uisrael.prototipogestalabweb.model.dto.response.CondicionAmbientalIRR
 import com.uisrael.prototipogestalabweb.model.dto.response.EquipoLaboratorioResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EquiposUtilizadosIRResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.InformacionMatrizPLResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.InformeResultadosIRResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.OrdenTrabajoOTResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ParametroAnalizarPLResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.RecursosCronoPLResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ResultadosIRResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.TipoTomaFreHoraPLResponseDto;
 import com.uisrael.prototipogestalabweb.services.IEmpleadoService;
 import com.uisrael.prototipogestalabweb.services.IEquipoLaboratorioService;
+import com.uisrael.prototipogestalabweb.services.IInformacionMatrizPLService;
 import com.uisrael.prototipogestalabweb.services.IInformeResultadosIRService;
 import com.uisrael.prototipogestalabweb.services.IOrdenTrabajoOTService;
 import com.uisrael.prototipogestalabweb.services.IParametroAnalizarPLService;
 import com.uisrael.prototipogestalabweb.services.IRecursosCronoPLService;
+import com.uisrael.prototipogestalabweb.services.ITipoTomaFreHoraPLService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -63,12 +67,15 @@ public class InformeResultadosIRController {
 	private final IEquipoLaboratorioService equipoService;
 	private final IRecursosCronoPLService recursosService;
 	private final IEmpleadoService empleadoService;
+	private final IInformacionMatrizPLService matrizService;
+	private final ITipoTomaFreHoraPLService tipoTomaService;
 	private final SpringTemplateEngine templateEngine;
 	
 	public InformeResultadosIRController(IInformeResultadosIRService informeService,
 			IOrdenTrabajoOTService ordenService, IParametroAnalizarPLService parametroService,
 			IEquipoLaboratorioService equipoService, IRecursosCronoPLService recursosService,
-			IEmpleadoService empleadoService, SpringTemplateEngine templateEngine) {
+			IEmpleadoService empleadoService, IInformacionMatrizPLService matrizService,
+			ITipoTomaFreHoraPLService tipoTomaService, SpringTemplateEngine templateEngine) {
 		super();
 		this.informeService = informeService;
 		this.ordenService = ordenService;
@@ -76,6 +83,8 @@ public class InformeResultadosIRController {
 		this.equipoService = equipoService;
 		this.recursosService = recursosService;
 		this.empleadoService = empleadoService;
+		this.matrizService = matrizService;
+		this.tipoTomaService = tipoTomaService;
 		this.templateEngine = templateEngine;
 	}
 	
@@ -158,6 +167,8 @@ public class InformeResultadosIRController {
 			model.addAttribute("fechaMuestreo", muestreo != null ? muestreo.getFechaMuestreo() : null);
 			model.addAttribute("horaMuestreo", muestreo != null ? muestreo.getHoraDefinida() : null);
 			model.addAttribute("analista", analista);
+			model.addAttribute("tipoMatriz", tipoMatrizDelPlan(orden));
+			model.addAttribute("tipoMuestreo", tipoMuestreoDelPlan(orden));
 
 			model.addAttribute("informeCompleto", form);
 			model.addAttribute("orden", orden);
@@ -199,6 +210,40 @@ public class InformeResultadosIRController {
 			List<RecursosCronoPLResponseDto> lineas =
 					recursosService.listarPorPlan(orden.getFkPlanMuestreo().getIdPlan());
 			return lineas == null || lineas.isEmpty() ? null : lineas.get(0);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Tipo de matriz. Lo registro el Tecnico de Campo en la seccion
+	 * "Informacion de la matriz" del Plan de Muestreo. Se toma la primera linea.
+	 */
+	private String tipoMatrizDelPlan(OrdenTrabajoOTResponseDto orden) {
+		try {
+			if (orden == null || orden.getFkPlanMuestreo() == null) {
+				return null;
+			}
+			List<InformacionMatrizPLResponseDto> lineas =
+					matrizService.listarPorPlan(orden.getFkPlanMuestreo().getIdPlan());
+			return lineas == null || lineas.isEmpty() ? null : lineas.get(0).getTipoMatriz();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Tipo de muestreo. Viene de "Tipo de toma, frecuencia y hora" del mismo
+	 * plan, tambien completado en campo.
+	 */
+	private String tipoMuestreoDelPlan(OrdenTrabajoOTResponseDto orden) {
+		try {
+			if (orden == null || orden.getFkPlanMuestreo() == null) {
+				return null;
+			}
+			List<TipoTomaFreHoraPLResponseDto> lineas =
+					tipoTomaService.listarPorPlan(orden.getFkPlanMuestreo().getIdPlan());
+			return lineas == null || lineas.isEmpty() ? null : lineas.get(0).getTipo();
 		} catch (Exception e) {
 			return null;
 		}
@@ -262,6 +307,14 @@ public class InformeResultadosIRController {
 		form.getInforme().setNotasAdvertencia(cabecera.getNotasAdvertencia());
 		form.getInforme().setNombreResponsable(cabecera.getNombreResponsable());
 		form.getInforme().setConformidadGeneral(cabecera.getConformidadGeneral());
+		// Datos del sitio de muestreo que el laboratorio ya habia escrito.
+		form.getInforme().setIdentificacionSitioMuestreo(cabecera.getIdentificacionSitioMuestreo());
+		form.getInforme().setCoordenadaUtmX(cabecera.getCoordenadaUtmX());
+		form.getInforme().setCoordenadaUtmY(cabecera.getCoordenadaUtmY());
+		form.getInforme().setCodigoCadenaCustodia(cabecera.getCodigoCadenaCustodia());
+		form.getInforme().setCodigoLaboratorio(cabecera.getCodigoLaboratorio());
+		form.getInforme().setProcedimientoTomaMuestra(cabecera.getProcedimientoTomaMuestra());
+		form.getInforme().setFechaIngresoLaboratorio(cabecera.getFechaIngresoLaboratorio());
 		form.getInforme().setFkOrdenTrabajo(idOT);
 		if (cabecera.getFkDatosLaboratorio() != null) {
 			form.getInforme().setFkDatosLaboratorio(cabecera.getFkDatosLaboratorio().getIdDatos());
@@ -401,6 +454,8 @@ public class InformeResultadosIRController {
 			RecursosCronoPLResponseDto muestreo = muestreoDeLaOrden(orden);
 			contexto.setVariable("fechaMuestreo", muestreo != null ? muestreo.getFechaMuestreo() : null);
 			contexto.setVariable("horaMuestreo", muestreo != null ? muestreo.getHoraDefinida() : null);
+			contexto.setVariable("tipoMatriz", tipoMatrizDelPlan(orden));
+			contexto.setVariable("tipoMuestreo", tipoMuestreoDelPlan(orden));
 
 			String html = templateEngine.process("informe/informepdf", contexto);
 

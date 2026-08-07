@@ -236,7 +236,6 @@ layout:decorate="~{/plantilla/plantilla}">
             <div class="card-header py-3" style="background-color:#548235; color:#fff;">
                 <h6 class="m-0 font-weight-bold">
                     INFORMACIÓN DEL SITIO DE MUESTREO
-                    <span class="badge badge-warning ml-2">Maqueta</span>
                 </h6>
             </div>
             <div class="card-body">
@@ -255,15 +254,22 @@ layout:decorate="~{/plantilla/plantilla}">
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-control-label text-muted">Fecha de muestreo</label>
-                        <input type="date" class="form-control bg-light" disabled>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${fechaMuestreo != null
+                                       ? #dates.format(fechaMuestreo, 'dd/MM/yyyy')
+                                       : 'Sin fecha programada en el plan'}">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-control-label text-muted">Hora de muestreo</label>
-                        <input type="time" class="form-control bg-light" disabled>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${horaMuestreo != null ? #dates.format(horaMuestreo, 'HH:mm') : '-'}">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-control-label text-muted">Fecha de ingreso a laboratorio</label>
-                        <input type="date" class="form-control bg-light" disabled>
+                        <label for="fechaIngresoLaboratorio" class="form-control-label">
+                            Fecha de ingreso a laboratorio
+                        </label>
+                        <input type="date" class="form-control" id="fechaIngresoLaboratorio"
+                               th:field="*{informe.fechaIngresoLaboratorio}">
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -272,39 +278,57 @@ layout:decorate="~{/plantilla/plantilla}">
                                th:value="${plan != null ? plan.codigoPlan : '-'}">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-control-label text-muted">Identificación sitio muestreo</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <label for="identificacionSitioMuestreo" class="form-control-label">
+                            Identificación sitio muestreo
+                        </label>
+                        <input type="text" class="form-control" id="identificacionSitioMuestreo"
+                               th:field="*{informe.identificacionSitioMuestreo}"
+                               placeholder="Ej: Descarga final planta norte">
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <label class="form-control-label text-muted">Coordenada UTM X</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <label for="coordenadaUtmX" class="form-control-label">Coordenada UTM X</label>
+                        <input type="text" class="form-control" id="coordenadaUtmX"
+                               th:field="*{informe.coordenadaUtmX}">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-control-label text-muted">Coordenada UTM Y</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <label for="coordenadaUtmY" class="form-control-label">Coordenada UTM Y</label>
+                        <input type="text" class="form-control" id="coordenadaUtmY"
+                               th:field="*{informe.coordenadaUtmY}">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-control-label text-muted">Código muestra cadena de custodia</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <label for="codigoCadenaCustodia" class="form-control-label">
+                            Código muestra cadena de custodia
+                        </label>
+                        <input type="text" class="form-control" id="codigoCadenaCustodia"
+                               th:field="*{informe.codigoCadenaCustodia}">
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label class="form-control-label text-muted">Tipo de matriz</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${tipoMatriz != null ? tipoMatriz : 'No registrado en el plan'}">
+                        <small class="text-muted">Lo registró el Técnico de Campo en el plan.</small>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-control-label text-muted">Tipo de muestreo</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${tipoMuestreo != null ? tipoMuestreo : 'No registrado en el plan'}">
+                        <small class="text-muted">Lo registró el Técnico de Campo en el plan.</small>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-control-label text-muted">Código Laboratorio</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <label for="codigoLaboratorio" class="form-control-label">Código Laboratorio</label>
+                        <input type="text" class="form-control" id="codigoLaboratorio"
+                               th:field="*{informe.codigoLaboratorio}">
                     </div>
 
                     <div class="col-md-12 mb-3">
-                        <label class="form-control-label text-muted">Procedimiento de toma de muestra</label>
-                        <input type="text" class="form-control bg-light" disabled placeholder="—">
+                        <label for="procedimientoTomaMuestra" class="form-control-label">
+                            Procedimiento de toma de muestra
+                        </label>
+                        <input type="text" class="form-control" id="procedimientoTomaMuestra"
+                               th:field="*{informe.procedimientoTomaMuestra}"
+                               placeholder="Ej: NTE INEN 2176 — Muestreo de aguas residuales">
                     </div>
                 </div>
 

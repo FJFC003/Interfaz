@@ -198,37 +198,37 @@
         <td th:text="${fechaMuestreo != null ? #dates.format(fechaMuestreo, 'dd/MM/yyyy') : ''}"></td>
         <td class="etiqueta">Hora muestreo:</td>
         <td th:text="${horaMuestreo != null ? #dates.format(horaMuestreo, 'HH:mm') : ''}"></td>
-        <td></td>
         <td class="etiqueta">Fecha de ingreso a laboratorio:</td>
-        <td></td>
+        <td th:text="${informe.fechaIngresoLaboratorio != null
+                       ? #dates.format(informe.fechaIngresoLaboratorio, 'dd/MM/yyyy') : ''}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Plan de muestreo:</td>
         <td th:text="${orden.fkPlanMuestreo != null ? orden.fkPlanMuestreo.codigoPlan : ''}"></td>
         <td class="etiqueta">Identificación sitio muestreo:</td>
-        <td colspan="3"></td>
+        <td colspan="3" th:text="${informe.identificacionSitioMuestreo}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Coordenadas UTM X:</td>
-        <td></td>
+        <td th:text="${informe.coordenadaUtmX}"></td>
         <td class="etiqueta">Código muestra cadena de custodia:</td>
-        <td colspan="3"></td>
+        <td colspan="3" th:text="${informe.codigoCadenaCustodia}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Coordenadas UTM Y:</td>
-        <td></td>
+        <td th:text="${informe.coordenadaUtmY}"></td>
         <td class="etiqueta">Código Laboratorio:</td>
-        <td colspan="3"></td>
+        <td colspan="3" th:text="${informe.codigoLaboratorio}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Tipo de matriz:</td>
-        <td></td>
+        <td th:text="${tipoMatriz}"></td>
         <td class="etiqueta">Tipo de muestreo:</td>
-        <td colspan="3"></td>
+        <td colspan="3" th:text="${tipoMuestreo}"></td>
     </tr>
     <tr>
         <td class="etiqueta">Procedimiento de toma de muestra:</td>
-        <td colspan="5"></td>
+        <td colspan="5" th:text="${informe.procedimientoTomaMuestra}"></td>
     </tr>
 </table>
 

@@ -21,4 +21,15 @@ public class InformeResultadosIRRequestDto {
 	private int fkDatosLaboratorio;
 	private int fkOrdenTrabajo;
 
+	// ---- Informacion del sitio de muestreo ----
+	private String identificacionSitioMuestreo;
+	private String coordenadaUtmX;
+	private String coordenadaUtmY;
+	private String codigoCadenaCustodia;
+	private String codigoLaboratorio;
+	private String procedimientoTomaMuestra;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date fechaIngresoLaboratorio;
+
 }

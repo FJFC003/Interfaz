@@ -18,4 +18,13 @@ public class InformeResultadosIRResponseDto {
 	private String estadoInforme;
 	private Date fechaEnvioCoordinacion;
 
+	// ---- Informacion del sitio de muestreo ----
+	private String identificacionSitioMuestreo;
+	private String coordenadaUtmX;
+	private String coordenadaUtmY;
+	private String codigoCadenaCustodia;
+	private String codigoLaboratorio;
+	private String procedimientoTomaMuestra;
+	private Date fechaIngresoLaboratorio;
+
 }
