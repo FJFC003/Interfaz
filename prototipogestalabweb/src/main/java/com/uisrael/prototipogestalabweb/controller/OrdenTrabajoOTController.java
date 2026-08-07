@@ -91,7 +91,45 @@ public class OrdenTrabajoOTController {
 
 		model.addAttribute("planes", listos);
 		model.addAttribute("enProceso", enProceso);
+		// Planes que ya tienen su Orden de Trabajo emitida: la pantalla usa este
+		// mapa para cambiar el boton "Generar OT" por el aviso correspondiente.
+		model.addAttribute("otPorPlan", ordenesPorPlan());
 		return "ordentrabajo/pendientesorden";
+	}
+
+	/**
+	 * Ordenes ya emitidas, indexadas por el plan del que salieron.
+	 * Se recorre la lista una sola vez en lugar de preguntar plan por plan.
+	 */
+	private java.util.Map<Integer, OrdenTrabajoOTResponseDto> ordenesPorPlan() {
+		java.util.Map<Integer, OrdenTrabajoOTResponseDto> mapa = new java.util.HashMap<>();
+		try {
+			for (OrdenTrabajoOTResponseDto ot : ordenService.listarOrdenes()) {
+				if (ot.getFkPlanMuestreo() == null) {
+					continue;
+				}
+				// Si por datos antiguos hubiera dos ordenes del mismo plan se
+				// conserva la primera, que es la que abre el control de duplicados.
+				mapa.putIfAbsent(ot.getFkPlanMuestreo().getIdPlan(), ot);
+			}
+		} catch (Exception e) {
+			return mapa;
+		}
+		return mapa;
+	}
+
+	/**
+	 * La orden solo se edita mientras esta en ejecucion. Una vez enviada al
+	 * Laboratorio queda cerrada hasta que alguien la devuelva a Coordinacion.
+	 */
+	private boolean puedeEditarOrden(int idOT) {
+		try {
+			OrdenTrabajoOTResponseDto orden = ordenService.buscarPorId(idOT);
+			return orden == null || orden.getEstadoOT() == null
+					|| "EN_EJECUCION".equalsIgnoreCase(orden.getEstadoOT());
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	// ================= GENERAR OT DESDE EL PLAN =================
@@ -105,6 +143,13 @@ public class OrdenTrabajoOTController {
 	@GetMapping("/nuevo/{idPlan}")
 	public String mostrarFormularioNuevo(@PathVariable int idPlan, Model model) {
 		try {
+			// Un plan tiene una sola Orden de Trabajo. La pantalla ya no ofrece
+			// el boton, pero la direccion se puede escribir a mano.
+			List<OrdenTrabajoOTResponseDto> yaEmitidas = ordenService.listarPorPlan(idPlan);
+			if (yaEmitidas != null && !yaEmitidas.isEmpty()) {
+				return "redirect:/ordentrabajo/detalle/" + yaEmitidas.get(0).getIdOT() + "?duplicada=true";
+			}
+
 			PlanMuestreoPLResponseDto plan = planService.buscarPorId(idPlan);
 
 			OrdenTrabajoOTRequestDto form = new OrdenTrabajoOTRequestDto();
@@ -252,6 +297,8 @@ public class OrdenTrabajoOTController {
 			model.addAttribute("desvios", desvioService.listarPorOrden(idOT));
 			model.addAttribute("nuevoMonitoreo", new DetalleOrdenTrabajoOTRequestDto());
 			model.addAttribute("nuevoDesvio", new DesviosOrdenOTRequestDto());
+			// Enviada al Laboratorio o con informe emitido = solo lectura.
+			model.addAttribute("puedeEditar", puedeEditarOrden(idOT));
 			return "ordentrabajo/detalleorden";
 		} catch (Exception e) {
 			model.addAttribute("mensajeError", e.getMessage());
@@ -303,6 +350,9 @@ public class OrdenTrabajoOTController {
 
 	@PostMapping("/monitoreo/guardar/{idOT}")
 	public String guardarMonitoreo(@PathVariable int idOT, @ModelAttribute DetalleOrdenTrabajoOTRequestDto dto) {
+		if (!puedeEditarOrden(idOT)) {
+			return "redirect:/ordentrabajo/detalle/" + idOT + "?bloqueada=true";
+		}
 		dto.setFkOrdenTrabajo(idOT);
 		monitoreoService.guardar(dto);
 		return "redirect:/ordentrabajo/detalle/" + idOT + "?success=true";
@@ -310,12 +360,18 @@ public class OrdenTrabajoOTController {
 
 	@GetMapping("/monitoreo/eliminar/{id}/{idOT}")
 	public String eliminarMonitoreo(@PathVariable int id, @PathVariable int idOT) {
+		if (!puedeEditarOrden(idOT)) {
+			return "redirect:/ordentrabajo/detalle/" + idOT + "?bloqueada=true";
+		}
 		monitoreoService.eliminar(id);
 		return "redirect:/ordentrabajo/detalle/" + idOT + "?deleted=true";
 	}
 
 	@PostMapping("/desvio/guardar/{idOT}")
 	public String guardarDesvio(@PathVariable int idOT, @ModelAttribute DesviosOrdenOTRequestDto dto) {
+		if (!puedeEditarOrden(idOT)) {
+			return "redirect:/ordentrabajo/detalle/" + idOT + "?bloqueada=true";
+		}
 		dto.setFkOrdenTrabajo(idOT);
 		desvioService.guardar(dto);
 		return "redirect:/ordentrabajo/detalle/" + idOT + "?success=true";
@@ -323,6 +379,9 @@ public class OrdenTrabajoOTController {
 
 	@GetMapping("/desvio/eliminar/{id}/{idOT}")
 	public String eliminarDesvio(@PathVariable int id, @PathVariable int idOT) {
+		if (!puedeEditarOrden(idOT)) {
+			return "redirect:/ordentrabajo/detalle/" + idOT + "?bloqueada=true";
+		}
 		desvioService.eliminar(id);
 		return "redirect:/ordentrabajo/detalle/" + idOT + "?deleted=true";
 	}

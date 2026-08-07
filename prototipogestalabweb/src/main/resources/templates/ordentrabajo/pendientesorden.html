@@ -30,12 +30,23 @@ layout:decorate="~{/plantilla/plantilla}">
                             <td th:text="${plan.fkDetalleCotizacion != null and plan.fkDetalleCotizacion.fkCotizacion != null and plan.fkDetalleCotizacion.fkCotizacion.fkCliente != null ? plan.fkDetalleCotizacion.fkCotizacion.fkCliente.nombreRazonSocialClienteC : '-'}"></td>
                             <td th:text="${plan.objetivoPlan}"></td>
                             <td th:text="${plan.fkResponsable != null ? plan.fkResponsable.nombre + ' ' + plan.fkResponsable.apellido : '-'}"></td>
-                            <td>
+                            <td th:with="ot=${otPorPlan.get(plan.idPlan)}">
                                 <a th:href="@{/plan/detalle/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-info" title="Ver el plan que llenó el técnico">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a th:href="@{/ordentrabajo/nuevo/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-primary">
+                                <a th:if="${ot == null}"
+                                   th:href="@{/ordentrabajo/nuevo/{id}(id=${plan.idPlan})}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-plus"></i> Generar OT
+                                </a>
+                                <span th:if="${ot != null}" class="badge badge-success p-2">
+                                    <i class="fas fa-check-circle"></i>
+                                    OT generada
+                                    <span th:text="'OT-' + ${ot.idOT}"></span>
+                                </span>
+                                <a th:if="${ot != null}"
+                                   th:href="@{/ordentrabajo/detalle/{id}(id=${ot.idOT})}" class="btn btn-sm btn-outline-secondary"
+                                   title="Abrir la Orden de Trabajo ya emitida">
+                                    <i class="fas fa-clipboard-list"></i> Ver OT
                                 </a>
                             </td>
                         </tr>

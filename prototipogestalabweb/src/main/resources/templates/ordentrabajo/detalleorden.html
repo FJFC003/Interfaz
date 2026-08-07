@@ -23,7 +23,7 @@ layout:decorate="~{/plantilla/plantilla}">
             <a href="/ordentrabajo/listar" class="btn btn-sm btn-secondary shadow-sm">
                 <i class="fas fa-arrow-left"></i> Volver
             </a>
-            <a href="/ordentrabajo/listar?success=true" class="btn btn-sm btn-success shadow-sm">
+            <a th:if="${puedeEditar}" href="/ordentrabajo/listar?success=true" class="btn btn-sm btn-success shadow-sm">
                 <i class="fas fa-save"></i> Guardar y cerrar
             </a>
             <a th:href="@{/ordentrabajo/pdf/{id}(id=${orden.idOT})}"
@@ -53,6 +53,19 @@ layout:decorate="~{/plantilla/plantilla}">
         <i class="fas fa-info-circle"></i>
         Este plan de muestreo ya tenía una orden emitida. Se abrió la existente en lugar de crear una nueva.
         <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div th:if="${param.bloqueada}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-lock"></i>
+        La orden ya fue enviada al Laboratorio, así que no se guardó el cambio.
+        Use <strong>Devolver a Coordinación</strong> si necesita modificarla.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <div th:unless="${puedeEditar}" class="alert alert-secondary">
+        <i class="fas fa-lock"></i>
+        Esta orden ya salió de Coordinación Técnica, por lo que está en <strong>solo lectura</strong>.
+        Puede consultarla y descargar el PDF. Para volver a editarla, use
+        <strong>Devolver a Coordinación</strong> al final de la página.
     </div>
 
     <!-- ============ CABECERA ============ -->
@@ -110,7 +123,8 @@ layout:decorate="~{/plantilla/plantilla}">
                         <td th:text="${m.puntosPlanificadosDetalleOrdenOT}"></td>
                         <td>
                             <!-- Los puntos ejecutados los escribe la Coordinacion Tecnica -->
-                            <form th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}" method="POST" class="form-inline">
+                            <span th:unless="${puedeEditar}" th:text="${m.puntosEjecutadosDetalleOrdenOT}"></span>
+                            <form th:if="${puedeEditar}" th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}" method="POST" class="form-inline">
                                 <input type="hidden" name="idDetalleOrdenOT" th:value="${m.idDetalleOrdenOT}">
                                 <input type="hidden" name="noItemDetalleOrdenOT" th:value="${m.noItemDetalleOrdenOT}">
                                 <input type="hidden" name="descripcionActividadDetalleOrdenOT" th:value="${m.descripcionActividadDetalleOrdenOT}">
@@ -124,9 +138,11 @@ layout:decorate="~{/plantilla/plantilla}">
                             </form>
                         </td>
                         <td>
-                            <a th:href="@{/ordentrabajo/monitoreo/eliminar/{id}/{o}(id=${m.idDetalleOrdenOT},o=${orden.idOT})}"
+                            <a th:if="${puedeEditar}"
+                               th:href="@{/ordentrabajo/monitoreo/eliminar/{id}/{o}(id=${m.idDetalleOrdenOT},o=${orden.idOT})}"
                                class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
                                <i class="fas fa-trash"></i></a>
+                            <span th:unless="${puedeEditar}" class="text-muted"><i class="fas fa-lock"></i></span>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(monitoreos)}">
@@ -135,7 +151,7 @@ layout:decorate="~{/plantilla/plantilla}">
                 </tbody>
             </table>
 
-            <form th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}"
+            <form th:if="${puedeEditar}" th:action="@{/ordentrabajo/monitoreo/guardar/{o}(o=${orden.idOT})}"
                   th:object="${nuevoMonitoreo}" method="POST" class="border-top pt-3">
                 <div class="form-row">
                     <div class="col-md-1 mb-2">
@@ -183,9 +199,11 @@ layout:decorate="~{/plantilla/plantilla}">
                         <td th:text="${d.descripcionDesviosOrdenOT}"></td>
                         <td th:text="${d.puntosModificadosDesviosOrdenOT}"></td>
                         <td>
-                            <a th:href="@{/ordentrabajo/desvio/eliminar/{id}/{o}(id=${d.idDesviosOrdenOT},o=${orden.idOT})}"
+                            <a th:if="${puedeEditar}"
+                               th:href="@{/ordentrabajo/desvio/eliminar/{id}/{o}(id=${d.idDesviosOrdenOT},o=${orden.idOT})}"
                                class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
                                <i class="fas fa-trash"></i></a>
+                            <span th:unless="${puedeEditar}" class="text-muted"><i class="fas fa-lock"></i></span>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(desvios)}">
@@ -194,7 +212,7 @@ layout:decorate="~{/plantilla/plantilla}">
                 </tbody>
             </table>
 
-            <form th:action="@{/ordentrabajo/desvio/guardar/{o}(o=${orden.idOT})}"
+            <form th:if="${puedeEditar}" th:action="@{/ordentrabajo/desvio/guardar/{o}(o=${orden.idOT})}"
                   th:object="${nuevoDesvio}" method="POST" class="border-top pt-3">
                 <div class="form-row">
                     <div class="col-md-1 mb-2">
