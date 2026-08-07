@@ -89,6 +89,12 @@ public class PlanMuestreoPLController {
 	}
 
 
+	@GetMapping("/listar")
+	public String listarPlanes(Model model) {
+		model.addAttribute("planes", planService.listarPlanes());
+		return "plan/listarplan";
+	}
+
 	@GetMapping("/pendientes")
 	public String cotizacionesAprobadas(Model model) {
 		List<CotizacionCResponseDto> aprobadas = new java.util.ArrayList<>();
