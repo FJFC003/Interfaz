@@ -32,17 +32,22 @@ import com.uisrael.prototipogestalabweb.model.dto.request.EquiposUtilizadosIRReq
 import com.uisrael.prototipogestalabweb.model.dto.request.ResultadosIRRequestDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.CondicionAmbientalIRResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EquipoLaboratorioResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EquiposUtilizadosIRResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.InformeResultadosIRResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.OrdenTrabajoOTResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ParametroAnalizarPLResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.RecursosCronoPLResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.ResultadosIRResponseDto;
+import com.uisrael.prototipogestalabweb.services.IEmpleadoService;
 import com.uisrael.prototipogestalabweb.services.IEquipoLaboratorioService;
 import com.uisrael.prototipogestalabweb.services.IInformeResultadosIRService;
 import com.uisrael.prototipogestalabweb.services.IOrdenTrabajoOTService;
 import com.uisrael.prototipogestalabweb.services.IParametroAnalizarPLService;
+import com.uisrael.prototipogestalabweb.services.IRecursosCronoPLService;
 
-
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/informe")
@@ -56,16 +61,21 @@ public class InformeResultadosIRController {
 	private final IOrdenTrabajoOTService ordenService;
 	private final IParametroAnalizarPLService parametroService;
 	private final IEquipoLaboratorioService equipoService;
+	private final IRecursosCronoPLService recursosService;
+	private final IEmpleadoService empleadoService;
 	private final SpringTemplateEngine templateEngine;
 	
 	public InformeResultadosIRController(IInformeResultadosIRService informeService,
 			IOrdenTrabajoOTService ordenService, IParametroAnalizarPLService parametroService,
-			IEquipoLaboratorioService equipoService, SpringTemplateEngine templateEngine) {
+			IEquipoLaboratorioService equipoService, IRecursosCronoPLService recursosService,
+			IEmpleadoService empleadoService, SpringTemplateEngine templateEngine) {
 		super();
 		this.informeService = informeService;
 		this.ordenService = ordenService;
 		this.parametroService = parametroService;
 		this.equipoService = equipoService;
+		this.recursosService = recursosService;
+		this.empleadoService = empleadoService;
 		this.templateEngine = templateEngine;
 	}
 	
@@ -116,7 +126,7 @@ public class InformeResultadosIRController {
 	}
 
 	@GetMapping("/resultados/{idOT}")
-	public String mostrarFormulario(@PathVariable int idOT, Model model) {
+	public String mostrarFormulario(@PathVariable int idOT, HttpSession session, Model model) {
 		try {
 			OrdenTrabajoOTResponseDto orden = ordenService.buscarPorId(idOT);
 
@@ -133,6 +143,21 @@ public class InformeResultadosIRController {
 			InformeCompletoIRRequestDto form = yaExiste
 					? reconstruirDesdeGuardado(guardado, idOT)
 					: crearFormularioNuevo(orden, idOT);
+
+			// Los cuatro datos de cabecera no los escribe el tecnico: salen del
+			// plan, del calendario y de la sesion.
+			EmpleadoResponseDto analista = empleadoDeLaSesion(session);
+			if (analista != null) {
+				form.getInforme().setNombreResponsable(analista.getNombre() + " " + analista.getApellido());
+			}
+			if (!yaExiste) {
+				form.getInforme().setFechaEmisionInforme(new Date());
+			}
+
+			RecursosCronoPLResponseDto muestreo = muestreoDeLaOrden(orden);
+			model.addAttribute("fechaMuestreo", muestreo != null ? muestreo.getFechaMuestreo() : null);
+			model.addAttribute("horaMuestreo", muestreo != null ? muestreo.getHoraDefinida() : null);
+			model.addAttribute("analista", analista);
 
 			model.addAttribute("informeCompleto", form);
 			model.addAttribute("orden", orden);
@@ -156,6 +181,45 @@ public class InformeResultadosIRController {
 	private InformeCompletoIRResponseDto buscarInformeGuardado(int idOT) {
 		try {
 			return informeService.buscarCompletoPorOrden(idOT);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Fecha y hora de muestreo. No son campos del informe: viven en Recursos y
+	 * Cronograma del Plan de Muestreo, que es donde la Coordinacion Tecnica las
+	 * programo. Se toma la primera linea del plan.
+	 */
+	private RecursosCronoPLResponseDto muestreoDeLaOrden(OrdenTrabajoOTResponseDto orden) {
+		try {
+			if (orden == null || orden.getFkPlanMuestreo() == null) {
+				return null;
+			}
+			List<RecursosCronoPLResponseDto> lineas =
+					recursosService.listarPorPlan(orden.getFkPlanMuestreo().getIdPlan());
+			return lineas == null || lineas.isEmpty() ? null : lineas.get(0);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Empleado ligado al usuario de la sesion: es el Tecnico de Laboratorio que
+	 * esta llenando el informe y, por tanto, el responsable del analisis.
+	 */
+	private EmpleadoResponseDto empleadoDeLaSesion(HttpSession session) {
+		try {
+			Object attr = session != null ? session.getAttribute("usuarioActual") : null;
+			if (!(attr instanceof LoginResponseDto usuario)) {
+				return null;
+			}
+			for (EmpleadoResponseDto emp : empleadoService.listarEmpleados()) {
+				if (emp.getFkUsuario() != null && emp.getFkUsuario().getIdUsuario() == usuario.getIdUsuario()) {
+					return emp;
+				}
+			}
+			return null;
 		} catch (Exception e) {
 			return null;
 		}
@@ -273,9 +337,33 @@ public class InformeResultadosIRController {
 	@PostMapping("/guardar/{idOT}")
 	public String guardar(@PathVariable int idOT,
 			@ModelAttribute("informeCompleto") InformeCompletoIRRequestDto informeCompleto,
-			Model model) {
+			HttpSession session, Model model) {
 		try {
 			informeCompleto.getInforme().setFkOrdenTrabajo(idOT);
+
+			// Los campos de solo lectura se vuelven a fijar aqui: la pantalla los
+			// muestra bloqueados, pero el formulario se puede manipular desde el
+			// navegador y estos tres datos no dependen de lo que llegue.
+			InformeCompletoIRResponseDto guardadoPrevio = buscarInformeGuardado(idOT);
+			InformeResultadosIRResponseDto cabeceraPrevia =
+					guardadoPrevio != null ? guardadoPrevio.getInforme() : null;
+
+			// El codigo y la fecha de emision se sellan la primera vez y ya no
+			// cambian: son la identificacion y la fecha de emision del informe.
+			if (cabeceraPrevia != null) {
+				informeCompleto.getInforme().setCodigoInforme(cabeceraPrevia.getCodigoInforme());
+				informeCompleto.getInforme().setFechaEmisionInforme(cabeceraPrevia.getFechaEmisionInforme());
+			} else {
+				informeCompleto.getInforme().setCodigoInforme("IR-" + idOT);
+				informeCompleto.getInforme().setFechaEmisionInforme(new Date());
+			}
+
+			EmpleadoResponseDto analista = empleadoDeLaSesion(session);
+			if (analista != null) {
+				informeCompleto.getInforme()
+						.setNombreResponsable(analista.getNombre() + " " + analista.getApellido());
+			}
+
 			informeService.guardarCompleto(informeCompleto);
 			return "redirect:/informe/resultados/" + idOT + "?success=true";
 
@@ -309,6 +397,10 @@ public class InformeResultadosIRController {
 			contexto.setVariable("resultados", guardado.getListaResultados());
 			contexto.setVariable("condiciones", guardado.getListaCondiciones());
 			contexto.setVariable("equipos", guardado.getListaEquipos());
+
+			RecursosCronoPLResponseDto muestreo = muestreoDeLaOrden(orden);
+			contexto.setVariable("fechaMuestreo", muestreo != null ? muestreo.getFechaMuestreo() : null);
+			contexto.setVariable("horaMuestreo", muestreo != null ? muestreo.getHoraDefinida() : null);
 
 			String html = templateEngine.process("informe/informepdf", contexto);
 

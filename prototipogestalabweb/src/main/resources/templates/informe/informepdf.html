@@ -172,7 +172,7 @@
     </tr>
     <tr>
         <td class="etiqueta">Fecha de muestreo:</td>
-        <td></td>
+        <td th:text="${fechaMuestreo != null ? #dates.format(fechaMuestreo, 'dd/MM/yyyy') : ''}"></td>
         <td class="etiqueta">Fecha de emisión de informe:</td>
         <td th:text="${informe.fechaEmisionInforme != null
                        ? #dates.format(informe.fechaEmisionInforme, 'dd/MM/yyyy') : ''}"></td>
@@ -195,8 +195,9 @@
 <table class="datos" style="margin-top:6px;">
     <tr>
         <td class="etiqueta">Fecha de muestreo:</td>
-        <td></td>
+        <td th:text="${fechaMuestreo != null ? #dates.format(fechaMuestreo, 'dd/MM/yyyy') : ''}"></td>
         <td class="etiqueta">Hora muestreo:</td>
+        <td th:text="${horaMuestreo != null ? #dates.format(horaMuestreo, 'HH:mm') : ''}"></td>
         <td></td>
         <td class="etiqueta">Fecha de ingreso a laboratorio:</td>
         <td></td>

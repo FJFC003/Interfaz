@@ -179,25 +179,28 @@ layout:decorate="~{/plantilla/plantilla}">
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label for="codigoInforme" class="form-control-label">Código de informe *</label>
-                        <input type="text" class="form-control" id="codigoInforme"
-                               th:field="*{informe.codigoInforme}" required>
+                        <label for="codigoInforme" class="form-control-label text-muted">Código de informe</label>
+                        <input type="text" class="form-control bg-light" id="codigoInforme"
+                               th:field="*{informe.codigoInforme}" readonly>
+                        <small class="text-muted">Lo asigna el sistema al crear el informe.</small>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-control-label text-muted">
-                            Fecha de muestreo
-                            <span class="badge badge-warning">Maqueta</span>
-                        </label>
-                        <input type="date" class="form-control bg-light" disabled>
+                        <label class="form-control-label text-muted">Fecha de muestreo</label>
+                        <input type="text" class="form-control bg-light" readonly
+                               th:value="${fechaMuestreo != null
+                                       ? #dates.format(fechaMuestreo, 'dd/MM/yyyy')
+                                       : 'Sin fecha programada en el plan'}">
+                        <small class="text-muted">Viene de Recursos y Cronograma del Plan de Muestreo.</small>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label for="fechaEmisionInforme" class="form-control-label">
-                            Fecha de emisión de informe *
+                        <label for="fechaEmisionInforme" class="form-control-label text-muted">
+                            Fecha de emisión de informe
                         </label>
-                        <input type="date" class="form-control" id="fechaEmisionInforme"
-                               th:field="*{informe.fechaEmisionInforme}" required>
+                        <input type="date" class="form-control bg-light" id="fechaEmisionInforme"
+                               th:field="*{informe.fechaEmisionInforme}" readonly>
+                        <small class="text-muted">Es el día en que se elabora el informe.</small>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -209,11 +212,19 @@ layout:decorate="~{/plantilla/plantilla}">
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label for="nombreResponsable" class="form-control-label">
-                            Responsable de análisis *
+                        <label for="nombreResponsable" class="form-control-label text-muted">
+                            Responsable de análisis
                         </label>
-                        <input type="text" class="form-control" id="nombreResponsable"
-                               th:field="*{informe.nombreResponsable}" required>
+                        <input type="text" class="form-control bg-light" id="nombreResponsable"
+                               th:field="*{informe.nombreResponsable}" readonly>
+                        <small th:if="${analista != null}" class="text-muted">
+                            Es el Técnico de Laboratorio con la sesión abierta.
+                        </small>
+                        <small th:if="${analista == null}" class="text-danger d-block">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            La sesión actual no tiene ficha de empleado, así que no se puede registrar
+                            quién hizo el análisis. Avise al Gerente General.
+                        </small>
                     </div>
 
                 </div>
