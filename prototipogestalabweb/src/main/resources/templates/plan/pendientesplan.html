@@ -18,6 +18,12 @@ layout:decorate="~{/plantilla/plantilla}">
             Desde aquí se genera el Plan de Muestreo.
         </div>
 
+        <div th:if="${param.yatiene}" class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            Esa cotización ya tiene su Plan de Muestreo elaborado. Puede consultarlo en Planes de Muestreo.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+        </div>
+
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Listas para planificar</h6>
@@ -43,8 +49,14 @@ layout:decorate="~{/plantilla/plantilla}">
                                 <td th:text="${cot.fkCliente != null ? cot.fkCliente.nombrePersonaContactoClienteC : '-'}"></td>
                                 <td th:text="${cot.fechaAprobacionCotizacionC != null ? #dates.format(cot.fechaAprobacionCotizacionC, 'dd/MM/yyyy') : '-'}"></td>
                                 <td th:text="'$ ' + ${#numbers.formatDecimal(cot.totalCotizacionC, 1, 2)}"></td>
-                                <td>
-                                    <a th:href="@{/plan/nuevo/{id}(id=${cot.idCotizacionC})}" class="btn btn-sm btn-primary">
+                                <td th:with="codigoPlan=${planPorCotizacion.get(cot.idCotizacionC)}">
+                                    <span th:if="${codigoPlan != null}" class="badge badge-success p-2">
+                                        <i class="fas fa-check-circle"></i>
+                                        Plan elaborado
+                                        <span th:text="${codigoPlan}"></span>
+                                    </span>
+                                    <a th:if="${codigoPlan == null}"
+                                       th:href="@{/plan/nuevo/{id}(id=${cot.idCotizacionC})}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-plus"></i> Crear Plan
                                     </a>
                                 </td>

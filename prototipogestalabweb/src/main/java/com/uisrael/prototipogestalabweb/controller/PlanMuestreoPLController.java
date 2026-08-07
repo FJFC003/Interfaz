@@ -42,6 +42,7 @@ import com.uisrael.prototipogestalabweb.services.IRecursosCronoPLService;
 import com.uisrael.prototipogestalabweb.services.ITipoTomaFreHoraPLService;
 import com.uisrael.prototipogestalabweb.services.IVerificacionPLService;
 
+
 @Controller
 @RequestMapping("/plan")
 public class PlanMuestreoPLController {
@@ -88,12 +89,6 @@ public class PlanMuestreoPLController {
 	}
 
 
-	@GetMapping("/listar")
-	public String listarPlanes(Model model) {
-		model.addAttribute("planes", planService.listarPlanes());
-		return "plan/listarplan";
-	}
-
 	@GetMapping("/pendientes")
 	public String cotizacionesAprobadas(Model model) {
 		List<CotizacionCResponseDto> aprobadas = new java.util.ArrayList<>();
@@ -103,13 +98,55 @@ public class PlanMuestreoPLController {
 			}
 		}
 		model.addAttribute("cotizaciones", aprobadas);
+		// Para cada cotizacion que ya tiene plan se guarda el codigo del plan.
+		// La pantalla usa este mapa para decidir si muestra el boton Crear Plan
+		// o el aviso de que ya esta elaborado.
+		model.addAttribute("planPorCotizacion", planesPorCotizacion());
 		return "plan/pendientesplan";
+	}
+
+	/**
+	 * Cotizaciones que ya tienen Plan de Muestreo, con el codigo del plan.
+	 *
+	 * El plan no apunta a la cotizacion sino a una de sus lineas de detalle
+	 * (fkDetalleCotizacion), asi que hay que subir un nivel mas para saber a
+	 * que cotizacion pertenece: plan -> detalle -> cotizacion.
+	 */
+	private java.util.Map<Integer, String> planesPorCotizacion() {
+		java.util.Map<Integer, String> mapa = new java.util.HashMap<>();
+		try {
+			for (PlanMuestreoPLResponseDto plan : planService.listarPlanes()) {
+				if (plan.getFkDetalleCotizacion() == null
+						|| plan.getFkDetalleCotizacion().getFkCotizacion() == null) {
+					continue;
+				}
+				int idCotizacion = plan.getFkDetalleCotizacion().getFkCotizacion().getIdCotizacionC();
+				String codigo = plan.getCodigoPlan() != null && !plan.getCodigoPlan().isBlank()
+						? plan.getCodigoPlan()
+						: "Plan " + plan.getIdPlan();
+				// Si por datos antiguos hubiera mas de un plan para la misma
+				// cotizacion, se conserva el primero que aparece.
+				mapa.putIfAbsent(idCotizacion, codigo);
+			}
+		} catch (Exception e) {
+			// Si el backend de planes no responde, la pantalla sigue mostrando
+			// el boton Crear Plan en vez de romperse.
+			return mapa;
+		}
+		return mapa;
 	}
 
 
 	@GetMapping("/nuevo/{idCotizacion}")
 	public String mostrarFormularioNuevo(@PathVariable int idCotizacion, HttpSession session, Model model) {
 		try {
+			// Una cotizacion tiene un solo Plan de Muestreo. Aunque la pantalla
+			// ya no muestre el boton, la ruta sigue siendo accesible escribiendo
+			// la direccion a mano, asi que se comprueba tambien aqui.
+			if (planesPorCotizacion().containsKey(idCotizacion)) {
+				return "redirect:/plan/pendientes?yatiene=true";
+			}
+
 			CotizacionCResponseDto cotizacion = cotizacionService.buscarPorId(idCotizacion);
 			List<DetalleCResponseDto> detalles = detalleService.listarPorCotizacion(idCotizacion);
 
@@ -155,6 +192,14 @@ public class PlanMuestreoPLController {
 	public String guardarPlan(@ModelAttribute PlanMuestreoPLRequestDto plan,
 			HttpSession session, Model model) {
 		try {
+			// Misma regla que en /plan/nuevo/{id}, ahora sobre el envio: si la
+			// cotizacion de esa linea de detalle ya tiene plan, no se crea otro.
+			DetalleCResponseDto lineaElegida = detalleService.buscarPorId(plan.getFkDetalleCotizacion());
+			if (lineaElegida != null && lineaElegida.getFkCotizacion() != null
+					&& planesPorCotizacion().containsKey(lineaElegida.getFkCotizacion().getIdCotizacionC())) {
+				return "redirect:/plan/pendientes?yatiene=true";
+			}
+
 			// Los tres datos que el sistema controla se fijan aqui, no se toman
 			// del formulario: fecha de hoy, responsable de la sesion y la
 			// identificacion, que la genera el backend cuando llega en blanco.
