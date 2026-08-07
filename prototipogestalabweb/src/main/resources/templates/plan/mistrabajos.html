@@ -4,7 +4,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/plantilla/plantilla}">
 
 <head>
-    <title>Mis Trabajos de Campo - GestaLab</title>
+    <title>Trabajos de Campo - GestaLab</title>
 </head>
 
 <body>
@@ -12,7 +12,10 @@ layout:decorate="~{/plantilla/plantilla}">
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-hard-hat"></i> Mis Trabajos de Campo
+            <i class="fas fa-hard-hat"></i>
+            <span th:if="${modo == 'pendientes'}">Trabajos Pendientes</span>
+            <span th:if="${modo == 'completados'}">Trabajos Completados</span>
+            <span th:if="${modo == 'todos'}">Mis Trabajos de Campo</span>
         </h1>
         <span th:if="${empleado != null}" class="badge badge-primary p-2"
               th:text="${empleado.nombre} + ' ' + ${empleado.apellido}"></span>
@@ -28,11 +31,30 @@ layout:decorate="~{/plantilla/plantilla}">
 
     <div th:unless="${sinEmpleado}">
 
-        <div class="alert alert-info small">
+        <div th:if="${param.completado}" class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i>
+            Trabajo enviado a Coordinación Técnica. Ya puede consultarlo en <strong>Trabajos Completados</strong>.
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+
+        <div class="alert alert-info small" th:if="${modo == 'todos'}">
             <i class="fas fa-info-circle"></i>
-            Aquí aparecen los muestreos que la Coordinación Técnica le asignó.
+            Vista general de todos los muestreos que la Coordinación Técnica le asignó, pendientes y completados.
+            Esta pantalla es <strong>solo de consulta</strong>: para registrar lo observado entre a
+            <strong>Trabajos Pendientes</strong>.
+        </div>
+
+        <div class="alert alert-info small" th:if="${modo == 'pendientes'}">
+            <i class="fas fa-info-circle"></i>
+            Muestreos que todavía no ha enviado a Coordinación Técnica.
             Use <strong>Imprimir plan</strong> para llevarlo en papel al sitio y
-            <strong>Registrar muestreo</strong> para cargar lo observado.
+            <strong>Registrar muestreo</strong> para cargar lo observado y enviarlo cuando termine.
+        </div>
+
+        <div class="alert alert-secondary small" th:if="${modo == 'completados'}">
+            <i class="fas fa-lock"></i>
+            Muestreos ya enviados a Coordinación Técnica. Quedan <strong>cerrados</strong>:
+            puede consultarlos e imprimirlos, pero ya no se modifican.
         </div>
 
         <!-- Una tarjeta por plan asignado -->
@@ -43,14 +65,23 @@ layout:decorate="~{/plantilla/plantilla}">
                     <h6 class="m-0 font-weight-bold text-primary">
                         <i class="fas fa-flask"></i>
                         <span th:text="${plan != null ? plan.codigoPlan : 'Plan'}"></span>
+                        <span th:if="${plan != null and plan.estadoPlan == 'COMPLETADO'}"
+                              class="badge badge-secondary ml-2">Completado</span>
+                        <span th:if="${plan != null and plan.estadoPlan == 'ENVIADO'}"
+                              class="badge badge-warning ml-2">Pendiente</span>
                     </h6>
                     <div>
                         <a th:href="@{/plan/pdf/{id}(id=${entrada.key})}" class="btn btn-sm btn-danger"
                            target="_blank" title="Descargar el plan para llevarlo impreso">
                             <i class="fas fa-file-pdf"></i> Imprimir plan
                         </a>
-                        <a th:href="@{/plan/campo/{id}(id=${entrada.key})}" class="btn btn-sm btn-success">
+                        <a th:if="${modo == 'pendientes'}"
+                           th:href="@{/plan/campo/{id}(id=${entrada.key})}" class="btn btn-sm btn-success">
                             <i class="fas fa-clipboard-check"></i> Registrar muestreo
+                        </a>
+                        <a th:if="${modo == 'completados'}"
+                           th:href="@{/plan/campo/{id}(id=${entrada.key})}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> Ver muestreo
                         </a>
                     </div>
                 </div>
@@ -125,11 +156,31 @@ layout:decorate="~{/plantilla/plantilla}">
                 <div class="text-gray-400 mb-3" style="font-size:3rem;">
                     <i class="fas fa-clipboard-list"></i>
                 </div>
-                <h5 class="text-gray-700">No tiene muestreos asignados</h5>
-                <p class="text-muted mb-0">
-                    Cuando la Coordinación Técnica le asigne un trabajo en la sección
-                    "Recursos y cronograma" de un plan, aparecerá aquí.
-                </p>
+
+                <div th:if="${modo == 'pendientes'}">
+                    <h5 class="text-gray-700">No tiene trabajos pendientes</h5>
+                    <p class="text-muted mb-0">
+                        Todo lo asignado ya fue enviado a Coordinación Técnica.
+                        Lo encontrará en <strong>Trabajos Completados</strong>.
+                    </p>
+                </div>
+
+                <div th:if="${modo == 'completados'}">
+                    <h5 class="text-gray-700">Todavía no ha completado ningún trabajo</h5>
+                    <p class="text-muted mb-0">
+                        Cuando envíe un muestreo a Coordinación Técnica desde
+                        <strong>Trabajos Pendientes</strong>, aparecerá aquí.
+                    </p>
+                </div>
+
+                <div th:if="${modo == 'todos'}">
+                    <h5 class="text-gray-700">No tiene muestreos asignados</h5>
+                    <p class="text-muted mb-0">
+                        Cuando la Coordinación Técnica le asigne un trabajo en la sección
+                        "Recursos y cronograma" de un plan, aparecerá aquí.
+                    </p>
+                </div>
+
             </div>
         </div>
 

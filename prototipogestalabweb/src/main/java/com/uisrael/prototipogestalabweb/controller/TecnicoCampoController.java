@@ -37,7 +37,36 @@ public class TecnicoCampoController {
 
 	@GetMapping("/mis-trabajos")
 	public String misTrabajos(HttpSession session, Model model) {
+		return bandeja(session, model, "todos");
+	}
+
+	/**
+	 * Trabajos que el Tecnico todavia no ha enviado a Coordinacion Tecnica
+	 * (plan en estado ENVIADO). Es la unica bandeja desde la que se registra.
+	 */
+	@GetMapping("/pendientes")
+	public String trabajosPendientes(HttpSession session, Model model) {
+		return bandeja(session, model, "pendientes");
+	}
+
+	/**
+	 * Trabajos ya completados y devueltos a Coordinacion Tecnica
+	 * (plan en estado COMPLETADO). Solo consulta e impresion.
+	 */
+	@GetMapping("/completados")
+	public String trabajosCompletados(HttpSession session, Model model) {
+		return bandeja(session, model, "completados");
+	}
+
+	/**
+	 * Las tres bandejas comparten pantalla y datos; lo unico que cambia es que
+	 * planes entran y que botones se muestran. El modo viaja al HTML para que
+	 * el Tecnico vea siempre la misma tarjeta y no se desoriente.
+	 */
+	private String bandeja(HttpSession session, Model model, String modo) {
 		try {
+			model.addAttribute("modo", modo);
+
 			EmpleadoResponseDto empleado = empleadoDeLaSesion(session);
 
 			if (empleado == null) {
@@ -54,18 +83,32 @@ public class TecnicoCampoController {
 			// para que el tecnico vea un trabajo, no una fila por fecha.
 			Map<Integer, List<RecursosCronoPLResponseDto>> porPlan = new LinkedHashMap<>();
 			int pendientesDeEnvio = 0;
+			int totalPendientes = 0;
+			int totalCompletados = 0;
 
 			for (RecursosCronoPLResponseDto r : asignaciones) {
 				if (r.getFkPlanMuestreo() == null) {
 					continue;
 				}
 				String estado = r.getFkPlanMuestreo().getEstadoPlan();
+				boolean enviado = "ENVIADO".equalsIgnoreCase(estado);
+				boolean completado = "COMPLETADO".equalsIgnoreCase(estado);
 
-				// Solo entra a la bandeja lo que la Coordinacion Tecnica ya envio
-				if ("ENVIADO".equalsIgnoreCase(estado) || "COMPLETADO".equalsIgnoreCase(estado)) {
-					porPlan.computeIfAbsent(r.getFkPlanMuestreo().getIdPlan(), k -> new ArrayList<>()).add(r);
-				} else {
+				// Lo que la Coordinacion Tecnica aun no envia no entra a ninguna
+				// bandeja: el Tecnico no debe verlo todavia.
+				if (!enviado && !completado) {
 					pendientesDeEnvio++;
+					continue;
+				}
+
+				if (enviado) {
+					totalPendientes++;
+				} else {
+					totalCompletados++;
+				}
+
+				if (entraEnLaBandeja(modo, enviado, completado)) {
+					porPlan.computeIfAbsent(r.getFkPlanMuestreo().getIdPlan(), k -> new ArrayList<>()).add(r);
 				}
 			}
 
@@ -73,12 +116,25 @@ public class TecnicoCampoController {
 			model.addAttribute("trabajosPorPlan", porPlan);
 			model.addAttribute("totalAsignaciones", porPlan.size());
 			model.addAttribute("pendientesDeEnvio", pendientesDeEnvio);
+			// Contadores para los avisos de las pantallas vacias.
+			model.addAttribute("totalPendientes", totalPendientes);
+			model.addAttribute("totalCompletados", totalCompletados);
 			return "plan/mistrabajos";
 
 		} catch (Exception e) {
 			model.addAttribute("mensajeError", e.getMessage());
 			return "error";
 		}
+	}
+
+	private boolean entraEnLaBandeja(String modo, boolean enviado, boolean completado) {
+		if ("pendientes".equals(modo)) {
+			return enviado;
+		}
+		if ("completados".equals(modo)) {
+			return completado;
+		}
+		return enviado || completado;
 	}
 
 	/**
@@ -89,7 +145,9 @@ public class TecnicoCampoController {
 	public String completar(@PathVariable int idPlan, Model model) {
 		try {
 			planService.marcarCompletado(idPlan);
-			return "redirect:/campo/mis-trabajos?completado=true";
+			// Vuelve a Pendientes: es la bandeja desde la que se envio, y el
+			// trabajo ya no aparecera ahi sino en Completados.
+			return "redirect:/campo/pendientes?completado=true";
 		} catch (Exception e) {
 			model.addAttribute("mensajeError",
 					e.getClass().getSimpleName() + " - " + e.getMessage());

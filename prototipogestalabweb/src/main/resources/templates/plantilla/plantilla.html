@@ -169,12 +169,24 @@
     </a>
 </li>
 
-<!-- Nav Item - Bandeja del Tecnico de Campo -->
-<li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de campo') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de campo'))}">
-    <a class="nav-link" href="/campo/mis-trabajos">
-        <i class="fas fa-fw fa-hard-hat"></i> <span>Mis Trabajos de Campo</span>
-    </a>
-</li>
+<!-- Nav Item - Bandejas del Tecnico de Campo -->
+<th:block th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Tecnico de campo') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Técnico de campo'))}">
+    <li class="nav-item">
+        <a class="nav-link" href="/campo/mis-trabajos">
+            <i class="fas fa-fw fa-hard-hat"></i> <span>Mis Trabajos de Campo</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/campo/pendientes">
+            <i class="fas fa-fw fa-clipboard-list"></i> <span>Trabajos Pendientes</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/campo/completados">
+            <i class="fas fa-fw fa-clipboard-check"></i> <span>Trabajos Completados</span>
+        </a>
+    </li>
+</th:block>
 
 <!-- Nav Item - Cotizaciones Aprobadas (solo Coordinador Tecnico) -->
 <li class="nav-item" th:if="${session.usuarioActual != null and (#strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Tecnico') or #strings.equalsIgnoreCase(session.usuarioActual.rol, 'Coordinador Técnico'))}">
