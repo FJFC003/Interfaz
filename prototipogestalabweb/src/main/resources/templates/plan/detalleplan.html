@@ -63,6 +63,12 @@ layout:decorate="~{/plantilla/plantilla}">
         <strong>Recursos y cronograma</strong>.
         <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
+    
+    <div th:if="${param.fechaPasada}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-triangle"></i>
+        La fecha de muestreo no puede ser anterior a hoy. La línea no se guardó.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
 
     <div class="card shadow mb-4 border-left-primary">
         <div class="card-body py-3">
@@ -400,7 +406,8 @@ layout:decorate="~{/plantilla/plantilla}">
                   th:object="${nuevoRecurso}" method="POST" class="border-top pt-3">
                 <div class="form-row">
                     <div class="col-md-3 mb-2">
-                        <input type="date" class="form-control form-control-sm" th:field="*{fechaMuestreo}" required>
+                        <input type="date" class="form-control form-control-sm" th:field="*{fechaMuestreo}"
+                               th:attr="min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
                     </div>
                     <div class="col-md-3 mb-2">
                         <select class="form-control form-control-sm" th:field="*{fkTecnico}" required>
@@ -420,6 +427,11 @@ layout:decorate="~{/plantilla/plantilla}">
                     </div>
                 </div>
                 <small class="text-muted">El técnico que elija aquí es quien verá este trabajo en su bandeja.</small>
+                <small th:if="${sinRolTecnico}" class="text-danger d-block">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No se encontró ningún empleado con el rol de Técnico de Campo, así que se listan todos.
+                    Revise la asignación de roles en Empleados.
+                </small>
             </form>
         </div>
     </div>

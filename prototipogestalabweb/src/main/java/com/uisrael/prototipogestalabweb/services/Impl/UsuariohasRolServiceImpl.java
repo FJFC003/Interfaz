@@ -1,5 +1,7 @@
 package com.uisrael.prototipogestalabweb.services.Impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -19,11 +21,19 @@ public class UsuariohasRolServiceImpl implements IUsuariohasRolService{
 
 	@Override
 	public UsuariohasRolResponseDto guardarUsuariohasRol(UsuariohasRolRequestDto usuarioRol) {
-		// TODO Auto-generated method stub
 		return webClient.post().uri("/gestalab/UsuariohasRol")
 				.bodyValue(usuarioRol)
 				.retrieve()
 				.bodyToMono(UsuariohasRolResponseDto.class)
+				.block();
+	}
+
+	@Override
+	public List<UsuariohasRolResponseDto> listarUsuariohasRol() {
+		return webClient.get().uri("/gestalab/UsuariohasRol")
+				.retrieve()
+				.bodyToFlux(UsuariohasRolResponseDto.class)
+				.collectList()
 				.block();
 	}
 

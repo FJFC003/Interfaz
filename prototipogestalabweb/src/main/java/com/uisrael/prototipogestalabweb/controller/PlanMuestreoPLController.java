@@ -29,6 +29,7 @@ import com.uisrael.prototipogestalabweb.model.dto.response.EEPPLResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.EmpleadoResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.LoginResponseDto;
 import com.uisrael.prototipogestalabweb.model.dto.response.PlanMuestreoPLResponseDto;
+import com.uisrael.prototipogestalabweb.model.dto.response.UsuariohasRolResponseDto;
 import com.uisrael.prototipogestalabweb.services.ICotizacionCService;
 import com.uisrael.prototipogestalabweb.services.IDetalleCService;
 import com.uisrael.prototipogestalabweb.services.IEEPPLService;
@@ -40,6 +41,7 @@ import com.uisrael.prototipogestalabweb.services.IPlanMuestreoPLService;
 import com.uisrael.prototipogestalabweb.services.IProcedimientoMuePLService;
 import com.uisrael.prototipogestalabweb.services.IRecursosCronoPLService;
 import com.uisrael.prototipogestalabweb.services.ITipoTomaFreHoraPLService;
+import com.uisrael.prototipogestalabweb.services.IUsuariohasRolService;
 import com.uisrael.prototipogestalabweb.services.IVerificacionPLService;
 
 
@@ -66,13 +68,14 @@ public class PlanMuestreoPLController {
 	private final ICotizacionCService cotizacionService;
 	private final IDetalleCService detalleService;
 	private final IEmpleadoService empleadoService;
+	private final IUsuariohasRolService usuariohasRolService;
 
 	public PlanMuestreoPLController(IPlanMuestreoPLService planService, IInformacionMatrizPLService matrizService,
 			IParametroAnalizarPLService parametroService, ITipoTomaFreHoraPLService tipoTomaService,
 			IProcedimientoMuePLService procedimientoService, IRecursosCronoPLService recursosService,
 			IInformacionAdicionalPLService infoAdicionalService, IVerificacionPLService verificacionService,
 			IEEPPLService eppService, ICotizacionCService cotizacionService, IDetalleCService detalleService,
-			IEmpleadoService empleadoService) {
+			IEmpleadoService empleadoService, IUsuariohasRolService usuariohasRolService) {
 		super();
 		this.planService = planService;
 		this.matrizService = matrizService;
@@ -86,8 +89,8 @@ public class PlanMuestreoPLController {
 		this.cotizacionService = cotizacionService;
 		this.detalleService = detalleService;
 		this.empleadoService = empleadoService;
+		this.usuariohasRolService = usuariohasRolService;
 	}
-
 
 	@GetMapping("/listar")
 	public String listarPlanes(Model model) {
@@ -348,7 +351,18 @@ public class PlanMuestreoPLController {
 		model.addAttribute("recursos", recursosService.listarPorPlan(idPlan));
 		model.addAttribute("infoAdicional", infoAdicionalService.listarPorPlan(idPlan));
 		model.addAttribute("verificaciones", verificacionService.listarPorPlan(idPlan));
-		model.addAttribute("tecnicos", empleadoService.listarEmpleados());
+		// El desplegable de Recursos y Cronograma solo debe ofrecer empleados
+		// con el rol de Tecnico de Campo, no la plantilla entera.
+		List<EmpleadoResponseDto> todos = empleadoService.listarEmpleados();
+		List<EmpleadoResponseDto> tecnicos = tecnicosDeCampo(todos);
+		if (tecnicos.isEmpty()) {
+			// Si no se pudo identificar a ninguno se muestran todos y se avisa
+			// en pantalla, para no dejar el plan sin poder asignarse.
+			model.addAttribute("tecnicos", todos);
+			model.addAttribute("sinRolTecnico", true);
+		} else {
+			model.addAttribute("tecnicos", tecnicos);
+		}
 
 		EEPPLRequestDto epp = new EEPPLRequestDto();
 		EEPPLResponseDto eppActual = plan.getFkeep();
@@ -493,6 +507,11 @@ public class PlanMuestreoPLController {
 
 	@PostMapping("/recurso/guardar/{idPlan}")
 	public String guardarRecurso(@PathVariable int idPlan, @ModelAttribute RecursosCronoPLRequestDto dto) {
+		// El atributo min del formulario evita elegir una fecha pasada, pero el
+		// navegador se puede saltar. La regla real se aplica aqui.
+		if (esFechaPasada(dto.getFechaMuestreo())) {
+			return "redirect:/plan/detalle/" + idPlan + "?fechaPasada=true";
+		}
 		dto.setFkPlanMuestreo(idPlan);
 		recursosService.guardar(dto);
 		return "redirect:/plan/detalle/" + idPlan + "?success=true";
@@ -529,6 +548,67 @@ public class PlanMuestreoPLController {
 	public String eliminarVerificacion(@PathVariable int id, @PathVariable int idPlan) {
 		verificacionService.eliminar(id);
 		return "redirect:/plan/detalle/" + idPlan + "?deleted=true";
+	}
+
+	/**
+	 * Empleados que tienen el rol de Tecnico de Campo.
+	 *
+	 * El rol no vive en la ficha del empleado sino en la tabla usuario_has_rol,
+	 * asi que hay que cruzar: empleado -> usuario -> rol. Devuelve la lista
+	 * vacia si no se puede determinar (backend caido o ningun empleado con ese
+	 * rol); quien llama decide que hacer en ese caso.
+	 */
+	private List<EmpleadoResponseDto> tecnicosDeCampo(List<EmpleadoResponseDto> todos) {
+		List<EmpleadoResponseDto> tecnicos = new java.util.ArrayList<>();
+		try {
+			java.util.Set<Integer> usuariosTecnicos = new java.util.HashSet<>();
+			for (UsuariohasRolResponseDto asignacion : usuariohasRolService.listarUsuariohasRol()) {
+				if (asignacion.getFkUsuario() == null || asignacion.getFkRol() == null) {
+					continue;
+				}
+				if (esRolTecnicoDeCampo(asignacion.getFkRol().getNombre())) {
+					usuariosTecnicos.add(asignacion.getFkUsuario().getIdUsuario());
+				}
+			}
+			for (EmpleadoResponseDto emp : todos) {
+				if (emp.getFkUsuario() != null && usuariosTecnicos.contains(emp.getFkUsuario().getIdUsuario())) {
+					tecnicos.add(emp);
+				}
+			}
+		} catch (Exception e) {
+			return new java.util.ArrayList<>();
+		}
+		return tecnicos;
+	}
+
+	/**
+	 * El nombre del rol se escribe de varias formas en la base ("Tecnico de
+	 * Campo", "Técnico de campo"...), asi que se compara sin tildes, en
+	 * minusculas y por las dos palabras clave.
+	 */
+	private boolean esRolTecnicoDeCampo(String nombreRol) {
+		if (nombreRol == null) {
+			return false;
+		}
+		String limpio = java.text.Normalizer.normalize(nombreRol, java.text.Normalizer.Form.NFD)
+				.replaceAll("\\p{M}", "")
+				.toLowerCase();
+		return limpio.contains("tecnic") && limpio.contains("campo");
+	}
+
+	/**
+	 * True si la fecha es anterior a hoy. Se comparan dias, no instantes: la
+	 * fecha llega a medianoche desde el input type="date" y hoy trae hora, asi
+	 * que una comparacion directa rechazaria el propio dia de hoy.
+	 */
+	private boolean esFechaPasada(Date fecha) {
+		if (fecha == null) {
+			return false;
+		}
+		java.time.LocalDate dia = java.time.Instant.ofEpochMilli(fecha.getTime())
+				.atZone(java.time.ZoneId.systemDefault())
+				.toLocalDate();
+		return dia.isBefore(java.time.LocalDate.now());
 	}
 
 	// Devuelve al usuario a la pantalla desde la que guardo:

@@ -9,5 +9,8 @@ public class UsuariohasRolResponseDto {
 	
 	private int idUsuarioRol;
 	private Date fechaAsignacion;
+	
+	private UsuarioResponseDto fkUsuario;
+	private RolResponseDto fkRol;
 
 }
