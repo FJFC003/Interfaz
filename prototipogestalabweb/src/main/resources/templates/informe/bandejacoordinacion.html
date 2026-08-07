@@ -18,7 +18,7 @@ layout:decorate="~{/plantilla/plantilla}">
 
     <div class="alert alert-info small">
         <i class="fas fa-eye"></i>
-        Estos informes fueron enviados por el Laboratorio. Puede consultarlos y descargarlos en PDF.
+        Estos informes fueron enviados por el Laboratorio. Puede descargarlos en PDF.
         El contenido técnico no se edita desde aquí.
     </div>
 
@@ -65,11 +65,6 @@ layout:decorate="~{/plantilla/plantilla}">
                             </td>
                             <td>
                                 <a th:if="${i.fkOrdenTrabajo != null}"
-                                   th:href="@{/informe/ver/{id}(id=${i.fkOrdenTrabajo.idOT})}"
-                                   class="btn btn-sm btn-info" title="Ver informe">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a th:if="${i.fkOrdenTrabajo != null}"
                                    th:href="@{/informe/pdf/{id}(id=${i.fkOrdenTrabajo.idOT})}"
                                    class="btn btn-sm btn-danger" title="Descargar PDF">
                                     <i class="fas fa-file-pdf"></i>
@@ -89,4 +84,4 @@ layout:decorate="~{/plantilla/plantilla}">
 
 </div>
 </body>
-</html>
+</html>```
